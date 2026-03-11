@@ -2,3 +2,4 @@
 Dylan Coury\
 Peder Hornseth Nygaard\
 Mari Landsverk\
+Yusuf Selim Ocal\
