@@ -1,3 +1,4 @@
 # Team 6
-Dylan Coury
-Peder Hornseth Nygaard
+Dylan Coury\
+Peder Hornseth Nygaard\
+Mari Landsverk\
