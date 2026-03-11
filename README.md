@@ -1,3 +1,3 @@
 # Team 6
-Dylan Coury
+Dylan Coury/
 Peder Hornseth Nygaard
