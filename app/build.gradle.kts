@@ -1,6 +1,10 @@
+import org.jetbrains.kotlin.gradle.internal.types.error.ErrorModuleDescriptor.platform
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    kotlin("jvm")
+    kotlin("plugin.serialization") version "1.9.23"
 }
 
 android {
@@ -37,7 +41,28 @@ android {
     }
 }
 
+//Disse verdiene settes opp kun for å gjøre det enklere å endre
+//mange implementations på en gang, uten å måtte endre hver enkelt individuelt.
+
+val kotlinx_version = "1.10.0"
+val ktor_version = "3.4.0"
+val coil_version = "3.3.0"
+
 dependencies {
+    implementation("io.coil-kt.coil3:coil-compose:${coil_version}")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:${coil_version}")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinx_version}")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:${kotlinx_version}")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-xml:${kotlinx_version}")
+    implementation("ch.qos.logback:logback-classic:1.2.11")
+
+    implementation(platform("io.ktor:ktor-bom:$ktor_version"))
+    implementation("io.ktor:ktor-client-cio:${ktor_version}")
+    implementation("io.ktor:ktor-client-content-negotiation:${ktor_version}")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:${ktor_version}")
+    implementation("io.ktor:ktor-client-core:${ktor_version}")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
