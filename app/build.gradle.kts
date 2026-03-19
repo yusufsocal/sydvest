@@ -44,35 +44,33 @@ android {
 //mange implementations på en gang, uten å måtte endre hver enkelt individuelt.
 
 val kotlinx_version = "1.10.0"
-val ktor_version = "3.4.0"
-val coil_version = "3.3.0"
+val ktor_version = "3.0.0"
 val pvdrieze_version = "0.90.1"
 
 dependencies {
+    // Kun selve XML-motoren (denne finnes garantert på Maven Central)
     implementation("io.github.pdvrieze.xmlutil:serialization:0.90.1")
-    implementation("io.github.pdvrieze.xmlutil:core:0.90.1")
 
-    implementation("io.coil-kt.coil3:coil-compose:${coil_version}")
-    implementation("io.coil-kt.coil3:coil-network-okhttp:${coil_version}")
+    // Standard Ktor 3 (uten XML-plugins)
+    implementation("io.ktor:ktor-client-core:3.0.0")
+    implementation("io.ktor:ktor-client-cio:3.0.0")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinx_version}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:${kotlinx_version}")
+    // Coil & Logging
+    implementation("io.coil-kt.coil3:coil-compose:3.0.0")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0")
     implementation("ch.qos.logback:logback-classic:1.2.11")
 
-    implementation(platform("io.ktor:ktor-bom:$ktor_version"))
-    implementation("io.ktor:ktor-client-cio:${ktor_version}")
-    implementation("io.ktor:ktor-client-content-negotiation:${ktor_version}")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:${ktor_version}")
-    implementation("io.ktor:ktor-client-core:${ktor_version}")
+    // Kotlinx Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_version")
 
+    // AndroidX / Compose (behold dine eksisterende libs.androidx her)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
