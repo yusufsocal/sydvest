@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.internal.types.error.ErrorModuleDescriptor.pl
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-    kotlin("jvm")
     kotlin("plugin.serialization") version "1.9.23"
 }
 
@@ -47,14 +46,17 @@ android {
 val kotlinx_version = "1.10.0"
 val ktor_version = "3.4.0"
 val coil_version = "3.3.0"
+val pvdrieze_version = "0.90.1"
 
 dependencies {
+    implementation("io.github.pdvrieze.xmlutil:serialization:0.90.1")
+    implementation("io.github.pdvrieze.xmlutil:core:0.90.1")
+
     implementation("io.coil-kt.coil3:coil-compose:${coil_version}")
     implementation("io.coil-kt.coil3:coil-network-okhttp:${coil_version}")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinx_version}")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:${kotlinx_version}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-xml:${kotlinx_version}")
     implementation("ch.qos.logback:logback-classic:1.2.11")
 
     implementation(platform("io.ktor:ktor-bom:$ktor_version"))
