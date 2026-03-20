@@ -20,27 +20,34 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun MapScreen(
     mapScreenUiState: MapScreenUiState, // Mottar hele staten
 ) {
-    // Vi henter ut staten fra ViewModel
-
     Box(modifier = Modifier.fillMaxSize()) {
-        // 1. KARTET (Bakgrunn)
+        // KART
         AndroidView(
             factory = { context ->
                 WebView(context).apply {
@@ -60,38 +67,70 @@ fun MapScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        // 2. OVERLEGG (Listen med værlag)
+        // LISTE MED VÆRLAG (DROPDOWN)
         if (mapScreenUiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
-            // Vi lager en liten rullemeny øverst på skjermen
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth(0.7f) // Ikke dekk hele skjermen
-                    .padding(16.dp)
-                    .background(Color.White.copy(alpha = 0.8f), RoundedCornerShape(8.dp))
-                    .padding(8.dp)
-                    .align(Alignment.TopStart)
-            ) {
-                item {
-                    Text(
-                        "Tilgjengelige værlag (Norden):",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    HorizontalDivider()
-                }
+            var expanded by remember { mutableStateOf(false) }
+            var selectedOptionText by remember { mutableStateOf("Velg værlag...") }
 
-                items(mapScreenUiState.lagListe) { lag ->
-                    Text(
-                        text = lag.title, // Her bruker vi "title" fra WmsLayer!
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .align(Alignment.TopCenter) // Sørger for at den ligger øverst
+            ) {
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+                    TextField(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                            .clickable {
-                                Log.d("Map", "Bruker valgte: ${lag.name}")
-                                // Her kan du senere sende lag.name til WebView via JavaScript!
-                            }, style = MaterialTheme.typography.bodyMedium
+                            .menuAnchor() // KRITISK: Denne kobler TextField til menyen
+                            .fillMaxWidth(),
+                        readOnly = true,
+                        value = selectedOptionText,
+                        onValueChange = {},
+                        label = { Text("Velg værlag (Norden)") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        colors = ExposedDropdownMenuDefaults.textFieldColors(
+                            focusedContainerColor = Color(0xFFF7FCFE),
+                            unfocusedContainerColor = Color(0xFFF7FCFE)
+                        )
                     )
+
+                    // Vi sjekker om det faktisk er noe i lista før vi prøver å vise menyen
+                    if (mapScreenUiState.lagListe.isNotEmpty()) {
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            mapScreenUiState.lagListe.forEach { lag ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(text = lag.title)
+                                    },
+                                    onClick = {
+                                        selectedOptionText = lag.title
+                                        expanded = false
+                                        Log.d("Map", "Valgt lag: ${lag.name}")
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
+                        }
+                    } else {
+                        // Hvis lista er tom, viser vi en liten hjelpetekst i steden
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Laster lag...") },
+                                onClick = { expanded = false }
+                            )
+                        }
+                    }
                 }
             }
         }
