@@ -5,30 +5,40 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 
+
 //@SerialName sørger for at man kan hente data fra XML-fil med stor forbokstav, men gjør
 //at dataen initialiseres til en variabel med liten forbokstav, slik at man følger riktig kodepraksis.
 
 @Serializable
-@XmlSerialName("WMS_Capabilities") // Roten
+@XmlSerialName("WMS_Capabilities", namespace = "http://www.opengis.net/wms", prefix = "")
 data class WmsCapabilities(
-    @SerialName("Capability") val capability: Capability
-) {
-    companion object
-}
+    @SerialName("version")
+    val version: String = "",
+    @XmlSerialName("Capability", namespace = "http://www.opengis.net/wms", prefix = "")
+    val capability: Capability
+)
 
 @Serializable
+@XmlSerialName("Capability", namespace = "http://www.opengis.net/wms", prefix = "")
 data class Capability(
-    @SerialName("Layer") val rootLayer: ParentLayer // Går inn i det første Layer-nivået
+    @XmlSerialName("Layer", namespace = "http://www.opengis.net/wms", prefix = "")
+    val rootLayer: ParentLayer // Dette er "Victoria WMS" root-laget
 )
 
 @Serializable
+@XmlSerialName("Layer", namespace = "http://www.opengis.net/wms", prefix = "")
 data class ParentLayer(
-    @SerialName("Layer") val wmsListe: List<WmsLayer> // Henter listen med de faktiske lagene
+    @SerialName("Title") val title: String,
+    // Her sier vi at alle <Layer> tagger inni dette laget skal i listen
+    @XmlSerialName("Layer", namespace = "http://www.opengis.net/wms", prefix = "")
+    val wmsListe: List<WmsLayer> = emptyList()
 )
 
 @Serializable
+@XmlSerialName("Layer", namespace = "http://www.opengis.net/wms", prefix = "")
 data class WmsLayer(
-    @SerialName("Name") val name: String, //datanavn på datatype
-    @SerialName("Title") val title: String, //lesbart navn på datatype
-    @SerialName("Dimension") val dimension: String? = null //Tidsintervall
+    @SerialName("Name") val name: String = "",
+    @SerialName("Title") val title: String = "",
+    // Dimension er ofte et element med tekstinnhold, ikke bare en attributt
+    @SerialName("Dimension") val dimension: String? = null
 )
