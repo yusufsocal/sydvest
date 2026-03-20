@@ -16,6 +16,7 @@ class WMSDataSource {
         defaultPolicy {
             ignoreUnknownChildren()
         }
+        repairNamespaces = true
     }
 
     suspend fun fetchWmsCapabilities(model: AreaData): WmsCapabilities? {
