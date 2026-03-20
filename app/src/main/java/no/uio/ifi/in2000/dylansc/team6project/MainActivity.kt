@@ -3,45 +3,39 @@ package no.uio.ifi.in2000.dylansc.team6project
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import no.uio.ifi.in2000.dylansc.team6project.ui.theme.Team6ProjectTheme
+import androidx.navigation.compose.rememberNavController
+import no.uio.ifi.in2000.dylansc.team6project.data.WMSDataSource
+import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
+import no.uio.ifi.in2000.dylansc.team6project.ui.AppNavHost
 
 class MainActivity : ComponentActivity() {
+
+    // Instansiering av datakildene manuelt (Dependency Injection)
+    private val wmsDataSource = WMSDataSource()
+    private val locationRepo = LocationRepository(wmsDataSource)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
         setContent {
-            Team6ProjectTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            MaterialTheme {
+                // A surface container using the 'background' color from the theme
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    //Oppretter en NavHost
+                    val navController = rememberNavController()
+                    AppNavHost(navController, locationRepo)
+
+
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Team6ProjectTheme {
-        Greeting("Android")
     }
 }
