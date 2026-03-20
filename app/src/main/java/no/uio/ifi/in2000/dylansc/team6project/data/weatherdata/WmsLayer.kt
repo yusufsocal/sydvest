@@ -12,7 +12,9 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("WMS_Capabilities") // Roten
 data class WmsCapabilities(
     @SerialName("Capability") val capability: Capability
-)
+) {
+    companion object
+}
 
 @Serializable
 data class Capability(

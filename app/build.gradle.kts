@@ -46,8 +46,14 @@ android {
 val kotlinx_version = "1.10.0"
 val ktor_version = "3.0.0"
 val pvdrieze_version = "0.90.1"
+val nav_version = "2.9.7"
 
 dependencies {
+    implementation("androidx.navigation:navigation-compose:${nav_version}")
+    implementation("androidx.navigation:navigation-fragment:${nav_version}")
+    implementation("androidx.navigation:navigation-ui:${nav_version}")
+    implementation("androidx.navigation:navigation-dynamic-features-fragment:${nav_version}")
+
     // Kun selve XML-motoren (denne finnes garantert på Maven Central)
     implementation("io.github.pdvrieze.xmlutil:serialization:0.90.1")
 
