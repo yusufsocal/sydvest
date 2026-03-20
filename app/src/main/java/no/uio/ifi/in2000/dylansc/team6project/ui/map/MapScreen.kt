@@ -36,7 +36,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 @Composable
 fun MapScreen(
     mapScreenUiState: MapScreenUiState, // Mottar hele staten
-
 ) {
     // Vi henter ut staten fra ViewModel
 
@@ -62,7 +61,7 @@ fun MapScreen(
         )
 
         // 2. OVERLEGG (Listen med værlag)
-        if (uiState.isLoading) {
+        if (mapScreenUiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
             // Vi lager en liten rullemeny øverst på skjermen
@@ -82,7 +81,7 @@ fun MapScreen(
                     HorizontalDivider()
                 }
 
-                items(uiState.lagListe) { lag ->
+                items(mapScreenUiState.lagListe) { lag ->
                     Text(
                         text = lag.title, // Her bruker vi "title" fra WmsLayer!
                         modifier = Modifier

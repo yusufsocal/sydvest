@@ -20,6 +20,7 @@ fun AppNavHost(
     locationRepo: LocationRepository,
 
 ) {
+    //Hoister ViewModel opp til NavHost
     val mapViewModel: MapViewModel = viewModel(
         factory = MapViewModel.provideFactory(locationRepo)
     )

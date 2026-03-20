@@ -8,21 +8,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.dylansc.team6project.data.WMSDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.OpenLayersMapScreen
+import no.uio.ifi.in2000.dylansc.team6project.ui.AppNavHost
 
 class MainActivity : ComponentActivity() {
 
-    // 1. Vi instansierer datakildene manuelt her (Dependency Injection)
+    // Instansiering av datakildene manuelt (Dependency Injection)
     private val wmsDataSource = WMSDataSource()
-    private val locationRepository = LocationRepository(wmsDataSource)
-
-    // 2. Vi bruker din provideFactory for å lage ViewModel
-    private val mapViewModel: MapViewModel by viewModels {
-        MapViewModel.provideFactory(locationRepository)
-    }
+    private val locationRepo = LocationRepository(wmsDataSource)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,8 +29,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // 3. Vi sender ViewModel inn til skjermen din
-                    OpenLayersMapScreen(viewModel = mapViewModel)
+                    //Oppretter en NavHost
+                    val navController = rememberNavController()
+                    AppNavHost(navController, locationRepo)
+
+
                 }
             }
         }
