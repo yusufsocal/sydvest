@@ -46,11 +46,13 @@ import androidx.compose.ui.viewinterop.AndroidView
 fun MapScreen(
     mapScreenUiState: MapScreenUiState, // Mottar hele staten
 ) {
+    var webViewRef by remember { mutableStateOf<WebView?>(null) }
     Box(modifier = Modifier.fillMaxSize()) {
         // KART
         AndroidView(
             factory = { context ->
                 WebView(context).apply {
+                    webViewRef = this
                     // Viktig for å se JS-feil i Logcat!
                     webChromeClient = object : WebChromeClient() {
                         override fun onConsoleMessage(msg: ConsoleMessage?): Boolean {
@@ -63,8 +65,7 @@ fun MapScreen(
                     settings.domStorageEnabled = true
                     loadUrl("file:///android_asset/map.html")
                 }
-            },
-            modifier = Modifier.fillMaxSize()
+            }, modifier = Modifier.fillMaxSize()
         )
 
         // LISTE MED VÆRLAG (DROPDOWN)
@@ -81,9 +82,7 @@ fun MapScreen(
                     .align(Alignment.TopCenter) // Sørger for at den ligger øverst
             ) {
                 ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }
-                ) {
+                    expanded = expanded, onExpandedChange = { expanded = !expanded }) {
                     TextField(
                         modifier = Modifier
                             .menuAnchor() // KRITISK: Denne kobler TextField til menyen
@@ -102,18 +101,16 @@ fun MapScreen(
                     // Vi sjekker om det faktisk er noe i lista før vi prøver å vise menyen
                     if (mapScreenUiState.lagListe.isNotEmpty()) {
                         ExposedDropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
+                            expanded = expanded, onDismissRequest = { expanded = false }) {
                             mapScreenUiState.lagListe.forEach { lag ->
                                 DropdownMenuItem(
                                     text = {
-                                        Text(text = lag.title)
-                                    },
+                                    Text(text = lag.title)
+                                },
                                     onClick = {
                                         selectedOptionText = lag.title
                                         expanded = false
-                                        Log.d("Map", "Valgt lag: ${lag.name}")
+                                        webViewRef?.evaluateJavascript("addWmsLayer('${lag.name}')", null)
                                     },
                                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                                 )
@@ -122,13 +119,10 @@ fun MapScreen(
                     } else {
                         // Hvis lista er tom, viser vi en liten hjelpetekst i steden
                         ExposedDropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
+                            expanded = expanded, onDismissRequest = { expanded = false }) {
                             DropdownMenuItem(
                                 text = { Text("Laster lag...") },
-                                onClick = { expanded = false }
-                            )
+                                onClick = { expanded = false })
                         }
                     }
                 }

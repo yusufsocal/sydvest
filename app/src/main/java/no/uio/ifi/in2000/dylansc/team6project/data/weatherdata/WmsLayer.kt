@@ -3,6 +3,8 @@ package no.uio.ifi.in2000.dylansc.team6project.data.weatherdata
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.XmlElement
+
 
 
 
@@ -28,8 +30,7 @@ data class Capability(
 @Serializable
 @XmlSerialName("Layer", namespace = "http://www.opengis.net/wms", prefix = "")
 data class ParentLayer(
-    @SerialName("Title") val title: String,
-    // Her sier vi at alle <Layer> tagger inni dette laget skal i listen
+    @XmlElement(true) @SerialName("Title") val title: String = "",
     @XmlSerialName("Layer", namespace = "http://www.opengis.net/wms", prefix = "")
     val wmsListe: List<WmsLayer> = emptyList()
 )
@@ -37,8 +38,7 @@ data class ParentLayer(
 @Serializable
 @XmlSerialName("Layer", namespace = "http://www.opengis.net/wms", prefix = "")
 data class WmsLayer(
-    @SerialName("Name") val name: String = "",
-    @SerialName("Title") val title: String = "",
-    // Dimension er ofte et element med tekstinnhold, ikke bare en attributt
-    @SerialName("Dimension") val dimension: String? = null
+    @XmlElement(true) @SerialName("Name") val name: String = "",
+    @XmlElement(true) @SerialName("Title") val title: String = "",
+    @XmlElement(true) @SerialName("Dimension") val dimension: String? = null
 )
