@@ -2,6 +2,7 @@
 
 package no.uio.ifi.in2000.dylansc.team6project.ui.map
 
+import android.R.attr.text
 import android.annotation.SuppressLint
 import android.util.Log
 import android.webkit.ConsoleMessage
@@ -39,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled")
@@ -103,9 +105,16 @@ fun MapScreen(
                         ExposedDropdownMenu(
                             expanded = expanded, onDismissRequest = { expanded = false }) {
                             mapScreenUiState.lagListe.forEach { lag ->
+                                //PROSJEKT CUSTOM AREA
+                                //Legg til funksjonalitet for å fjerne suffix basert på hvilket område som benyttes
+                                var nyTitle: String = ""
+                                if (mapScreenUiState.area == AreaData.NORDEN) {
+                                    nyTitle = lag.title.removeSuffix("in MEPS VDIV")
+                                }
+                                //
                                 DropdownMenuItem(
                                     text = {
-                                    Text(text = lag.title)
+                                    Text(text = nyTitle)
                                 },
                                     onClick = {
                                         selectedOptionText = lag.title

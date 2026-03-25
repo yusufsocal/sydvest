@@ -2,6 +2,7 @@
 
 package no.uio.ifi.in2000.dylansc.team6project.ui.map
 
+import android.icu.number.Scale.none
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -16,11 +17,15 @@ import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 
 data class MapScreenUiState(
     val lagListe: List<WMSLayer> = emptyList(),
+    //PROSJEKT CUSTOM AREA
+    val area: AreaData? = null,
+    //
     val isLoading: Boolean = true
 )
 
 class MapViewModel(
-    private val locationRepo: LocationRepository
+    private val locationRepo: LocationRepository,
+    private var newArea: AreaData
 ): ViewModel() {
     private val _uiState = MutableStateFlow(MapScreenUiState())
     val uiState: StateFlow<MapScreenUiState> = _uiState.asStateFlow()
@@ -28,11 +33,14 @@ class MapViewModel(
     init {
         viewModelScope.launch {
             try {
-                val vaerlagListe = locationRepo.getArea(AreaData.NORDEN) ?: emptyList()
+                val vaerlagListe = locationRepo.getArea(newArea) ?: emptyList()
                 _uiState.update {
                     it.copy(
                         lagListe = vaerlagListe,
-                        isLoading = false
+                        isLoading = false,
+                        //PROSJEKT CUSTOM AREA
+                        area = newArea
+                        //
                     )
                 }
             } catch (e: Exception) {
@@ -44,9 +52,12 @@ class MapViewModel(
     companion object {
         fun provideFactory(
             locationRepo: LocationRepository,
+            //PROSJEKT CUSTOM AREA
+            area: AreaData
+            //
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return MapViewModel(locationRepo) as T
+                return MapViewModel(locationRepo, area) as T
             }
         }
     }

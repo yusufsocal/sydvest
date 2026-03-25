@@ -10,6 +10,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
+import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
+import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSource
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapScreen
 
@@ -17,12 +19,17 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapScreen
 fun AppNavHost(
     navController: NavHostController,
     //Alle repositories sendes hit! Husk å oppdatere etter hvert som vi får flere!
-    locationRepo: LocationRepository,
-
 ) {
+    val wmsDataSource = WMSDataSource()
+    val locationRepo = LocationRepository(wmsDataSource)
+    //PROSJEKT CUSTOM AREA -> Foreløpig placeholder for opprettelse av variabel for når
+    //hvilken data som skal benyttes velges ->
+    var area: AreaData = AreaData.NORDEN
+    //
+
     //Hoister ViewModel opp til NavHost
     val mapViewModel: MapViewModel = viewModel(
-        factory = MapViewModel.provideFactory(locationRepo)
+        factory = MapViewModel.provideFactory(locationRepo, area)
     )
     val uiState by mapViewModel.uiState.collectAsState()
 

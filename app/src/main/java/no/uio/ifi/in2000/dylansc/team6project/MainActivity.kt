@@ -3,22 +3,16 @@ package no.uio.ifi.in2000.dylansc.team6project
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSource
-import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
 import no.uio.ifi.in2000.dylansc.team6project.ui.AppNavHost
 
 class MainActivity : ComponentActivity() {
 
     // Instansiering av datakildene manuelt (Dependency Injection)
-    private val wmsDataSource = WMSDataSource()
-    private val locationRepo = LocationRepository(wmsDataSource)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -31,7 +25,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     //Oppretter en NavHost
                     val navController = rememberNavController()
-                    AppNavHost(navController, locationRepo)
+                    AppNavHost(navController)
 
 
                 }
