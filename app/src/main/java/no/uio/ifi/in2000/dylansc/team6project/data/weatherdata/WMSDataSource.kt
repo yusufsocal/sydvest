@@ -17,7 +17,7 @@ class WMSDataSource {
         repairNamespaces = true
     }
 
-    suspend fun fetchWmsCapabilities(model: AreaData): WmsCapabilities? {
+    suspend fun fetchWmsCapabilities(model: AreaData): WMSCapabilities? {
         val url = "https://public-victoria.met.no/wms?service=WMS&version=1.3.0&request=GetCapabilities&model=${model.area}"
 
         return try {
@@ -25,7 +25,7 @@ class WMSDataSource {
             val xmlString = response.bodyAsText() // Her får vi rå-XML-en
 
             // Vi parser teksten manuelt til objektet ditt
-            xmlParser.decodeFromString(WmsCapabilities.serializer(), xmlString)
+            xmlParser.decodeFromString(WMSCapabilities.serializer(), xmlString)
         } catch (e: Exception) {
             e.printStackTrace() // Nyttig for feilsøking i Logcat
             null

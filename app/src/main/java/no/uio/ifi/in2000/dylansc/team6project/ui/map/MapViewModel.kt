@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WmsLayer
+import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 
 data class MapScreenUiState(
-    val lagListe: List<WmsLayer> = emptyList(),
+    val lagListe: List<WMSLayer> = emptyList(),
     val isLoading: Boolean = true
 )
 

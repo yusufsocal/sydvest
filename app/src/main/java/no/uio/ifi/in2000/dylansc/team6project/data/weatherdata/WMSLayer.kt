@@ -13,7 +13,7 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 
 @Serializable
 @XmlSerialName("WMS_Capabilities", namespace = "http://www.opengis.net/wms", prefix = "")
-data class WmsCapabilities(
+data class WMSCapabilities(
     @SerialName("version")
     val version: String = "",
     @XmlSerialName("Capability", namespace = "http://www.opengis.net/wms", prefix = "")
@@ -32,12 +32,12 @@ data class Capability(
 data class ParentLayer(
     @XmlElement(true) @SerialName("Title") val title: String = "",
     @XmlSerialName("Layer", namespace = "http://www.opengis.net/wms", prefix = "")
-    val wmsListe: List<WmsLayer> = emptyList()
+    val wmsListe: List<WMSLayer> = emptyList()
 )
 
 @Serializable
 @XmlSerialName("Layer", namespace = "http://www.opengis.net/wms", prefix = "")
-data class WmsLayer(
+data class WMSLayer(
     @XmlElement(true) @SerialName("Name") val name: String = "",
     @XmlElement(true) @SerialName("Title") val title: String = "",
     @XmlElement(true) @SerialName("Dimension") val dimension: String? = null
