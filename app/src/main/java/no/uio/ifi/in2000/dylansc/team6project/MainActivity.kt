@@ -9,7 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import no.uio.ifi.in2000.dylansc.team6project.data.WMSDataSource
+import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
 import no.uio.ifi.in2000.dylansc.team6project.ui.AppNavHost
 

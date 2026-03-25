@@ -1,12 +1,10 @@
-package no.uio.ifi.in2000.dylansc.team6project.data
+package no.uio.ifi.in2000.dylansc.team6project.data.weatherdata
 
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText // Henter XML som String
+import io.ktor.client.statement.bodyAsText
 import nl.adaptivity.xmlutil.serialization.XML
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WmsCapabilities
 
 class WMSDataSource {
     private val client = HttpClient(CIO)
