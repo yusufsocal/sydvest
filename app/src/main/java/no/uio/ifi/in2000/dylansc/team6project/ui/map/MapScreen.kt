@@ -2,6 +2,8 @@
 
 package no.uio.ifi.in2000.dylansc.team6project.ui.map
 
+import android.R
+import android.R.attr.onClick
 import android.R.attr.text
 import android.annotation.SuppressLint
 import android.util.Log
@@ -17,9 +19,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +32,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -39,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,8 +60,12 @@ fun MapScreen(
     mapScreenUiState: MapScreenUiState, // Mottar hele staten
 ) {
     var webViewRef by remember { mutableStateOf<WebView?>(null) }
+    var showAlerts by remember { mutableStateOf(false)}
 
-    // Send farevarsler til kartet når listen endrer seg
+
+    /*
+    // Send farevarsler til kartet når listen endrer seg -> KAN KANSKJE FJERNES
+    
     LaunchedEffect(mapScreenUiState.alertList, webViewRef) {
         if (mapScreenUiState.alertList.isNotEmpty() && webViewRef != null) {
             // Konverterer hele listen med AlertFeature (inkl. JsonElement-geometri) til JSON-streng
@@ -65,7 +76,8 @@ fun MapScreen(
 
             webViewRef?.evaluateJavascript("drawAlerts('$safeJson')", null)
         }
-    }
+    }*/
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         // KART
@@ -152,6 +164,27 @@ fun MapScreen(
                     }
                 }
             }
+        }
+
+        //Knapp for å aktivere farevarsler på kartet.
+        OutlinedButton( //Kan byttes ut med IconButton
+            onClick = {
+                showAlerts = !showAlerts
+                if (showAlerts) {
+                    val jsonString = Json.encodeToString(mapScreenUiState.alertList)
+                    webViewRef?.evaluateJavascript("drawAlerts('${jsonString.replace("'", "\\'")}')", null)
+                } else {
+                    webViewRef?.evaluateJavascript("alertVectorSource.clear()", null)
+                }
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = "Farevarsler",
+                color = Color.Black
+                )
         }
     }
 }
