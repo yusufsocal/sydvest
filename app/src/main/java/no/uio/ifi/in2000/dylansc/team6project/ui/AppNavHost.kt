@@ -49,7 +49,8 @@ fun AppNavHost(
         // Rute 1 -> Hjemskjerm
         composable("home") {
             MapScreen(
-                mapScreenUiState = uiState,
+                uiState,
+                mapViewModel
             )
         }
     }
