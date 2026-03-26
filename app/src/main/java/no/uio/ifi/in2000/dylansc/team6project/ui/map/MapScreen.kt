@@ -97,7 +97,7 @@ fun MapScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .align(Alignment.TopCenter) // Sørger for at den ligger øverst
+                    .align(Alignment.BottomCenter) // Sørger for at den ligger øverst
             ) {
                 ExposedDropdownMenuBox(
                     expanded = expanded, onExpandedChange = { expanded = !expanded }) {
