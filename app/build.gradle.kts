@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.internal.types.error.ErrorModuleDescriptor.platform
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -45,7 +43,6 @@ android {
 
 val kotlinx_version = "1.10.0"
 val ktor_version = "3.0.0"
-val pvdrieze_version = "0.90.1"
 val nav_version = "2.9.7"
 
 dependencies {
@@ -54,7 +51,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui:${nav_version}")
     implementation("androidx.navigation:navigation-dynamic-features-fragment:${nav_version}")
 
-    // Kun selve XML-motoren (denne finnes garantert på Maven Central)
+    // Kun selve XML-motoren
     implementation("io.github.pdvrieze.xmlutil:serialization:0.90.1")
 
     // Standard Ktor 3 (uten XML-plugins)
@@ -66,8 +63,20 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0")
     implementation("ch.qos.logback:logback-classic:1.2.11")
 
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
+    implementation("ch.qos.logback:logback-classic:1.2.11")
+
+    implementation(platform("io.ktor:ktor-bom:$ktor_version"))
+    implementation("io.ktor:ktor-client-cio:${ktor_version}")
+    implementation("io.ktor:ktor-client-content-negotiation:${ktor_version}")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:${ktor_version}")
+    implementation("io.ktor:ktor-client-core:${ktor_version}")
+
     // Kotlinx Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_version")
+
+
 
     // AndroidX / Compose (behold dine eksisterende libs.androidx her)
     implementation(libs.androidx.core.ktx)

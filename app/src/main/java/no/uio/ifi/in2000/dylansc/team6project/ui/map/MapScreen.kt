@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,8 +39,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import kotlinx.serialization.json.Json
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,6 +53,20 @@ fun MapScreen(
     mapScreenUiState: MapScreenUiState, // Mottar hele staten
 ) {
     var webViewRef by remember { mutableStateOf<WebView?>(null) }
+
+    // Send farevarsler til kartet når listen endrer seg
+    LaunchedEffect(mapScreenUiState.alertList, webViewRef) {
+        if (mapScreenUiState.alertList.isNotEmpty() && webViewRef != null) {
+            // Konverterer hele listen med AlertFeature (inkl. JsonElement-geometri) til JSON-streng
+            val jsonString = Json.encodeToString(mapScreenUiState.alertList)
+
+            // Vi må "escape" strengen litt for at JS skal tåle den som et argument
+            val safeJson = jsonString.replace("'", "\\'")
+
+            webViewRef?.evaluateJavascript("drawAlerts('$safeJson')", null)
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         // KART
         AndroidView(
@@ -69,14 +87,12 @@ fun MapScreen(
                 }
             }, modifier = Modifier.fillMaxSize()
         )
-
         // LISTE MED VÆRLAG (DROPDOWN)
         if (mapScreenUiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
             var expanded by remember { mutableStateOf(false) }
             var selectedOptionText by remember { mutableStateOf("Velg værlag...") }
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -101,15 +117,15 @@ fun MapScreen(
                     )
 
                     // Vi sjekker om det faktisk er noe i lista før vi prøver å vise menyen
-                    if (mapScreenUiState.lagListe.isNotEmpty()) {
+                    if (mapScreenUiState.layerList.isNotEmpty()) {
                         ExposedDropdownMenu(
                             expanded = expanded, onDismissRequest = { expanded = false }) {
-                            mapScreenUiState.lagListe.forEach { lag ->
+                            mapScreenUiState.layerList.forEach { layer ->
                                 //PROSJEKT CUSTOM AREA
                                 //Legg til funksjonalitet for å fjerne suffix basert på hvilket område som benyttes
                                 var nyTitle: String = ""
                                 if (mapScreenUiState.area == AreaData.NORDEN) {
-                                    nyTitle = lag.title.removeSuffix("in MEPS VDIV")
+                                    nyTitle = layer.title.removeSuffix("in MEPS VDIV")
                                 }
                                 //
                                 DropdownMenuItem(
@@ -117,9 +133,9 @@ fun MapScreen(
                                     Text(text = nyTitle)
                                 },
                                     onClick = {
-                                        selectedOptionText = lag.title
+                                        selectedOptionText = layer.title
                                         expanded = false
-                                        webViewRef?.evaluateJavascript("addWmsLayer('${lag.name}')", null)
+                                        webViewRef?.evaluateJavascript("addWmsLayer('${layer.name}')", null)
                                     },
                                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                                 )
