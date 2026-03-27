@@ -23,6 +23,8 @@ data class MapScreenUiState(
     val alertList: List<AlertFeature> = emptyList(),
     //Boolean som sjekker om en side laster eller ikke
     val isLoading: Boolean = true,
+    //Holder på informasjonen til det varselet som er trykket på
+    val selectedAlertJson: String? = null,
 
     //PROSJEKT CUSTOM AREA - Brukes i sammenheng med Victoria for å bestemme datalag
     val area: AreaData? = null,
@@ -56,6 +58,12 @@ class MapViewModel(
                 android.util.Log.e("ViewModel", "Feil ved henting av data: ${e.message}")
             }
 
+        }
+    }
+
+    fun setSelectedAlert(json: String?) {
+        _uiState.update {
+            it.copy(selectedAlertJson = json)
         }
     }
     companion object {

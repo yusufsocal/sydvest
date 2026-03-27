@@ -1,148 +1,183 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <style>
-        html, body { margin: 0; padding: 0; overflow: hidden; }
-        #map { width: 100vw; height: 100vh; }
-    </style>
-</head>
-<body>
-<div id="map"></div>
-<script>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            html, body { margin: 0; padding: 0; overflow: hidden; }
+            #map { width: 100vw; height: 100vh; }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <script type="text/javascript">
 
-    var map = null;
-    var wmsLayer = null;
-    var alertVectorSource = null; // Kilde for farevarslene (OpenLayers VectorSource)
+            var map = null;
+            var wmsLayer = null;
+            var alertVectorSource = null; // Kilde for farevarslene (OpenLayers VectorSource)
 
-    function addWmsLayer(layerName) {
-        if (!map) return;
-        if (wmsLayer) {
-            map.removeLayer(wmsLayer);
-        }
-        wmsLayer = new ol.layer.Tile({
-            source: new ol.source.TileWMS({
-                url: 'https://public-victoria.met.no/wms',
-                params: {
-                    'LAYERS': layerName,
-                    'model': 'meps_det_vdiv_2_5km_calculations',
-                    'VERSION': '1.3.0',
-                    'FORMAT': 'image/png',
-                    'TRANSPARENT': true
+
+            function addWmsLayer(layerName) {
+                if (!map) return;
+                if (wmsLayer) {
+                    map.removeLayer(wmsLayer);
                 }
-            }),
-            opacity: 0.7
-        });
-        map.addLayer(wmsLayer);
-    }
-
-    // --- NY FUNKSJON FOR Å TEGNE FAREVARSLER ---
-    function drawAlerts(jsonString) {
-        // Vent til kartet og kilden er klare
-        if (!map || !alertVectorSource) {
-            // Prøv igjen om 200ms hvis vi ble kalt for tidlig
-            setTimeout(function() { drawAlerts(jsonString); }, 200);
-            return;
-        }
-
-        // Tømmer gamle varsler
-        alertVectorSource.clear();
-
-        const alerts = JSON.parse(jsonString);
-
-        // OpenLayers sin standard-måte å lese GeoJSON på
-        const geoJsonFormat = new ol.format.GeoJSON();
-
-        alerts.forEach(alert => {
-            // Sjekk at vi faktisk har geometri
-            if (!alert.geometry) return;
-
-            // Lag en OpenLayers 'Feature' fra GeoJSON
-            const feature = geoJsonFormat.readFeature({
-                "type": "Feature",
-                // Dette dytter ditt 'JsonElement' (koordinatene) direkte inn
-                "geometry": alert.geometry,
-                "properties": alert.properties
-            }, {
-                // VIKTIG: Konverter fra METs GPS-koordinater til OpenLayers kart-koordinater
-                dataProjection: 'EPSG:4326',
-                featureProjection: 'EPSG:3857'
-            });
-
-            // Sett farge basert på riskMatrixColor (Heks-koder vi velger selv)
-            let color;
-            switch(alert.properties.riskMatrixColor) {
-                case "Red": color = 'rgba(255, 0, 0, 0.4)'; break;      // Rød (gjennomsiktig)
-                case "Orange": color = 'rgba(255, 153, 0, 0.4)'; break; // Oransje
-                case "Yellow": color = 'rgba(255, 255, 0, 0.4)'; break; // Gul
-                default: color = 'rgba(0, 255, 0, 0.4)';               // Grønn
+                wmsLayer = new ol.layer.Tile({
+                    source: new ol.source.TileWMS({
+                        url: 'https://public-victoria.met.no/wms',
+                        params: {
+                            'LAYERS': layerName,
+                            'model': 'meps_det_vdiv_2_5km_calculations',
+                            'VERSION': '1.3.0',
+                            'FORMAT': 'image/png',
+                            'TRANSPARENT': true
+                        }
+                    }),
+                    opacity: 0.7
+                });
+                map.addLayer(wmsLayer);
             }
 
-            // Lag en stil for polygonet
-            const style = new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: color
-                }),
-                stroke: new ol.style.Stroke({
-                    color: 'rgba(255, 255, 255, 0.8)', // Hvit kantlinje
-                    width: 1
-                })
-            });
+            // --- NY FUNKSJON FOR Å TEGNE FAREVARSLER ---
+            function drawAlerts(jsonString) {
+                // Vent til kartet og kilden er klare
+                if (!map || !alertVectorSource) {
+                    // Prøv igjen om 200ms hvis vi ble kalt for tidlig
+                    setTimeout(function() { drawAlerts(jsonString); }, 200);
+                    return;
+                }
 
-            feature.setStyle(style);
+                // Tømmer gamle varsler
+                alertVectorSource.clear();
 
-            // Legg varslet til kilden
-            alertVectorSource.addFeature(feature);
-        });
-    }
-    // ------------------------------------------
+                const alerts = JSON.parse(jsonString);
 
-    var link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdn.jsdelivr.net/npm/ol@10.5.0/ol.css';
-    document.head.appendChild(link);
+                // OpenLayers sin standard-måte å lese GeoJSON på
+                const geoJsonFormat = new ol.format.GeoJSON();
 
-    var script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/ol@10.5.0/dist/ol.js';
-    script.onload = function() {
-        setTimeout(function() {
-            var el = document.getElementById('map');
-            el.style.width = window.innerWidth + 'px';
-            el.style.height = window.innerHeight + 'px';
+                alerts.forEach(alert => {
+                    // Sjekk at vi faktisk har geometri
+                    if (!alert.geometry) return;
 
-            map = new ol.Map({
-                target: 'map',
-                layers: [
-                    new ol.layer.Tile({
-                        source: new ol.source.XYZ({
-                            url: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-                            attributions: '&copy; OpenStreetMap contributors &copy; CARTO'
+                    // Lag en OpenLayers 'Feature' fra GeoJSON
+                    const feature = geoJsonFormat.readFeature({
+                        "type": "Feature",
+                        // Dette dytter ditt 'JsonElement' (koordinatene) direkte inn
+                        "geometry": alert.geometry,
+                        "properties": alert.properties
+                    }, {
+                        // VIKTIG: Konverter fra METs GPS-koordinater til OpenLayers kart-koordinater
+                        dataProjection: 'EPSG:4326',
+                        featureProjection: 'EPSG:3857'
+                    });
+
+                    // Sett farge basert på riskMatrixColor (Heks-koder vi velger selv)
+                    let color;
+                    switch(alert.properties.riskMatrixColor) {
+                        case "Red": color = 'rgba(255, 0, 0, 0.4)'; break;      // Rød (gjennomsiktig)
+                        case "Orange": color = 'rgba(255, 153, 0, 0.4)'; break; // Oransje
+                        case "Yellow": color = 'rgba(255, 255, 0, 0.4)'; break; // Gul
+                        default: color = 'rgba(0, 255, 0, 0.4)';               // Grønn
+                    }
+
+                    // Lag en stil for polygonet
+                    const style = new ol.style.Style({
+                        fill: new ol.style.Fill({
+                            color: color
+                        }),
+                        stroke: new ol.style.Stroke({
+                            color: 'rgba(255, 255, 255, 0.8)', // Hvit kantlinje
+                            width: 1
                         })
-                    })
-                ],
-                view: new ol.View({
-                    center: ol.proj.fromLonLat([10.75, 59.91]),
-                    zoom: 11
-                })
-            });
-            // --- NYTT: OPPRETT ET LAG FOR FAREVARSLER ---
-            // Vi trenger en kilde (Source) for polygonene
-            alertVectorSource = new ol.source.Vector();
+                    });
 
-            // Vi trenger et lag (Layer) for å vise kilden på kartet
-            var alertLayer = new ol.layer.Vector({
-                source: alertVectorSource
-                // Vi setter ikke stil her, men på hver enkelt Feature i drawAlerts
-            });
+                    feature.setStyle(style);
 
-            // Legg laget på toppen av kartet
-            map.addLayer(alertLayer);
-            // --------------------------------------------
-        }, 500);
+                    // Legg varslet til kilden
+                    alertVectorSource.addFeature(feature);
+                });
+            }
+            // ------------------------------------------
 
-    };
-    document.head.appendChild(script);
-</script>
-</body>
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://cdn.jsdelivr.net/npm/ol@10.5.0/ol.css';
+            document.head.appendChild(link);
+
+            var script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/ol@10.5.0/dist/ol.js';
+            script.onload = function() {
+                setTimeout(function() {
+                    var el = document.getElementById('map');
+                    el.style.width = window.innerWidth + 'px';
+                    el.style.height = window.innerHeight + 'px';
+
+                    map = new ol.Map({
+                        target: 'map',
+                        layers: [
+                            new ol.layer.Tile({
+                                source: new ol.source.XYZ({
+                                    url: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                                    attributions: '&copy; OpenStreetMap contributors &copy; CARTO'
+                                })
+                            })
+                        ],
+                        view: new ol.View({
+                            center: ol.proj.fromLonLat([10.75, 59.91]),
+                            zoom: 11
+                        })
+                    });
+
+                    // Listener for å se hvor man trykker på kartet.
+                    map.on('click', function(evt) {
+                        map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+                            const props = feature.getProperties();
+                            const dataToSend = {
+                                title: props.title,
+                                description: props.description
+                            };
+
+                            // Bruk AlertBridge i stedet for Android
+                            if (window.AlertBridge) {
+                                window.AlertBridge.postAlertData(JSON.stringify(dataToSend));
+                            }
+                        });
+                    });
+
+                    // --- NYTT: OPPRETT ET LAG FOR FAREVARSLER ---
+                    // Vi trenger en kilde (Source) for polygonene
+                    alertVectorSource = new ol.source.Vector();
+
+                    // Vi trenger et lag (Layer) for å vise kilden på kartet
+                    var alertLayer = new ol.layer.Vector({
+                        source: alertVectorSource
+                        // Vi setter ikke stil her, men på hver enkelt Feature i drawAlerts
+                    });
+
+                    // Legg laget på toppen av kartet
+                    map.addLayer(alertLayer);
+                    map.on('click', function(evt) {
+
+                        // Sjekk om vi i det hele tatt treffer noe
+                        map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+                            const props = feature.getProperties();
+
+                            const dataToSend = {
+                                title: props.title,
+                                description: props.description
+                            };
+
+                            // Send til Kotlin
+                            if (window.AlertBridge) {
+                                window.AlertBridge.postAlertData(JSON.stringify(dataToSend));
+                            }
+                        });
+                    });
+                    // --------------------------------------------
+                }, 500);
+
+            };
+            document.head.appendChild(script);
+        </script>
+    </body>
 </html>
