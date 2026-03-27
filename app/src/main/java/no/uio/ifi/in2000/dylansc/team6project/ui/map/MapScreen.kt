@@ -7,18 +7,21 @@ import android.util.Log
 import android.webkit.ConsoleMessage
 import android.webkit.WebChromeClient
 import android.webkit.WebView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -174,6 +177,24 @@ fun MapScreen(
                     }
                 }
 
+            }
+            mapScreenUiState.selectedAlertJson?.let { json ->
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(16.dp)
+                        .background(Color.White, RoundedCornerShape(8.dp))
+                        .padding(16.dp)
+                ) {
+                    Column {
+                        Text("DETALJER OM VARSEL", style = MaterialTheme.typography.headlineSmall)
+                        Text(json) // Her kommer informasjonen fra kartet
+
+                        OutlinedButton(onClick = { mapViewModel.setSelectedAlert(null) }) {
+                            Text("Lukk")
+                        }
+                    }
+                }
             }
         }
     }

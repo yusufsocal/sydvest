@@ -158,24 +158,21 @@
                     map.addLayer(alertLayer);
                     map.on('click', function(evt) {
 
-                    // Sjekk om vi i det hele tatt treffer noe
-                    map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-                        const props = feature.getProperties();
+                        // Sjekk om vi i det hele tatt treffer noe
+                        map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+                            const props = feature.getProperties();
 
-                        // TEST: Denne vil poppe opp i appen din hvis du treffer et varsel!
-                        alert(props.description);
+                            const dataToSend = {
+                                title: props.title,
+                                description: props.description
+                            };
 
-                        const dataToSend = {
-                            title: props.title,
-                            description: props.description
-                        };
-
-                        // Send til Kotlin
-                        if (window.AlertBridge) {
-                            window.AlertBridge.postAlertData(JSON.stringify(dataToSend));
-                        }
+                            // Send til Kotlin
+                            if (window.AlertBridge) {
+                                window.AlertBridge.postAlertData(JSON.stringify(dataToSend));
+                            }
+                        });
                     });
-                });
                     // --------------------------------------------
                 }, 500);
 
