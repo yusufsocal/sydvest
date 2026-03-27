@@ -116,6 +116,7 @@ fun MapScreen(
                 // LISTE MED VÆRLAG (DROPDOWN)
                 var expanded by remember { mutableStateOf(false) }
                 var selectedOptionText by remember { mutableStateOf("Velg værlag...") }
+                var areaData by remember { mutableStateOf("${mapScreenUiState.area}")}
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -129,7 +130,7 @@ fun MapScreen(
                             readOnly = true,
                             value = selectedOptionText,
                             onValueChange = {},
-                            label = { Text("Velg værlag (Norden)") },
+                            label = { Text("Velg værlag (${areaData.lowercase()})") },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                             colors = ExposedDropdownMenuDefaults.textFieldColors(
                                 focusedContainerColor = Color(0xFFF7FCFE),
@@ -143,12 +144,16 @@ fun MapScreen(
                                 expanded = expanded, onDismissRequest = { expanded = false }) {
                                 mapScreenUiState.layerList.forEach { layer ->
                                     //PROSJEKT CUSTOM AREA
-                                    //Legg til funksjonalitet for å fjerne suffix basert på hvilket område som benyttes
+                                    //Funksjonalitet for å fjerne suffix basert på hvilket område som benyttes
                                     var nyTitle: String = ""
                                     if (mapScreenUiState.area == AreaData.NORDEN) {
                                         nyTitle = layer.title.removeSuffix("in MEPS VDIV")
+                                    } else if (mapScreenUiState.area == AreaData.ARKTIS) {
+                                        nyTitle = layer.title.removeSuffix("in Arctic VDIV")
+                                    } else if (mapScreenUiState.area == AreaData.VERDEN) {
+                                        nyTitle = layer.title.removeSuffix("in ECMWF VDIV 1h")
                                     }
-                                    //
+                                    //-----------------------
                                     DropdownMenuItem(
                                         text = {
                                             Text(text = nyTitle)
