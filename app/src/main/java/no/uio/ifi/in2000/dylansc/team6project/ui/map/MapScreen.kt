@@ -116,6 +116,7 @@ fun MapScreen(
                 // LISTE MED VÆRLAG (DROPDOWN)
                 var expanded by remember { mutableStateOf(false) }
                 var selectedOptionText by remember { mutableStateOf("Velg værlag...") }
+                var areaData by remember { mutableStateOf("${mapScreenUiState.area}")}
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -129,7 +130,7 @@ fun MapScreen(
                             readOnly = true,
                             value = selectedOptionText,
                             onValueChange = {},
-                            label = { Text("Velg værlag (Norden)") },
+                            label = { Text("Velg værlag (${areaData.lowercase()})") },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                             colors = ExposedDropdownMenuDefaults.textFieldColors(
                                 focusedContainerColor = Color(0xFFF7FCFE),
