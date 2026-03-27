@@ -144,12 +144,16 @@ fun MapScreen(
                                 expanded = expanded, onDismissRequest = { expanded = false }) {
                                 mapScreenUiState.layerList.forEach { layer ->
                                     //PROSJEKT CUSTOM AREA
-                                    //Legg til funksjonalitet for å fjerne suffix basert på hvilket område som benyttes
+                                    //Funksjonalitet for å fjerne suffix basert på hvilket område som benyttes
                                     var nyTitle: String = ""
                                     if (mapScreenUiState.area == AreaData.NORDEN) {
                                         nyTitle = layer.title.removeSuffix("in MEPS VDIV")
+                                    } else if (mapScreenUiState.area == AreaData.ARKTIS) {
+                                        nyTitle = layer.title.removeSuffix("in Arctic VDIV")
+                                    } else if (mapScreenUiState.area == AreaData.VERDEN) {
+                                        nyTitle = layer.title.removeSuffix("in ECMWF VDIV 1h")
                                     }
-                                    //
+                                    //-----------------------
                                     DropdownMenuItem(
                                         text = {
                                             Text(text = nyTitle)
