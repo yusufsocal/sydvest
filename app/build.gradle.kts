@@ -46,6 +46,11 @@ val ktor_version = "3.0.0"
 val nav_version = "2.9.7"
 
 dependencies {
+    //Open Street Map
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
+    implementation("androidx.compose.ui:ui:1.10.6")
+    implementation("androidx.activity:activity-compose:1.13.0")
+
     implementation("androidx.navigation:navigation-compose:${nav_version}")
     implementation("androidx.navigation:navigation-fragment:${nav_version}")
     implementation("androidx.navigation:navigation-ui:${nav_version}")
@@ -85,6 +90,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.play.services.maps)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
