@@ -2,26 +2,19 @@
 
 package no.uio.ifi.in2000.dylansc.team6project.ui.map
 
-import android.annotation.SuppressLint
-import android.util.Log
-import android.webkit.ConsoleMessage
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import androidx.compose.foundation.background
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -33,51 +26,52 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import kotlinx.serialization.json.Json
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
+import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.MapTileProviderBasic
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.tileprovider.tilesource.XYTileSource
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.MapTileIndex
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.TilesOverlay
 
-@SuppressLint("JavascriptInterface")
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(
     mapScreenUiState: MapScreenUiState, // Mottar hele staten
     mapViewModel: MapViewModel
 ) {
-    var webViewRef by remember { mutableStateOf<WebView?>(null) }
-    var showAlerts by remember { mutableStateOf(false)}
 
-    val webInterface = remember {
-        WebAppInterface { jsonString ->
-            android.os.Handler(android.os.Looper.getMainLooper()).post {
-                mapViewModel.setSelectedAlert(jsonString)
+    val context = LocalContext.current
+    var mapViewRef by remember { mutableStateOf<MapView?>(null) }
+
+    // 1. Viktig oppsett for at kartet skal kunne lagre bilder på telefonen
+    Configuration.getInstance().load(
+        context,
+        context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
+    )
+
+    // 2. Vi bruker AndroidView for å putte det gamle Android-kartet inn i Compose
+    AndroidView(
+        factory = { ctx ->
+            MapView(ctx).apply {
+                setTileSource(TileSourceFactory.MAPNIK)
+                setMultiTouchControls(true)
+                controller.setZoom(10.0)
+                controller.setCenter(GeoPoint(60.90, 10.75))
+                mapViewRef = this // Lagre referansen her!
             }
-        }
-    }
+        },
+        modifier = Modifier.fillMaxSize(),
+    )
+
 
     Box() {
-        // KART
-        AndroidView(
-            factory = { context ->
-                WebView(context).apply {
-                    webViewRef = this
-                    // Viktig for å se JS-feil i Logcat!
-                    webChromeClient = object : WebChromeClient() {
-                        override fun onConsoleMessage(msg: ConsoleMessage?): Boolean {
-                            Log.d("MapJS", "${msg?.message()}")
-                            return true
-                        }
-                    }
-
-                    settings.javaScriptEnabled = true
-                    settings.domStorageEnabled = true
-                    this.addJavascriptInterface(webInterface, "AlertBridge")
-                    loadUrl("file:///android_asset/map.html")
-                }
-            },
-            modifier = Modifier.fillMaxSize()
-        )
 
         if (mapScreenUiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -91,20 +85,6 @@ fun MapScreen(
                 //Knapp for å aktivere farevarsler på kartet.
                 OutlinedButton( //Kan byttes ut med IconButton
                     onClick = {
-                        showAlerts = !showAlerts
-                        if (showAlerts) {
-                            val jsonString = Json.encodeToString(mapScreenUiState.alertList)
-                            webViewRef?.evaluateJavascript(
-                                "drawAlerts('${
-                                    jsonString.replace(
-                                        "'",
-                                        "\\'"
-                                    )
-                                }')", null
-                            )
-                        } else {
-                            webViewRef?.evaluateJavascript("alertVectorSource.clear()", null)
-                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 ) {
@@ -159,12 +139,12 @@ fun MapScreen(
                                             Text(text = nyTitle)
                                         },
                                         onClick = {
-                                            selectedOptionText = layer.title
+                                            selectedOptionText = nyTitle // Oppdaterer teksten i feltet
                                             expanded = false
-                                            webViewRef?.evaluateJavascript(
-                                                "addWmsLayer('${layer.name}')",
-                                                null
-                                            )
+
+                                            // FORTEL ViewModel hvilket lag som er valgt
+                                            // (Du må ha en funksjon i ViewModel som heter setSelectedLayer)
+                                            mapViewModel.setSelectedLayer(layer)
                                         },
                                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                                     )
@@ -183,32 +163,6 @@ fun MapScreen(
                 }
 
             }
-            mapScreenUiState.selectedAlertJson?.let { json ->
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(16.dp)
-                        .background(Color.White, RoundedCornerShape(8.dp))
-                        .padding(16.dp)
-                ) {
-                    Column {
-                        Text("DETALJER OM VARSEL", style = MaterialTheme.typography.headlineSmall)
-                        Text(json) // Her kommer informasjonen fra kartet
-
-                        OutlinedButton(onClick = { mapViewModel.setSelectedAlert(null) }) {
-                            Text("Lukk")
-                        }
-                    }
-                }
-            }
         }
-    }
-}
-
-//Brukes for å lese koordinater når man trykker på skjermen.
-class WebAppInterface(private val onAlertSelected: (String) -> Unit) {
-    @android.webkit.JavascriptInterface
-    fun postAlertData(json: String) {
-        onAlertSelected(json)
     }
 }

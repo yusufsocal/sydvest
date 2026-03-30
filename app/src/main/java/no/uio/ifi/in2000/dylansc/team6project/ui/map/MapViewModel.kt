@@ -19,13 +19,12 @@ import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 data class MapScreenUiState(
     //Liste som inneholder egenskaper for lag fra Victoria - XML
     val layerList: List<WMSLayer> = emptyList(),
-    //Liste som inneholder Geometry og Properties for Alerts - JSON
-    val alertList: List<AlertFeature> = emptyList(),
+    //WMS lag
+    val selectedLayer: WMSLayer? = null,
+    //tid fra WMS lag
+    val selectedTime: String = "",
     //Boolean som sjekker om en side laster eller ikke
     val isLoading: Boolean = true,
-    //Holder på informasjonen til det varselet som er trykket på
-    val selectedAlertJson: String? = null,
-
     //PROSJEKT CUSTOM AREA - Brukes i sammenheng med Victoria for å bestemme datalag
     val area: AreaData? = null,
     //
@@ -48,7 +47,6 @@ class MapViewModel(
                     it.copy(
                         layerList = newLayerList,
                         isLoading = false,
-                        alertList = newAlertList,
                         //PROSJEKT CUSTOM AREA
                         area = newArea
                         //
@@ -61,9 +59,9 @@ class MapViewModel(
         }
     }
 
-    fun setSelectedAlert(json: String?) {
+    fun setSelectedLayer(layer: WMSLayer) {
         _uiState.update {
-            it.copy(selectedAlertJson = json)
+            it.copy(selectedLayer = layer)
         }
     }
     companion object {
