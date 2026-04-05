@@ -32,12 +32,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderBasic
+import org.osmdroid.tileprovider.modules.MapTileApproximater
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.TilesOverlay
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,23 +67,26 @@ fun MapScreen(
         factory = { ctx ->
             MapView(ctx).apply {
                 setTileSource(TileSourceFactory.MAPNIK)
+                setTilesScaledToDpi(true)
+
                 setMultiTouchControls(true)
                 controller.setZoom(10.0) // Mengde zoom ved åpning av app
                 controller.setCenter(GeoPoint(60.90, 10.75)) //Setter startposisjon -> MÅ ENDRES TIL GEOLOKASJON
                 setMinZoomLevel(4.0); // Begrens zoom ut
                 setMaxZoomLevel(18.0); // Begrens zoom inn
                 setScrollableAreaLimitLatitude(85.0, -85.0, height + 1000) //Begrenser hvor mye man kan skrolle vertikalt og horisontalt på kartet
-
-                setUseDataConnection(true)
                 setFlingEnabled(true)
 
+
                 setVerticalMapRepetitionEnabled(false)
+                Configuration.getInstance().cacheMapTileCount = 5000 //SKRU NED DENNE OM VÆRLAGENE BEGYNNER Å HENGE
 
                 mapViewRef = this // Lagre referansen her
             }
         },
         modifier = Modifier.fillMaxSize(),
         update = { view ->
+            println("DEBUG: updateWmsLayer kjører")
             val currentLayer = mapScreenUiState.selectedLayer
             val currentTime = mapScreenUiState.selectedTime
             val currentArea = mapScreenUiState.area
@@ -112,7 +117,8 @@ fun MapScreen(
                     .padding(16.dp)
             ) {
                 //Knapp for å aktivere farevarsler på kartet.
-                OutlinedButton( //Kan byttes ut med IconButton
+                OutlinedButton(
+                    //Kan byttes ut med IconButton
                     onClick = {
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
@@ -197,14 +203,11 @@ fun MapScreen(
 
 fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
     val layer = uiState.selectedLayer ?: return
-    // 1. I stedet for å slette ALLE med en gang, finn de gamle lagene først
+    // Finn forrige lag slik at vi kan fjerne det ETTER at det nye er klart
     val oldLayers = map.overlays.filterIsInstance<TilesOverlay>()
 
-    // Fjern gamle lag for å unngå overlapping
-    map.overlays.removeAll { it is TilesOverlay }
-
     val wmsSource = object : XYTileSource(
-        layer.name,
+        "${layer.name}_${uiState.selectedTime}", // Unikt navn tvinger ny caching hvis tid endres
         1, 20, 256, ".png",
         arrayOf("https://public-victoria.met.no/wms?")
     ) {
@@ -251,21 +254,26 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
         }
     }
 
-    val provider = MapTileProviderBasic(map.context, wmsSource)
-    val tilesOverlay = TilesOverlay(provider, map.context)
+    val provider = MapTileProviderBasic(map.context, wmsSource).apply{
+        setOfflineFirst(false)
+    }
+
+    val tilesOverlay = TilesOverlay(provider, map.context).apply{
+        loadingBackgroundColor = android.graphics.Color.TRANSPARENT
+        loadingLineColor = android.graphics.Color.TRANSPARENT
+        setUseDataConnection(true)
+    }
 
     // Bruk ColorMatrix for alpha-kontroll (0.7f = 70% synlig)
     val alphaMatrix = android.graphics.ColorMatrix().apply {
         setScale(1f, 1f, 1f, 0.7f)
     }
-    tilesOverlay.setColorFilter(android.graphics.ColorMatrixColorFilter(alphaMatrix))
-    tilesOverlay.loadingBackgroundColor = android.graphics.Color.TRANSPARENT
-    tilesOverlay.loadingLineColor = android.graphics.Color.TRANSPARENT
 
-    // 2. Legg til det NYE laget (det legger seg nå på toppen)
+    tilesOverlay.setColorFilter(android.graphics.ColorMatrixColorFilter(alphaMatrix))
     map.overlays.add(tilesOverlay)
-    // 3. Nå kan vi trygt fjerne de GAMLE lagene fra lista
-    map.overlays.removeAll(oldLayers)
-    // 4. Oppdater skjermen
+    if (oldLayers.isNotEmpty()) {
+        map.overlays.removeAll(oldLayers)
+    }
+
     map.invalidate()
 }
