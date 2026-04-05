@@ -68,6 +68,10 @@ fun MapScreen(
             }
         },
         modifier = Modifier.fillMaxSize(),
+        update = { view ->
+            // Denne blokken kjører HVER gang mapScreenUiState endres!
+            updateWmsLayer(view, mapScreenUiState)
+        }
     )
 
 
@@ -142,8 +146,7 @@ fun MapScreen(
                                             selectedOptionText = nyTitle // Oppdaterer teksten i feltet
                                             expanded = false
 
-                                            // FORTEL ViewModel hvilket lag som er valgt
-                                            // (Du må ha en funksjon i ViewModel som heter setSelectedLayer)
+                                            // FORTELL ViewModel hvilket lag som er valgt
                                             mapViewModel.setSelectedLayer(layer)
                                         },
                                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
@@ -165,4 +168,71 @@ fun MapScreen(
             }
         }
     }
+}
+
+fun updateWmsLayer(map: MapView, state: MapScreenUiState) {
+    val layer = state.selectedLayer ?: return
+
+    // Fjern gamle lag for å unngå overlapping
+    map.overlays.removeAll { it is TilesOverlay }
+
+    val wmsSource = object : XYTileSource(
+        layer.name,
+        1, 20, 256, ".png",
+        arrayOf("https://public-victoria.met.no/wms?")
+    ) {
+        override fun getTileURLString(pTileIndex: Long): String {
+            val zoom = MapTileIndex.getZoom(pTileIndex)
+            val x = MapTileIndex.getX(pTileIndex)
+            val y = MapTileIndex.getY(pTileIndex)
+
+            val n = Math.pow(2.0, zoom.toDouble())
+            val lonMin = x / n * 360.0 - 180.0
+            val lonMax = (x + 1) / n * 360.0 - 180.0
+            val latMinRad = Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 1) / n)))
+            val latMin = Math.toDegrees(latMinRad)
+            val latMaxRad = Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n)))
+            val latMax = Math.toDegrees(latMaxRad)
+
+            // VIKTIG: Victoria WMS med CRS:84 forventer minLon, minLat, maxLon, maxLat
+            val bbox = "$lonMin,$latMin,$lonMax,$latMax"
+
+            val formattedTime = state.selectedTime.replace("+0000", "Z")
+
+            // Hent model-navnet fra staten (f.eks. "meps", "arome" eller "ec")
+            val modelParam = state.area?.area ?: "meps"
+
+            val url = StringBuilder("https://public-victoria.met.no/wms?")
+            url.append("SERVICE=WMS")
+            url.append("&VERSION=1.3.0")
+            url.append("&REQUEST=GetMap")
+            url.append("&LAYERS=${layer.name}")
+            url.append("&STYLES=") // Noen servere krever denne, selv om den er tom
+            url.append("&CRS=CRS:84")
+            url.append("&BBOX=$bbox")
+            url.append("&WIDTH=256")
+            url.append("&HEIGHT=256")
+            url.append("&FORMAT=image/png")
+            url.append("&TRANSPARENT=TRUE")
+            url.append("&model=$modelParam") // KRITISK for Victoria
+
+            if (formattedTime.isNotEmpty()) {
+                url.append("&TIME=$formattedTime")
+            }
+
+            return url.toString()
+        }
+    }
+
+    val provider = MapTileProviderBasic(map.context, wmsSource)
+    val tilesOverlay = TilesOverlay(provider, map.context)
+
+    // Bruk ColorMatrix for alpha-kontroll (0.7f = 70% synlig)
+    val alphaMatrix = android.graphics.ColorMatrix().apply {
+        setScale(1f, 1f, 1f, 0.7f)
+    }
+    tilesOverlay.setColorFilter(android.graphics.ColorMatrixColorFilter(alphaMatrix))
+
+    map.overlays.add(tilesOverlay)
+    map.invalidate()
 }
