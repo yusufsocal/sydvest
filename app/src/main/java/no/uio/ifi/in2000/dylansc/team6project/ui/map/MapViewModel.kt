@@ -23,6 +23,8 @@ data class MapScreenUiState(
     val selectedLayer: WMSLayer? = null,
     //tid fra WMS lag
     val selectedTime: String = "",
+    //Liste over Farevarsler
+    val alertList: List<AlertFeature> = emptyList(),
     //Boolean som sjekker om en side laster eller ikke
     val isLoading: Boolean = true,
     //PROSJEKT CUSTOM AREA - Brukes i sammenheng med Victoria for å bestemme datalag
@@ -42,10 +44,11 @@ class MapViewModel(
         viewModelScope.launch {
             try {
                 val newLayerList = locationRepo.getArea(newArea) ?: emptyList()
-                val newAlertList = alertRepo.getAlertList() ?: emptyList()
+                val newAlertList = alertRepo.getAlertList()
                 _uiState.update {
                     it.copy(
                         layerList = newLayerList,
+                        alertList = newAlertList,
                         isLoading = false,
                         //PROSJEKT CUSTOM AREA
                         area = newArea
