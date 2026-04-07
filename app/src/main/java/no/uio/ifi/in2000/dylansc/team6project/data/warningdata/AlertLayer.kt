@@ -3,6 +3,7 @@ package no.uio.ifi.in2000.dylansc.team6project.data.warningdata
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class MetAlertsResponse(
@@ -18,8 +19,8 @@ data class AlertFeature(
 
 @Serializable
 data class AlertGeometry(
-    val type: String, // Som regel "Polygon"
-    var coordinates: JsonArray // GeoJSON-format for polygoner
+    val type: String, // Enten "Polygon" eller "MultiPolygon"
+    var coordinates: JsonElement // GeoJSON-format for polygoner
 )
 
 @Serializable
