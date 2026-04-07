@@ -25,9 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import android.graphics.Color as AndroidColor
-import android.graphics.Paint as AndroidPaint
-import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -46,6 +43,8 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.FolderOverlay
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
+import android.graphics.Color as AndroidColor
+import androidx.compose.ui.graphics.Color as ComposeColor
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,14 +53,16 @@ fun MapScreen(
     mapScreenUiState: MapScreenUiState, // Mottar hele staten
     mapViewModel: MapViewModel
 ) {
+    val context = LocalContext.current
+    var mapViewRef by remember { mutableStateOf<MapView?>(null) }
 
+    //Variabler for å sjekke om endringer har forekommet i værlagene.
     var lastDrawnLayerName by remember { mutableStateOf<String?>(null) }
     var lastDrawnTime by remember { mutableStateOf<String?>(null) }
     var lastDrawnArea by remember { mutableStateOf<AreaData?>(null) }
 
-    val context = LocalContext.current
-    var mapViewRef by remember { mutableStateOf<MapView?>(null) }
-
+    //Variabel for å sjekke om varevarsler er skrudd av eller på - aktiveres med "Farevarsler"-knappen
+    var fareVarsel by remember { mutableStateOf(false)}
 
     // 1. Viktig oppsett for at kartet skal kunne lagre bilder på telefonen
     Configuration.getInstance().load(
@@ -93,7 +94,7 @@ fun MapScreen(
         },
         modifier = Modifier.fillMaxSize(),
         update = { view ->
-            println("DEBUG: updateWmsLayer kjører")
+
             val currentLayer = mapScreenUiState.selectedLayer
             val currentTime = mapScreenUiState.selectedTime
             val currentArea = mapScreenUiState.area
@@ -109,7 +110,10 @@ fun MapScreen(
                 lastDrawnArea = currentArea
             }
 
-            drawAlerts(view, mapScreenUiState)
+            //aktiverer / deaktiverer farevarsler
+            drawAlerts(view, mapScreenUiState, fareVarsel)
+
+
         }
     )
 
@@ -129,6 +133,7 @@ fun MapScreen(
                 OutlinedButton(
                     //Kan byttes ut med IconButton
                     onClick = {
+                        fareVarsel = !fareVarsel
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
                 ) {
@@ -296,7 +301,14 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
 /* Bruker 'Polygon'-objekter for å lage interaktive polygoner, og 'FolderOverlay' for å gruppere
 * de sammen, slik at flere varsler kan vises samtidig.
 * */
-fun drawAlerts(map: MapView, uiState: MapScreenUiState){
+fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean){
+    map.overlays.removeAll { it is FolderOverlay && it.name == "Farevarsler" }
+
+    if (!fareVarsel) {
+        map.invalidate()
+        return
+    }
+
     val folderOverlay = FolderOverlay() //Lager en mappe for å holde på farevarslene
     folderOverlay.name = "Farevarsler" //Kaller Overlay-mappen for farevarsler
 
@@ -319,7 +331,18 @@ fun drawAlerts(map: MapView, uiState: MapScreenUiState){
             }
         }
         polygon.points = points
-        polygon.fillPaint.color = AndroidColor.parseColor("#4BFF0000")
+        polygon.title = features.properties?.title //Tittel på farevarselet
+        polygon.snippet = features.properties?.description //Beskrivelse av farevarselet
+
+        //HEX-verdi for farge på farevarsel
+        val color = when (features.properties?.riskMatrixColor) {
+            "Yellow" -> "FFFF00"
+            "Orange" -> "FFA500"
+            "Red" -> "FF0000"
+            else -> "FFFFFF"
+        }
+
+        polygon.fillPaint.color = AndroidColor.parseColor("#80$color")
 
 
         folderOverlay.add(polygon)
