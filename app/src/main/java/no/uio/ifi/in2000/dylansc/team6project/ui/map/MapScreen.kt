@@ -45,6 +45,7 @@ import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
 import android.graphics.Color as AndroidColor
 import androidx.compose.ui.graphics.Color as ComposeColor
+import androidx.core.graphics.toColorInt
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,7 +81,7 @@ fun MapScreen(
                 setMultiTouchControls(true)
                 controller.setZoom(10.0) // Mengde zoom ved åpning av app
                 controller.setCenter(GeoPoint(60.90, 10.75)) //Setter startposisjon -> MÅ ENDRES TIL GEOLOKASJON
-                setMinZoomLevel(4.0); // Begrens zoom ut
+                setMinZoomLevel(3.0); // Begrens zoom ut
                 setMaxZoomLevel(18.0); // Begrens zoom inn
                 setScrollableAreaLimitLatitude(85.0, -85.0, height + 1000) //Begrenser hvor mye man kan skrolle vertikalt og horisontalt på kartet
                 setFlingEnabled(true)
@@ -313,39 +314,45 @@ fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean){
     folderOverlay.name = "Farevarsler" //Kaller Overlay-mappen for farevarsler
 
     uiState.alertList.forEach { features ->
-        val polygon = Polygon(map) //Lager et Polygon for hvert farevarsel
-        val properties = features.properties //Lager et Properties-objekt for hvert farevarsel
-        val jsonArray: JsonArray? = features.geometry?.coordinates //Lager et JsonArray-objekt av listen av koordinater
-        // Forenklet tankegang for å mappe om dataene
-        val points = mutableListOf<GeoPoint>()
-
-// Gå inn i den første "ringen" (indeks 0)
-        if (features.geometry?.type == "Polygon") {
-            val ring = features.geometry?.coordinates[0]?.jsonArray
-
-            ring?.forEach { coordinatePair ->
+        // Funksjon som kan tegne et enkelt sett med punkter
+        fun addPolygonToFolder(coords: JsonArray) {
+            val points = mutableListOf<GeoPoint>()
+            // GeoJSON-standard: Første liste [0] er alltid den ytre ringen
+            val outerRing = coords[0].jsonArray
+            outerRing.forEach { coordinatePair ->
                 val pair = coordinatePair.jsonArray
                 val lon = pair[0].jsonPrimitive.double
                 val lat = pair[1].jsonPrimitive.double
-                points.add(GeoPoint(lat, lon)) // Husk: osmdroid vil ha Lat, Lon!
+                points.add(GeoPoint(lat, lon))
+            }
+
+            if (points.isNotEmpty()) {
+                val polygon = Polygon(map)
+                polygon.points = points
+                polygon.title = features.properties?.title //Tittel på farevarselet
+                polygon.snippet = features.properties?.description //Beskrivelse av farevarselet
+                // Sett farge og info
+                val color = when (features.properties?.riskMatrixColor) {
+                    "Yellow" -> "FFFF00"
+                    "Orange" -> "FFA500"
+                    "Red" -> "FF0000"
+                    else -> "FFFFFF"
+                }
+                polygon.fillPaint.color = AndroidColor.parseColor("#80$color")
+                folderOverlay.add(polygon)
             }
         }
-        polygon.points = points
-        polygon.title = features.properties?.title //Tittel på farevarselet
-        polygon.snippet = features.properties?.description //Beskrivelse av farevarselet
 
-        //HEX-verdi for farge på farevarsel
-        val color = when (features.properties?.riskMatrixColor) {
-            "Yellow" -> "FFFF00"
-            "Orange" -> "FFA500"
-            "Red" -> "FF0000"
-            else -> "FFFFFF"
+// 2. Sjekk typen og fordel jobben
+        // Inne i drawAlerts:
+        val coords = features.geometry?.coordinates?.jsonArray // Bruk .jsonArray her
+        if (features.geometry?.type?.equals("Polygon", true) == true && coords != null) {
+            addPolygonToFolder(coords)
+        } else if (features.geometry?.type?.equals("MultiPolygon", true) == true && coords != null) {
+            coords.forEach { singlePolygonCoords ->
+                addPolygonToFolder(singlePolygonCoords.jsonArray)
+            }
         }
-
-        polygon.fillPaint.color = AndroidColor.parseColor("#80$color")
-
-
-        folderOverlay.add(polygon)
     }
     map.overlays.add(folderOverlay) //Legger til mappen med overlays til kartet
     map.invalidate()
