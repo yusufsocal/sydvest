@@ -25,19 +25,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import android.graphics.Color as AndroidColor
+import android.graphics.Paint as AndroidPaint
+import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderBasic
-import org.osmdroid.tileprovider.modules.MapTileApproximater
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.FolderOverlay
+import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
 
 
@@ -101,6 +108,8 @@ fun MapScreen(
                 lastDrawnTime = currentTime
                 lastDrawnArea = currentArea
             }
+
+            drawAlerts(view, mapScreenUiState)
         }
     )
 
@@ -121,11 +130,11 @@ fun MapScreen(
                     //Kan byttes ut med IconButton
                     onClick = {
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                    colors = ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
                 ) {
                     Text(
                         text = "Farevarsler",
-                        color = Color.Black
+                        color = ComposeColor.Black
                     )
                 }
                 // LISTE MED VÆRLAG (DROPDOWN)
@@ -148,8 +157,8 @@ fun MapScreen(
                             label = { Text("Velg værlag (${areaData.lowercase()})") },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                             colors = ExposedDropdownMenuDefaults.textFieldColors(
-                                focusedContainerColor = Color(0xFFF7FCFE),
-                                unfocusedContainerColor = Color(0xFFF7FCFE)
+                                focusedContainerColor = ComposeColor(0xFFF7FCFE),
+                                unfocusedContainerColor = ComposeColor(0xFFF7FCFE)
                             )
                         )
 
@@ -201,6 +210,11 @@ fun MapScreen(
     }
 }
 
+//FUNKSJON FOR Å TEGNE VÆRLAG
+/* Bruker TilesOverlay for å tegne værlaget på hver "rute" OSM består av. 'wmsSource' består av URL-en
+* som genereres for bildet man trenger. Den tar hensyn til alle parametrene i URL-en, slik at man kan
+* endre etter behov - eks. TIME kan endres dynamisk.
+* */
 fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
     val layer = uiState.selectedLayer ?: return
     // Finn forrige lag slik at vi kan fjerne det ETTER at det nye er klart
@@ -276,4 +290,41 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
     }
 
     map.invalidate()
+}
+
+//FUNKSJON FOR Å LAGE FAREVARSLER
+/* Bruker 'Polygon'-objekter for å lage interaktive polygoner, og 'FolderOverlay' for å gruppere
+* de sammen, slik at flere varsler kan vises samtidig.
+* */
+fun drawAlerts(map: MapView, uiState: MapScreenUiState){
+    val folderOverlay = FolderOverlay() //Lager en mappe for å holde på farevarslene
+    folderOverlay.name = "Farevarsler" //Kaller Overlay-mappen for farevarsler
+
+    uiState.alertList.forEach { features ->
+        val polygon = Polygon(map) //Lager et Polygon for hvert farevarsel
+        val properties = features.properties //Lager et Properties-objekt for hvert farevarsel
+        val jsonArray: JsonArray? = features.geometry?.coordinates //Lager et JsonArray-objekt av listen av koordinater
+        // Forenklet tankegang for å mappe om dataene
+        val points = mutableListOf<GeoPoint>()
+
+// Gå inn i den første "ringen" (indeks 0)
+        if (features.geometry?.type == "Polygon") {
+            val ring = features.geometry?.coordinates[0]?.jsonArray
+
+            ring?.forEach { coordinatePair ->
+                val pair = coordinatePair.jsonArray
+                val lon = pair[0].jsonPrimitive.double
+                val lat = pair[1].jsonPrimitive.double
+                points.add(GeoPoint(lat, lon)) // Husk: osmdroid vil ha Lat, Lon!
+            }
+        }
+        polygon.points = points
+        polygon.fillPaint.color = AndroidColor.parseColor("#4BFF0000")
+
+
+        folderOverlay.add(polygon)
+    }
+    map.overlays.add(folderOverlay) //Legger til mappen med overlays til kartet
+    map.invalidate()
+
 }
