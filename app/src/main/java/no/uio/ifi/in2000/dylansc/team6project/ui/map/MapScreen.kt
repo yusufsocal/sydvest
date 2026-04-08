@@ -2,131 +2,359 @@
 
 package no.uio.ifi.in2000.dylansc.team6project.ui.map
 
-import android.annotation.SuppressLint
-import android.util.Log
-import android.webkit.ConsoleMessage
-import android.webkit.WebChromeClient
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import android.content.Context
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
+import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
+import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.MapTileProviderBasic
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.tileprovider.tilesource.XYTileSource
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.MapTileIndex
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.FolderOverlay
+import org.osmdroid.views.overlay.Polygon
+import org.osmdroid.views.overlay.TilesOverlay
+import android.graphics.Color as AndroidColor
+import androidx.compose.ui.graphics.Color as ComposeColor
+import androidx.core.graphics.toColorInt
+
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun MapScreen(
     mapScreenUiState: MapScreenUiState, // Mottar hele staten
+    mapViewModel: MapViewModel
 ) {
-    var webViewRef by remember { mutableStateOf<WebView?>(null) }
-    Box(modifier = Modifier.fillMaxSize()) {
-        // KART
-        AndroidView(
-            factory = { context ->
-                WebView(context).apply {
-                    webViewRef = this
-                    // Viktig for å se JS-feil i Logcat!
-                    webChromeClient = object : WebChromeClient() {
-                        override fun onConsoleMessage(msg: ConsoleMessage?): Boolean {
-                            Log.d("MapJS", "${msg?.message()}")
-                            return true
-                        }
-                    }
+    val context = LocalContext.current
+    var mapViewRef by remember { mutableStateOf<MapView?>(null) }
 
-                    settings.javaScriptEnabled = true
-                    settings.domStorageEnabled = true
-                    loadUrl("file:///android_asset/map.html")
-                }
-            }, modifier = Modifier.fillMaxSize()
-        )
+    //Variabler for å sjekke om endringer har forekommet i værlagene.
+    var lastDrawnLayerName by remember { mutableStateOf<String?>(null) }
+    var lastDrawnTime by remember { mutableStateOf<String?>(null) }
+    var lastDrawnArea by remember { mutableStateOf<AreaData?>(null) }
 
-        // LISTE MED VÆRLAG (DROPDOWN)
+    //Variabel for å sjekke om varevarsler er skrudd av eller på - aktiveres med "Farevarsler"-knappen
+    var fareVarsel by remember { mutableStateOf(false)}
+
+    // 1. Viktig oppsett for at kartet skal kunne lagre bilder på telefonen
+    Configuration.getInstance().load(
+        context,
+        context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
+    )
+
+    // 2. Vi bruker AndroidView for å putte det gamle Android-kartet inn i Compose
+    AndroidView(
+        factory = { ctx ->
+            MapView(ctx).apply {
+                setTileSource(TileSourceFactory.MAPNIK)
+                setTilesScaledToDpi(true)
+
+                setMultiTouchControls(true)
+                controller.setZoom(10.0) // Mengde zoom ved åpning av app
+                controller.setCenter(GeoPoint(60.90, 10.75)) //Setter startposisjon -> MÅ ENDRES TIL GEOLOKASJON
+                setMinZoomLevel(3.0); // Begrens zoom ut
+                setMaxZoomLevel(18.0); // Begrens zoom inn
+                setScrollableAreaLimitLatitude(85.0, -85.0, height + 1000) //Begrenser hvor mye man kan skrolle vertikalt og horisontalt på kartet
+                setFlingEnabled(true)
+
+
+                setVerticalMapRepetitionEnabled(false)
+                Configuration.getInstance().cacheMapTileCount = 5000 //SKRU NED DENNE OM VÆRLAGENE BEGYNNER Å HENGE
+
+                mapViewRef = this // Lagre referansen her
+            }
+        },
+        modifier = Modifier.fillMaxSize(),
+        update = { view ->
+
+            val currentLayer = mapScreenUiState.selectedLayer
+            val currentTime = mapScreenUiState.selectedTime
+            val currentArea = mapScreenUiState.area
+
+            // Sjekk om vi faktisk trenger å tegne på nytt
+            if (currentLayer?.name != lastDrawnLayerName || currentTime != lastDrawnTime || currentArea != lastDrawnArea) {
+
+                updateWmsLayer(view, mapScreenUiState)
+
+                // Oppdater "hukommelsen"
+                lastDrawnLayerName = currentLayer?.name
+                lastDrawnTime = currentTime
+                lastDrawnArea = currentArea
+            }
+
+            //aktiverer / deaktiverer farevarsler
+            drawAlerts(view, mapScreenUiState, fareVarsel)
+
+
+        }
+    )
+
+
+    Box() {
+
         if (mapScreenUiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
-            var expanded by remember { mutableStateOf(false) }
-            var selectedOptionText by remember { mutableStateOf("Velg værlag...") }
-
-            Box(
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Bottom),
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
                     .padding(16.dp)
-                    .align(Alignment.TopCenter) // Sørger for at den ligger øverst
             ) {
-                ExposedDropdownMenuBox(
-                    expanded = expanded, onExpandedChange = { expanded = !expanded }) {
-                    TextField(
-                        modifier = Modifier
-                            .menuAnchor() // KRITISK: Denne kobler TextField til menyen
-                            .fillMaxWidth(),
-                        readOnly = true,
-                        value = selectedOptionText,
-                        onValueChange = {},
-                        label = { Text("Velg værlag (Norden)") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        colors = ExposedDropdownMenuDefaults.textFieldColors(
-                            focusedContainerColor = Color(0xFFF7FCFE),
-                            unfocusedContainerColor = Color(0xFFF7FCFE)
-                        )
+                //Knapp for å aktivere farevarsler på kartet.
+                OutlinedButton(
+                    //Kan byttes ut med IconButton
+                    onClick = {
+                        fareVarsel = !fareVarsel
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
+                ) {
+                    Text(
+                        text = "Farevarsler",
+                        color = ComposeColor.Black
                     )
+                }
+                // LISTE MED VÆRLAG (DROPDOWN)
+                var expanded by remember { mutableStateOf(false) }
+                var selectedOptionText by remember { mutableStateOf("Velg værlag...") }
+                var areaData by remember { mutableStateOf("${mapScreenUiState.area}")}
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    ExposedDropdownMenuBox(
+                        expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                        TextField(
+                            modifier = Modifier
+                                .menuAnchor() // KRITISK: Denne kobler TextField til menyen
+                                .fillMaxWidth(),
+                            readOnly = true,
+                            value = selectedOptionText,
+                            onValueChange = {},
+                            label = { Text("Velg værlag (${areaData.lowercase()})") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                            colors = ExposedDropdownMenuDefaults.textFieldColors(
+                                focusedContainerColor = ComposeColor(0xFFF7FCFE),
+                                unfocusedContainerColor = ComposeColor(0xFFF7FCFE)
+                            )
+                        )
 
-                    // Vi sjekker om det faktisk er noe i lista før vi prøver å vise menyen
-                    if (mapScreenUiState.lagListe.isNotEmpty()) {
-                        ExposedDropdownMenu(
-                            expanded = expanded, onDismissRequest = { expanded = false }) {
-                            mapScreenUiState.lagListe.forEach { lag ->
-                                DropdownMenuItem(
-                                    text = {
-                                    Text(text = lag.title)
-                                },
-                                    onClick = {
-                                        selectedOptionText = lag.title
-                                        expanded = false
-                                        webViewRef?.evaluateJavascript("addWmsLayer('${lag.name}')", null)
-                                    },
-                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                )
+                        // Vi sjekker om det faktisk er noe i lista før vi prøver å vise menyen
+                        if (mapScreenUiState.layerList.isNotEmpty()) {
+                            ExposedDropdownMenu(
+                                expanded = expanded, onDismissRequest = { expanded = false }) {
+                                mapScreenUiState.layerList.forEach { layer ->
+                                    //PROSJEKT CUSTOM AREA
+                                    //Funksjonalitet for å fjerne suffix basert på hvilket område som benyttes
+                                    var nyTitle: String = ""
+                                    if (mapScreenUiState.area == AreaData.NORDEN) {
+                                        nyTitle = layer.title.removeSuffix("in MEPS VDIV")
+                                    } else if (mapScreenUiState.area == AreaData.ARKTIS) {
+                                        nyTitle = layer.title.removeSuffix("in Arctic VDIV")
+                                    } else if (mapScreenUiState.area == AreaData.VERDEN) {
+                                        nyTitle = layer.title.removeSuffix("in ECMWF VDIV 1h")
+                                    }
+                                    //-----------------------
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(text = nyTitle)
+                                        },
+                                        onClick = {
+                                            selectedOptionText = nyTitle // Oppdaterer teksten i feltet
+                                            expanded = false
+
+                                            // FORTELL ViewModel hvilket lag som er valgt
+                                            mapViewModel.setSelectedLayer(layer)
+                                        },
+                                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                    )
+                                }
                             }
-                        }
-                    } else {
-                        // Hvis lista er tom, viser vi en liten hjelpetekst i steden
-                        ExposedDropdownMenu(
-                            expanded = expanded, onDismissRequest = { expanded = false }) {
-                            DropdownMenuItem(
-                                text = { Text("Laster lag...") },
-                                onClick = { expanded = false })
+                        } else {
+                            // Hvis lista er tom, viser vi en liten hjelpetekst i steden
+                            ExposedDropdownMenu(
+                                expanded = expanded, onDismissRequest = { expanded = false }) {
+                                DropdownMenuItem(
+                                    text = { Text("Laster lag...") },
+                                    onClick = { expanded = false })
+                            }
                         }
                     }
                 }
+
             }
         }
     }
+}
+
+//FUNKSJON FOR Å TEGNE VÆRLAG
+/* Bruker TilesOverlay for å tegne værlaget på hver "rute" OSM består av. 'wmsSource' består av URL-en
+* som genereres for bildet man trenger. Den tar hensyn til alle parametrene i URL-en, slik at man kan
+* endre etter behov - eks. TIME kan endres dynamisk.
+* */
+fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
+    val layer = uiState.selectedLayer ?: return
+    // Finn forrige lag slik at vi kan fjerne det ETTER at det nye er klart
+    val oldLayers = map.overlays.filterIsInstance<TilesOverlay>()
+
+    val wmsSource = object : XYTileSource(
+        "${layer.name}_${uiState.selectedTime}", // Unikt navn tvinger ny caching hvis tid endres
+        1, 20, 256, ".png",
+        arrayOf("https://public-victoria.met.no/wms?")
+    ) {
+        override fun getTileURLString(pTileIndex: Long): String {
+            val zoom = MapTileIndex.getZoom(pTileIndex)
+            val x = MapTileIndex.getX(pTileIndex)
+            val y = MapTileIndex.getY(pTileIndex)
+
+            val n = Math.pow(2.0, zoom.toDouble())
+            val lonMin = x / n * 360.0 - 180.0
+            val lonMax = (x + 1) / n * 360.0 - 180.0
+            val latMinRad = Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 1) / n)))
+            val latMin = Math.toDegrees(latMinRad)
+            val latMaxRad = Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n)))
+            val latMax = Math.toDegrees(latMaxRad)
+
+            // VIKTIG: Victoria WMS med CRS:84 forventer minLon, minLat, maxLon, maxLat
+            val bbox = "$lonMin,$latMin,$lonMax,$latMax"
+
+            val formattedTime = uiState.selectedTime.replace("+0000", "Z")
+
+            // Hent model-navnet fra staten (f.eks. "meps", "arome" eller "ec")
+            val modelParam = uiState.area?.area ?: "meps"
+
+            val url = StringBuilder("https://public-victoria.met.no/wms?")
+            url.append("SERVICE=WMS")
+            url.append("&VERSION=1.3.0")
+            url.append("&REQUEST=GetMap")
+            url.append("&LAYERS=${layer.name}")
+            url.append("&STYLES=") // Noen servere krever denne, selv om den er tom
+            url.append("&CRS=CRS:84")
+            url.append("&BBOX=$bbox")
+            url.append("&WIDTH=256")
+            url.append("&HEIGHT=256")
+            url.append("&FORMAT=image/png")
+            url.append("&TRANSPARENT=TRUE")
+            url.append("&model=$modelParam") // KRITISK for Victoria
+
+            if (formattedTime.isNotEmpty()) {
+                url.append("&TIME=$formattedTime")
+            }
+
+            return url.toString()
+        }
+    }
+
+    val provider = MapTileProviderBasic(map.context, wmsSource).apply{
+        setOfflineFirst(false)
+    }
+
+    val tilesOverlay = TilesOverlay(provider, map.context).apply{
+        loadingBackgroundColor = android.graphics.Color.TRANSPARENT
+        loadingLineColor = android.graphics.Color.TRANSPARENT
+        setUseDataConnection(true)
+    }
+
+    // Bruk ColorMatrix for alpha-kontroll (0.7f = 70% synlig)
+    val alphaMatrix = android.graphics.ColorMatrix().apply {
+        setScale(1f, 1f, 1f, 0.7f)
+    }
+
+    tilesOverlay.setColorFilter(android.graphics.ColorMatrixColorFilter(alphaMatrix))
+    map.overlays.add(tilesOverlay)
+    if (oldLayers.isNotEmpty()) {
+        map.overlays.removeAll(oldLayers)
+    }
+
+    map.invalidate()
+}
+
+//FUNKSJON FOR Å LAGE FAREVARSLER
+/* Bruker 'Polygon'-objekter for å lage interaktive polygoner, og 'FolderOverlay' for å gruppere
+* de sammen, slik at flere varsler kan vises samtidig.
+* */
+fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean){
+    map.overlays.removeAll { it is FolderOverlay && it.name == "Farevarsler" }
+
+    if (!fareVarsel) {
+        map.invalidate()
+        return
+    }
+
+    val folderOverlay = FolderOverlay() //Lager en mappe for å holde på farevarslene
+    folderOverlay.name = "Farevarsler" //Kaller Overlay-mappen for farevarsler
+
+    uiState.alertList.forEach { features ->
+        // Funksjon som kan tegne et enkelt sett med punkter
+        fun addPolygonToFolder(coords: JsonArray) {
+            val points = mutableListOf<GeoPoint>()
+            // GeoJSON-standard: Første liste [0] er alltid den ytre ringen
+            val outerRing = coords[0].jsonArray
+            outerRing.forEach { coordinatePair ->
+                val pair = coordinatePair.jsonArray
+                val lon = pair[0].jsonPrimitive.double
+                val lat = pair[1].jsonPrimitive.double
+                points.add(GeoPoint(lat, lon))
+            }
+
+            if (points.isNotEmpty()) {
+                val polygon = Polygon(map)
+                polygon.points = points
+                polygon.title = features.properties?.title //Tittel på farevarselet
+                polygon.snippet = features.properties?.description //Beskrivelse av farevarselet
+                // Sett farge og info
+                val color = when (features.properties?.riskMatrixColor) {
+                    "Yellow" -> "FFFF00"
+                    "Orange" -> "FFA500"
+                    "Red" -> "FF0000"
+                    else -> "FFFFFF"
+                }
+                polygon.fillPaint.color = AndroidColor.parseColor("#80$color")
+                folderOverlay.add(polygon)
+            }
+        }
+
+// 2. Sjekk typen og fordel jobben
+        // Inne i drawAlerts:
+        val coords = features.geometry?.coordinates?.jsonArray // Bruk .jsonArray her
+        if (features.geometry?.type?.equals("Polygon", true) == true && coords != null) {
+            addPolygonToFolder(coords)
+        } else if (features.geometry?.type?.equals("MultiPolygon", true) == true && coords != null) {
+            coords.forEach { singlePolygonCoords ->
+                addPolygonToFolder(singlePolygonCoords.jsonArray)
+            }
+        }
+    }
+    map.overlays.add(folderOverlay) //Legger til mappen med overlays til kartet
+    map.invalidate()
+
 }
