@@ -5,7 +5,9 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map
 import android.content.Context
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,10 +52,12 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.FolderOverlay
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
+import kotlin.math.roundToInt
 import android.graphics.Color as AndroidColor
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(
@@ -112,7 +116,7 @@ fun MapScreen(
             // Sjekk om vi faktisk trenger å tegne på nytt
             if (currentLayer?.name != lastDrawnLayerName || currentTime != lastDrawnTime || currentArea != lastDrawnArea) {
 
-                updateWmsLayer(view, mapScreenUiState)
+                updateWmsLayer(view, mapScreenUiState, sliderPosition)
 
                 // Oppdater "hukommelsen"
                 lastDrawnLayerName = currentLayer?.name
@@ -142,15 +146,24 @@ fun MapScreen(
                 //Slider for å velge dager frem i tid
                 Slider(
                     value = sliderPosition,
-                    onValueChange = { sliderPosition = it },
+                    onValueChange = { newValue ->
+                        // Force snap to integer during movement
+                        sliderPosition = newValue.roundToInt().toFloat()
+                    },
                     colors = SliderDefaults.colors(
                         thumbColor = MaterialTheme.colorScheme.secondary,
                         activeTrackColor = MaterialTheme.colorScheme.secondary,
                         inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
                     ),
-                    valueRange = 0f..10f
+                    steps = 239,
+                    valueRange = 0f..240f,
                 )
-                Text(text = sliderPosition.toString())
+                Text(text = sliderPosition.toInt().toString())
+
+                var now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC)
+                now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
+                mapViewModel.updateTime(now.format(java.time.format.DateTimeFormatter.ISO_INSTANT))
+
             }
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Bottom),
@@ -249,7 +262,7 @@ fun MapScreen(
 * som genereres for bildet man trenger. Den tar hensyn til alle parametrene i URL-en, slik at man kan
 * endre etter behov - eks. TIME kan endres dynamisk.
 * */
-fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
+fun updateWmsLayer(map: MapView, uiState: MapScreenUiState, slider: Float) {
     val layer = uiState.selectedLayer ?: return
     // Finn forrige lag slik at vi kan fjerne det ETTER at det nye er klart
     val oldLayers = map.overlays.filterIsInstance<TilesOverlay>()
@@ -272,10 +285,8 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
             val latMaxRad = Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n)))
             val latMax = Math.toDegrees(latMaxRad)
 
-            // VIKTIG: Victoria WMS med CRS:84 forventer minLon, minLat, maxLon, maxLat
+            // Victoria WMS med CRS:84 forventer minLon, minLat, maxLon, maxLat
             val bbox = "$lonMin,$latMin,$lonMax,$latMax"
-
-            val formattedTime = uiState.selectedTime.replace("+0000", "Z")
 
             // Hent model-navnet fra staten (f.eks. "meps", "arome" eller "ec")
             val modelParam = uiState.area?.area ?: "meps"
@@ -294,11 +305,11 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
             url.append("&TRANSPARENT=TRUE")
             url.append("&model=$modelParam") // KRITISK for Victoria
 
-            if (formattedTime.isNotEmpty()) {
-                url.append("&TIME=$formattedTime")
+            if (uiState.selectedTime?.isNotEmpty() ?: true) {
+                url.append("&TIME=${uiState.selectedTime}")
             }
 
-            Log.d("URL", "$url")
+            Log.e("WMS_SJEKK", "Henter tile fra: $url")
 
             return url.toString()
         }
