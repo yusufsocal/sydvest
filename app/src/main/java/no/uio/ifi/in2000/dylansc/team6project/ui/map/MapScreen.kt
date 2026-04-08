@@ -5,6 +5,7 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map
 import android.content.Context
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -147,7 +148,6 @@ fun MapScreen(
                         activeTrackColor = MaterialTheme.colorScheme.secondary,
                         inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
                     ),
-                    steps = 9,
                     valueRange = 0f..10f
                 )
                 Text(text = sliderPosition.toString())
@@ -297,6 +297,8 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
             if (formattedTime.isNotEmpty()) {
                 url.append("&TIME=$formattedTime")
             }
+
+            Log.d("URL", "$url")
 
             return url.toString()
         }
