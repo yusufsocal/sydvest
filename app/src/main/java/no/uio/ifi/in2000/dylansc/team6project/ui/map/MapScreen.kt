@@ -3,6 +3,8 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map
 
 import android.content.Context
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,11 +17,15 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,7 +51,6 @@ import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
 import android.graphics.Color as AndroidColor
 import androidx.compose.ui.graphics.Color as ComposeColor
-import androidx.core.graphics.toColorInt
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,6 +66,9 @@ fun MapScreen(
     var lastDrawnLayerName by remember { mutableStateOf<String?>(null) }
     var lastDrawnTime by remember { mutableStateOf<String?>(null) }
     var lastDrawnArea by remember { mutableStateOf<AreaData?>(null) }
+
+    //Variabel for å velge tidspunkt for værvarsel
+    var sliderPosition by remember { mutableFloatStateOf(0f) }
 
     //Variabel for å sjekke om varevarsler er skrudd av eller på - aktiveres med "Farevarsler"-knappen
     var fareVarsel by remember { mutableStateOf(false)}
@@ -124,6 +132,26 @@ fun MapScreen(
         if (mapScreenUiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Bottom),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(35.dp)
+            ){
+                //Slider for å velge dager frem i tid
+                Slider(
+                    value = sliderPosition,
+                    onValueChange = { sliderPosition = it },
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colorScheme.secondary,
+                        activeTrackColor = MaterialTheme.colorScheme.secondary,
+                        inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                    ),
+                    steps = 9,
+                    valueRange = 0f..10f
+                )
+                Text(text = sliderPosition.toString())
+            }
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Bottom),
                 modifier = Modifier
@@ -279,17 +307,17 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
     }
 
     val tilesOverlay = TilesOverlay(provider, map.context).apply{
-        loadingBackgroundColor = android.graphics.Color.TRANSPARENT
-        loadingLineColor = android.graphics.Color.TRANSPARENT
+        loadingBackgroundColor = AndroidColor.TRANSPARENT
+        loadingLineColor = AndroidColor.TRANSPARENT
         setUseDataConnection(true)
     }
 
     // Bruk ColorMatrix for alpha-kontroll (0.7f = 70% synlig)
-    val alphaMatrix = android.graphics.ColorMatrix().apply {
+    val alphaMatrix = ColorMatrix().apply {
         setScale(1f, 1f, 1f, 0.7f)
     }
 
-    tilesOverlay.setColorFilter(android.graphics.ColorMatrixColorFilter(alphaMatrix))
+    tilesOverlay.setColorFilter(ColorMatrixColorFilter(alphaMatrix))
     map.overlays.add(tilesOverlay)
     if (oldLayers.isNotEmpty()) {
         map.overlays.removeAll(oldLayers)
