@@ -3,6 +3,11 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map
 
 import android.content.Context
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,11 +20,15 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,11 +52,12 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.FolderOverlay
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
+import kotlin.math.roundToInt
 import android.graphics.Color as AndroidColor
 import androidx.compose.ui.graphics.Color as ComposeColor
-import androidx.core.graphics.toColorInt
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(
@@ -61,6 +71,9 @@ fun MapScreen(
     var lastDrawnLayerName by remember { mutableStateOf<String?>(null) }
     var lastDrawnTime by remember { mutableStateOf<String?>(null) }
     var lastDrawnArea by remember { mutableStateOf<AreaData?>(null) }
+
+    //Variabel for å velge tidspunkt for værvarsel
+    var sliderPosition by remember { mutableFloatStateOf(0f) }
 
     //Variabel for å sjekke om varevarsler er skrudd av eller på - aktiveres med "Farevarsler"-knappen
     var fareVarsel by remember { mutableStateOf(false)}
@@ -103,7 +116,7 @@ fun MapScreen(
             // Sjekk om vi faktisk trenger å tegne på nytt
             if (currentLayer?.name != lastDrawnLayerName || currentTime != lastDrawnTime || currentArea != lastDrawnArea) {
 
-                updateWmsLayer(view, mapScreenUiState)
+                updateWmsLayer(view, mapScreenUiState, sliderPosition)
 
                 // Oppdater "hukommelsen"
                 lastDrawnLayerName = currentLayer?.name
@@ -124,6 +137,34 @@ fun MapScreen(
         if (mapScreenUiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Bottom),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(35.dp)
+            ){
+                //Slider for å velge dager frem i tid
+                Slider(
+                    value = sliderPosition,
+                    onValueChange = { newValue ->
+                        // Force snap to integer during movement
+                        sliderPosition = newValue.roundToInt().toFloat()
+                    },
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colorScheme.secondary,
+                        activeTrackColor = MaterialTheme.colorScheme.secondary,
+                        inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                    ),
+                    steps = 239,
+                    valueRange = 0f..240f,
+                )
+                Text(text = sliderPosition.toInt().toString())
+
+                var now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC)
+                now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
+                mapViewModel.updateTime(now.format(java.time.format.DateTimeFormatter.ISO_INSTANT))
+
+            }
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Bottom),
                 modifier = Modifier
@@ -221,7 +262,7 @@ fun MapScreen(
 * som genereres for bildet man trenger. Den tar hensyn til alle parametrene i URL-en, slik at man kan
 * endre etter behov - eks. TIME kan endres dynamisk.
 * */
-fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
+fun updateWmsLayer(map: MapView, uiState: MapScreenUiState, slider: Float) {
     val layer = uiState.selectedLayer ?: return
     // Finn forrige lag slik at vi kan fjerne det ETTER at det nye er klart
     val oldLayers = map.overlays.filterIsInstance<TilesOverlay>()
@@ -244,10 +285,8 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
             val latMaxRad = Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n)))
             val latMax = Math.toDegrees(latMaxRad)
 
-            // VIKTIG: Victoria WMS med CRS:84 forventer minLon, minLat, maxLon, maxLat
+            // Victoria WMS med CRS:84 forventer minLon, minLat, maxLon, maxLat
             val bbox = "$lonMin,$latMin,$lonMax,$latMax"
-
-            val formattedTime = uiState.selectedTime.replace("+0000", "Z")
 
             // Hent model-navnet fra staten (f.eks. "meps", "arome" eller "ec")
             val modelParam = uiState.area?.area ?: "meps"
@@ -266,9 +305,11 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
             url.append("&TRANSPARENT=TRUE")
             url.append("&model=$modelParam") // KRITISK for Victoria
 
-            if (formattedTime.isNotEmpty()) {
-                url.append("&TIME=$formattedTime")
+            if (uiState.selectedTime?.isNotEmpty() ?: true) {
+                url.append("&TIME=${uiState.selectedTime}")
             }
+
+            Log.e("WMS_SJEKK", "Henter tile fra: $url")
 
             return url.toString()
         }
@@ -279,17 +320,17 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
     }
 
     val tilesOverlay = TilesOverlay(provider, map.context).apply{
-        loadingBackgroundColor = android.graphics.Color.TRANSPARENT
-        loadingLineColor = android.graphics.Color.TRANSPARENT
+        loadingBackgroundColor = AndroidColor.TRANSPARENT
+        loadingLineColor = AndroidColor.TRANSPARENT
         setUseDataConnection(true)
     }
 
     // Bruk ColorMatrix for alpha-kontroll (0.7f = 70% synlig)
-    val alphaMatrix = android.graphics.ColorMatrix().apply {
+    val alphaMatrix = ColorMatrix().apply {
         setScale(1f, 1f, 1f, 0.7f)
     }
 
-    tilesOverlay.setColorFilter(android.graphics.ColorMatrixColorFilter(alphaMatrix))
+    tilesOverlay.setColorFilter(ColorMatrixColorFilter(alphaMatrix))
     map.overlays.add(tilesOverlay)
     if (oldLayers.isNotEmpty()) {
         map.overlays.removeAll(oldLayers)
