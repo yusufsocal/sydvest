@@ -37,6 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable.isActive
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonArray
@@ -95,6 +100,9 @@ fun MapScreen(
     //Variabel for å velge tidspunkt for værvarsel
     var sliderPosition by remember { mutableFloatStateOf(0f) }
 
+    //Variabel for å sjekke om animasjon er skrudd av eller på - aktiveres med "Animate"-knappen
+    var animate by remember { mutableStateOf(false)}
+
     //Variabel for å sjekke om varevarsler er skrudd av eller på - aktiveres med "Farevarsler"-knappen
     var fareVarsel by remember { mutableStateOf(false)}
 
@@ -133,7 +141,7 @@ fun MapScreen(
             // Sjekk om vi faktisk trenger å tegne på nytt
             if (currentLayer?.name != lastDrawnLayerName || currentTime != lastDrawnTime || currentArea != lastDrawnArea) {
 
-                updateWmsLayer(view, mapScreenUiState, sliderPosition)
+                updateWmsLayer(view, mapScreenUiState)
 
                 // Oppdater "hukommelsen"
                 lastDrawnLayerName = currentLayer?.name
@@ -200,6 +208,30 @@ fun MapScreen(
                     valueRange = 0f..240f,
                 )
                 Text(text = sliderPosition.toInt().toString())
+
+                OutlinedButton(
+                    //Kan byttes ut med IconButton
+                    onClick = {
+                        animate = !animate
+                        CoroutineScope(Dispatchers.Default).launch {
+                            while (isActive && animate) { // isActive checks if the coroutine is still running
+                                var now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC)
+                                now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
+                                sliderPosition += 1
+                                mapViewModel.updateTime(now.format(java.time.format.DateTimeFormatter.ISO_INSTANT))
+                                delay(500) // timeInterval is in milliseconds (e.g., 5000 for 5s)
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
+                ) {
+                    Text(
+                        text = "Animate",
+                        color = ComposeColor.Black
+                    )
+                }
+
+
 
             }
             Column(
@@ -299,7 +331,7 @@ fun MapScreen(
 * som genereres for bildet man trenger. Den tar hensyn til alle parametrene i URL-en, slik at man kan
 * endre etter behov - eks. TIME kan endres dynamisk.
 * */
-fun updateWmsLayer(map: MapView, uiState: MapScreenUiState, slider: Float) {
+fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
     val layer = uiState.selectedLayer ?: return
     val currentTime = uiState.selectedTime ?: ""
 
@@ -436,6 +468,9 @@ fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean){
 
 }
 
+
+// FUNKSJON FOR ANIMASJON
+=======
 @SuppressLint("MissingPermission")
 fun centerMapOnUserLocation(context: Context, mapView: MapView) {
     val fusedClient = LocationServices.getFusedLocationProviderClient(context)
@@ -446,3 +481,4 @@ fun centerMapOnUserLocation(context: Context, mapView: MapView) {
             }
         }
 }
+
