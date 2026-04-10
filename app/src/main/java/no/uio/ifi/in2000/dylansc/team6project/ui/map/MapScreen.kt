@@ -293,7 +293,7 @@ fun MapScreen(
                             ExposedDropdownMenu(
                                 expanded = expanded, onDismissRequest = { expanded = false }) {
                                     //PROSJEKT CUSTOM AREA
-                                    //Funksjonalitet for å fjerne suffix basert på hvilket område som benyttes
+                                    //Funksjonalitet for å fjerne suffix basert på hvilket område som benyttes og legge de i en ny list
                                     val updatedList = mapScreenUiState.layerList.map { layer ->
                                         layer.copy(
                                             title = when (mapScreenUiState.area) {
@@ -305,33 +305,41 @@ fun MapScreen(
                                         )
                                     }
 
-                                    val allowedLayers = setOf(
-                                        "Air temperature 2m",
-                                        "Precipitation amount 1h",
-                                        "Wind 10m speed",
-                                        "Wind 10m vector"
-                                    )
+                                // Liste med lag som vi vil ha i appen
+                                val allowedLayers = setOf(
+                                    "Air temperature 2m",
+                                    "Precipitation amount 1h",
+                                    "Wind 10m speed",
+                                    "Wind 10m vector"
+                                )
 
-                                    updatedList
-                                        .filter { it.title in allowedLayers }
-                                        .forEach { layer ->
-                                            var nyTitle: String = layer.title
+                                // filtrer ut alt som ikke er i allowedLayers og leg dem i dropdown-menyen med ny navn
+                                updatedList
+                                    .filter { it.title in allowedLayers }
+                                    .forEach { layer ->
+                                        var nyTitle: String = when (layer.title) {
+                                            "Air temperature 2m" -> "Temperature"
+                                            "Precipitation amount 1h" -> "Rainfall"
+                                            "Wind 10m speed" -> "Wind speed"
+                                            "Wind 10m vector" -> "Wind direction"
+                                            else -> error("Unexpected layer title: ${layer.title}")
+                                        }
 
-                                    //-----------------------
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(text = nyTitle)
-                                        },
-                                        onClick = {
-                                            selectedOptionText = nyTitle // Oppdaterer teksten i feltet
-                                            expanded = false
+                                        //-----------------------
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(text = nyTitle)
+                                            },
+                                            onClick = {
+                                                selectedOptionText = nyTitle // Oppdaterer teksten i feltet
+                                                expanded = false
 
-                                            // FORTELL ViewModel hvilket lag som er valgt
-                                            mapViewModel.setSelectedLayer(layer)
-                                        },
-                                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                    )
-                                }
+                                                // FORTELL ViewModel hvilket lag som er valgt
+                                                mapViewModel.setSelectedLayer(layer)
+                                            },
+                                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                        )
+                                    }
                             }
                         } else {
                             // Hvis lista er tom, viser vi en liten hjelpetekst i steden
