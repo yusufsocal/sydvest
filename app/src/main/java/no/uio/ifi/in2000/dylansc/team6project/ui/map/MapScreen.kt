@@ -27,6 +27,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -99,6 +100,13 @@ fun MapScreen(
 
     //Variabel for å velge tidspunkt for værvarsel
     var sliderPosition by remember { mutableFloatStateOf(0f) }
+    //Kjører hvis slider endres - sender tidspunkt til ViewModel
+    LaunchedEffect(sliderPosition) {
+        var now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC)
+        now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
+
+        mapViewModel.updateTime(now.format(java.time.format.DateTimeFormatter.ISO_INSTANT))
+    }
 
     //Variabel for å sjekke om animasjon er skrudd av eller på - aktiveres med "Animate"-knappen
     var animate by remember { mutableStateOf(false)}
@@ -209,6 +217,7 @@ fun MapScreen(
                 )
                 Text(text = sliderPosition.toInt().toString())
 
+
                 OutlinedButton(
                     //Kan byttes ut med IconButton
                     onClick = {
@@ -230,7 +239,6 @@ fun MapScreen(
                         color = ComposeColor.Black
                     )
                 }
-
 
 
             }
@@ -256,7 +264,9 @@ fun MapScreen(
                 // LISTE MED VÆRLAG (DROPDOWN)
                 var expanded by remember { mutableStateOf(false) }
                 var selectedOptionText by remember { mutableStateOf("Velg værlag...") }
-                var areaData by remember { mutableStateOf("${mapScreenUiState.area}")}
+                //leser direkte fra state hver gang UI oppdateres
+                var areaData = mapScreenUiState.area?.toString() ?: ""
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -483,7 +493,6 @@ fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean){
 
 
 // FUNKSJON FOR ANIMASJON
-=======
 @SuppressLint("MissingPermission")
 fun centerMapOnUserLocation(context: Context, mapView: MapView) {
     val fusedClient = LocationServices.getFusedLocationProviderClient(context)

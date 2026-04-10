@@ -5,4 +5,16 @@
 
 package no.uio.ifi.in2000.dylansc.team6project.model.domene
 
-class WMSDomain (){}
+import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
+
+class WMSDomain {
+    fun resolveArea(originalArea: AreaData, hoursAhead: Long): AreaData {
+        return if (
+            (originalArea == AreaData.NORDEN || originalArea == AreaData.ARKTIS) && hoursAhead > 60
+        ) {
+            AreaData.VERDEN
+        } else {
+            originalArea
+        }
+    }
+}
