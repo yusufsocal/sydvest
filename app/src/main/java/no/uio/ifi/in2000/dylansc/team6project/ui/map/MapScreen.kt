@@ -149,6 +149,10 @@ fun MapScreen(
                     onValueChange = { newValue ->
                         // Force snap to integer during movement
                         sliderPosition = newValue.roundToInt().toFloat()
+                        var now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC)
+                        now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
+                        mapViewModel.updateTime(now.format(java.time.format.DateTimeFormatter.ISO_INSTANT))
+
                     },
                     colors = SliderDefaults.colors(
                         thumbColor = MaterialTheme.colorScheme.secondary,
@@ -159,10 +163,6 @@ fun MapScreen(
                     valueRange = 0f..240f,
                 )
                 Text(text = sliderPosition.toInt().toString())
-
-                var now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC)
-                now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
-                mapViewModel.updateTime(now.format(java.time.format.DateTimeFormatter.ISO_INSTANT))
 
             }
             Column(
@@ -264,11 +264,11 @@ fun MapScreen(
 * */
 fun updateWmsLayer(map: MapView, uiState: MapScreenUiState, slider: Float) {
     val layer = uiState.selectedLayer ?: return
-    // Finn forrige lag slik at vi kan fjerne det ETTER at det nye er klart
-    val oldLayers = map.overlays.filterIsInstance<TilesOverlay>()
+    val currentTime = uiState.selectedTime ?: ""
 
-    val wmsSource = object : XYTileSource(
-        "${layer.name}_${uiState.selectedTime}", // Unikt navn tvinger ny caching hvis tid endres
+    // 1. Lag den nye kilden (TileSource)
+    val newSource = object : XYTileSource(
+        "${layer.name}_$currentTime",
         1, 20, 256, ".png",
         arrayOf("https://public-victoria.met.no/wms?")
     ) {
@@ -315,27 +315,26 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState, slider: Float) {
         }
     }
 
-    val provider = MapTileProviderBasic(map.context, wmsSource).apply{
-        setOfflineFirst(false)
+    //Finner og fjerner gamle værlag, og lukker dem!
+    val oldOverlays = map.overlays.filterIsInstance<TilesOverlay>()
+    oldOverlays.forEach { oldOverlay ->
+        // Dette stopper "Too many receivers"
+        oldOverlay.onDetach(map)
+        map.overlays.remove(oldOverlay)
     }
 
-    val tilesOverlay = TilesOverlay(provider, map.context).apply{
+    //Opprett ny provider og overlay
+    val provider = MapTileProviderBasic(map.context, newSource)
+    val tilesOverlay = TilesOverlay(provider, map.context).apply {
         loadingBackgroundColor = AndroidColor.TRANSPARENT
-        loadingLineColor = AndroidColor.TRANSPARENT
-        setUseDataConnection(true)
+
+        //Alphafilter
+        val alphaMatrix = ColorMatrix().apply { setScale(1f, 1f, 1f, 0.7f) }
+        setColorFilter(ColorMatrixColorFilter(alphaMatrix))
     }
 
-    // Bruk ColorMatrix for alpha-kontroll (0.7f = 70% synlig)
-    val alphaMatrix = ColorMatrix().apply {
-        setScale(1f, 1f, 1f, 0.7f)
-    }
-
-    tilesOverlay.setColorFilter(ColorMatrixColorFilter(alphaMatrix))
+    // 4. Legg til det nye laget
     map.overlays.add(tilesOverlay)
-    if (oldLayers.isNotEmpty()) {
-        map.overlays.removeAll(oldLayers)
-    }
-
     map.invalidate()
 }
 
