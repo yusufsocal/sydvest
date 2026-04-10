@@ -84,7 +84,7 @@ fun MapScreen(
 ) {
     val context = LocalContext.current
     var mapViewRef by remember { mutableStateOf<MapView?>(null) }
-
+/*
     // Launcher for å be om posisjonstillatelse
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -94,14 +94,12 @@ fun MapScreen(
         if (granted) {
             mapViewRef?.let { centerMapOnUserLocation(context, it) }
         }
-    }
+    }*/
 
     //Variabler for å sjekke om endringer har forekommet i værlagene.
     var lastDrawnLayerName by remember { mutableStateOf<String?>(null) }
     var lastDrawnTime by remember { mutableStateOf<String?>(null) }
     var lastDrawnArea by remember { mutableStateOf<AreaData?>(null) }
-
-    var mapSearch by remember { mutableStateOf<String>("") }
 
     //Variabel for å velge tidspunkt for værvarsel
     var sliderPosition by remember { mutableFloatStateOf(0f) }
@@ -118,6 +116,9 @@ fun MapScreen(
 
     //Variabel for å sjekke om varevarsler er skrudd av eller på - aktiveres med "Farevarsler"-knappen
     var fareVarsel by remember { mutableStateOf(false)}
+
+    //Variabel for å skrive inn addresse
+    var addresse by remember { mutableStateOf("") }
 
     // 1. Viktig oppsett for at kartet skal kunne lagre bilder på telefonen
     Configuration.getInstance().load(
@@ -145,16 +146,6 @@ fun MapScreen(
                 Configuration.getInstance().cacheMapTileCount = 5000
 
                 mapViewRef = this
-
-                val geocoder = Geocoder(context, Locale.getDefault())
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    geocoder.getFromLocationName("Ole-Johan", 5) { addresses ->
-                        val location = addresses.firstOrNull()
-                        val lat = location?.latitude
-                        val lng = location?.longitude
-                        Log.e("Addresser", "$addresses")
-                    }
-                }
 
             }
         },
@@ -187,7 +178,7 @@ fun MapScreen(
                 .apply()
         }
     )
-
+/*
     // Sjekker og ber om posisjonertillatelse etter at kartet er klart
     LaunchedEffect(Unit) {
         val fineGranted = ContextCompat.checkSelfPermission(
@@ -207,7 +198,7 @@ fun MapScreen(
                 )
             )
         }
-    }
+    }*/
 
     Box() {
 
@@ -241,7 +232,7 @@ fun MapScreen(
                 )
                 Text(text = sliderPosition.toInt().toString())
 
-
+                //Knapp for å animere
                 OutlinedButton(
                     //Kan byttes ut med IconButton
                     onClick = {
@@ -264,6 +255,25 @@ fun MapScreen(
                     )
                 }
 
+                //Søkefelt for addresse
+                TextField(
+                    value = addresse,
+                    onValueChange = { addresse = it },
+                    label = { Text("Enter your name") }
+                )
+                val geocoder = Geocoder(context, Locale.getDefault())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    geocoder.getFromLocationName(addresse, 1) { addresses ->
+                        val location = addresses.firstOrNull()
+                        val lat = location?.latitude?.toDouble() ?: 0.0
+                        val lng = location?.longitude?.toDouble() ?: 0.0
+                        mapViewRef?.controller?.setCenter(GeoPoint(lat, lng))
+                        mapViewRef?.controller?.setZoom(15.0)
+
+
+                        Log.e("Addresser", "$addresses")
+                    }
+                }
 
             }
             Column(
@@ -523,7 +533,7 @@ fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean){
 
 }
 
-
+/*
 // FUNKSJON FOR ANIMASJON
 @SuppressLint("MissingPermission")
 fun centerMapOnUserLocation(context: Context, mapView: MapView) {
@@ -536,3 +546,4 @@ fun centerMapOnUserLocation(context: Context, mapView: MapView) {
         }
 }
 
+*/
