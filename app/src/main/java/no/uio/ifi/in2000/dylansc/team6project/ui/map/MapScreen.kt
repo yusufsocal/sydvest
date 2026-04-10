@@ -60,6 +60,15 @@ import org.osmdroid.views.overlay.TilesOverlay
 import kotlin.math.roundToInt
 import android.graphics.Color as AndroidColor
 import androidx.compose.ui.graphics.Color as ComposeColor
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import androidx.compose.runtime.LaunchedEffect
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -71,6 +80,17 @@ fun MapScreen(
 ) {
     val context = LocalContext.current
     var mapViewRef by remember { mutableStateOf<MapView?>(null) }
+
+    // Launcher for å be om posisjonstillatelse
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (granted) {
+            mapViewRef?.let { centerMapOnUserLocation(context, it) }
+        }
+    }
 
     //Variabler for å sjekke om endringer har forekommet i værlagene.
     var lastDrawnLayerName by remember { mutableStateOf<String?>(null) }
@@ -98,20 +118,17 @@ fun MapScreen(
             MapView(ctx).apply {
                 setTileSource(TileSourceFactory.MAPNIK)
                 setTilesScaledToDpi(true)
-
                 setMultiTouchControls(true)
-                controller.setZoom(10.0) // Mengde zoom ved åpning av app
-                controller.setCenter(GeoPoint(60.90, 10.75)) //Setter startposisjon -> MÅ ENDRES TIL GEOLOKASJON
-                setMinZoomLevel(3.0); // Begrens zoom ut
-                setMaxZoomLevel(18.0); // Begrens zoom inn
-                setScrollableAreaLimitLatitude(85.0, -85.0, height + 1000) //Begrenser hvor mye man kan skrolle vertikalt og horisontalt på kartet
+                controller.setZoom(10.0)
+                controller.setCenter(GeoPoint(60.90, 10.75)) // Fallback posisjon
+                setMinZoomLevel(3.0)
+                setMaxZoomLevel(18.0)
+                setScrollableAreaLimitLatitude(85.0, -85.0, height + 1000)
                 setFlingEnabled(true)
-
-
                 setVerticalMapRepetitionEnabled(false)
-                Configuration.getInstance().cacheMapTileCount = 5000 //SKRU NED DENNE OM VÆRLAGENE BEGYNNER Å HENGE
+                Configuration.getInstance().cacheMapTileCount = 5000
 
-                mapViewRef = this // Lagre referansen her
+                mapViewRef = this
             }
         },
         modifier = Modifier.fillMaxSize(),
@@ -139,6 +156,26 @@ fun MapScreen(
         }
     )
 
+    // Sjekker og ber om posisjonertillatelse etter at kartet er klart
+    LaunchedEffect(Unit) {
+        val fineGranted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val coarseGranted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (fineGranted || coarseGranted) {
+            mapViewRef?.let { centerMapOnUserLocation(context, it) }
+        } else {
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
 
     Box() {
 
@@ -431,4 +468,17 @@ fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean){
 
 }
 
+
 // FUNKSJON FOR ANIMASJON
+=======
+@SuppressLint("MissingPermission")
+fun centerMapOnUserLocation(context: Context, mapView: MapView) {
+    val fusedClient = LocationServices.getFusedLocationProviderClient(context)
+    fusedClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+        .addOnSuccessListener { location ->
+            if (location != null) {
+                mapView.controller.animateTo(GeoPoint(location.latitude, location.longitude))
+            }
+        }
+}
+
