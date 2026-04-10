@@ -58,12 +58,15 @@ import androidx.compose.ui.graphics.Color as ComposeColor
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import androidx.compose.runtime.LaunchedEffect
+import java.util.Locale
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -92,6 +95,8 @@ fun MapScreen(
     var lastDrawnTime by remember { mutableStateOf<String?>(null) }
     var lastDrawnArea by remember { mutableStateOf<AreaData?>(null) }
 
+    var mapSearch by remember { mutableStateOf<String>("") }
+
     //Variabel for å velge tidspunkt for værvarsel
     var sliderPosition by remember { mutableFloatStateOf(0f) }
 
@@ -112,7 +117,10 @@ fun MapScreen(
                 setTilesScaledToDpi(true)
                 setMultiTouchControls(true)
                 controller.setZoom(10.0)
-                controller.setCenter(GeoPoint(60.90, 10.75)) // Fallback posisjon
+                val prefs = ctx.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
+                val savedLat = prefs.getFloat("last_lat", 60.90f).toDouble()
+                val savedLon = prefs.getFloat("last_lon", 10.75f).toDouble()
+                controller.setCenter(GeoPoint(savedLat, savedLon))
                 setMinZoomLevel(3.0)
                 setMaxZoomLevel(18.0)
                 setScrollableAreaLimitLatitude(85.0, -85.0, height + 1000)
@@ -121,6 +129,17 @@ fun MapScreen(
                 Configuration.getInstance().cacheMapTileCount = 5000
 
                 mapViewRef = this
+
+                val geocoder = Geocoder(context, Locale.getDefault())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    geocoder.getFromLocationName("Ole-Johan", 5) { addresses ->
+                        val location = addresses.firstOrNull()
+                        val lat = location?.latitude
+                        val lng = location?.longitude
+                        Log.e("Addresser", "$addresses")
+                    }
+                }
+
             }
         },
         modifier = Modifier.fillMaxSize(),
@@ -144,7 +163,12 @@ fun MapScreen(
             //aktiverer / deaktiverer farevarsler
             drawAlerts(view, mapScreenUiState, fareVarsel)
 
-
+            val prefs = view.context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
+            val center = view.mapCenter
+            prefs.edit()
+                .putFloat("current_lat", center.latitude.toFloat())
+                .putFloat("current_lon", center.longitude.toFloat())
+                .apply()
         }
     )
 
