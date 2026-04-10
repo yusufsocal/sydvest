@@ -213,17 +213,31 @@ fun MapScreen(
                         if (mapScreenUiState.layerList.isNotEmpty()) {
                             ExposedDropdownMenu(
                                 expanded = expanded, onDismissRequest = { expanded = false }) {
-                                mapScreenUiState.layerList.forEach { layer ->
                                     //PROSJEKT CUSTOM AREA
                                     //Funksjonalitet for å fjerne suffix basert på hvilket område som benyttes
-                                    var nyTitle: String = ""
-                                    if (mapScreenUiState.area == AreaData.NORDEN) {
-                                        nyTitle = layer.title.removeSuffix("in MEPS VDIV")
-                                    } else if (mapScreenUiState.area == AreaData.ARKTIS) {
-                                        nyTitle = layer.title.removeSuffix("in Arctic VDIV")
-                                    } else if (mapScreenUiState.area == AreaData.VERDEN) {
-                                        nyTitle = layer.title.removeSuffix("in ECMWF VDIV 1h")
+                                    val updatedList = mapScreenUiState.layerList.map { layer ->
+                                        layer.copy(
+                                            title = when (mapScreenUiState.area) {
+                                                AreaData.NORDEN -> layer.title.removeSuffix(" in MEPS VDIV")
+                                                AreaData.ARKTIS -> layer.title.removeSuffix(" in Arctic VDIV")
+                                                AreaData.VERDEN -> layer.title.removeSuffix(" in ECMWF VDIV 1h")
+                                                else -> layer.title
+                                            }
+                                        )
                                     }
+
+                                    val allowedLayers = setOf(
+                                        "Air temperature 2m",
+                                        "Precipitation amount 1h",
+                                        "Wind 10m speed",
+                                        "Wind 10m vector"
+                                    )
+
+                                    updatedList
+                                        .filter { it.title in allowedLayers }
+                                        .forEach { layer ->
+                                            var nyTitle: String = layer.title
+
                                     //-----------------------
                                     DropdownMenuItem(
                                         text = {
@@ -251,7 +265,6 @@ fun MapScreen(
                         }
                     }
                 }
-
             }
         }
     }
