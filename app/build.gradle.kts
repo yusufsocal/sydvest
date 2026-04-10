@@ -81,7 +81,8 @@ dependencies {
     // Kotlinx Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_version")
 
-
+    // Fused Location Provider (for å få geolocation)
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 
     // AndroidX / Compose (behold dine eksisterende libs.androidx her)
     implementation(libs.androidx.core.ktx)
