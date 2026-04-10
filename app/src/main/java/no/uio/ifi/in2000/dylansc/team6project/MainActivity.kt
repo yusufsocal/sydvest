@@ -9,6 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.dylansc.team6project.ui.AppNavHost
+import android.content.Context
 
 class MainActivity : ComponentActivity() {
 
@@ -31,5 +32,14 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        val prefs = getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
+        prefs.edit()
+            .putFloat("last_lat", prefs.getFloat("current_lat", 60.90f))
+            .putFloat("last_lon", prefs.getFloat("current_lon", 10.75f))
+            .apply()
     }
 }
