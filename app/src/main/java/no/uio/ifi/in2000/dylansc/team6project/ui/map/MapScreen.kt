@@ -38,6 +38,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable.isActive
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonArray
@@ -56,6 +61,15 @@ import org.osmdroid.views.overlay.TilesOverlay
 import kotlin.math.roundToInt
 import android.graphics.Color as AndroidColor
 import androidx.compose.ui.graphics.Color as ComposeColor
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import androidx.compose.runtime.LaunchedEffect
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -67,6 +81,17 @@ fun MapScreen(
 ) {
     val context = LocalContext.current
     var mapViewRef by remember { mutableStateOf<MapView?>(null) }
+
+    // Launcher for å be om posisjonstillatelse
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (granted) {
+            mapViewRef?.let { centerMapOnUserLocation(context, it) }
+        }
+    }
 
     //Variabler for å sjekke om endringer har forekommet i værlagene.
     var lastDrawnLayerName by remember { mutableStateOf<String?>(null) }
@@ -83,6 +108,9 @@ fun MapScreen(
         mapViewModel.updateTime(now.format(java.time.format.DateTimeFormatter.ISO_INSTANT))
     }
 
+    //Variabel for å sjekke om animasjon er skrudd av eller på - aktiveres med "Animate"-knappen
+    var animate by remember { mutableStateOf(false)}
+
     //Variabel for å sjekke om varevarsler er skrudd av eller på - aktiveres med "Farevarsler"-knappen
     var fareVarsel by remember { mutableStateOf(false)}
 
@@ -98,20 +126,17 @@ fun MapScreen(
             MapView(ctx).apply {
                 setTileSource(TileSourceFactory.MAPNIK)
                 setTilesScaledToDpi(true)
-
                 setMultiTouchControls(true)
-                controller.setZoom(10.0) // Mengde zoom ved åpning av app
-                controller.setCenter(GeoPoint(60.90, 10.75)) //Setter startposisjon -> MÅ ENDRES TIL GEOLOKASJON
-                setMinZoomLevel(3.0); // Begrens zoom ut
-                setMaxZoomLevel(18.0); // Begrens zoom inn
-                setScrollableAreaLimitLatitude(85.0, -85.0, height + 1000) //Begrenser hvor mye man kan skrolle vertikalt og horisontalt på kartet
+                controller.setZoom(10.0)
+                controller.setCenter(GeoPoint(60.90, 10.75)) // Fallback posisjon
+                setMinZoomLevel(3.0)
+                setMaxZoomLevel(18.0)
+                setScrollableAreaLimitLatitude(85.0, -85.0, height + 1000)
                 setFlingEnabled(true)
-
-
                 setVerticalMapRepetitionEnabled(false)
-                Configuration.getInstance().cacheMapTileCount = 5000 //SKRU NED DENNE OM VÆRLAGENE BEGYNNER Å HENGE
+                Configuration.getInstance().cacheMapTileCount = 5000
 
-                mapViewRef = this // Lagre referansen her
+                mapViewRef = this
             }
         },
         modifier = Modifier.fillMaxSize(),
@@ -124,7 +149,7 @@ fun MapScreen(
             // Sjekk om vi faktisk trenger å tegne på nytt
             if (currentLayer?.name != lastDrawnLayerName || currentTime != lastDrawnTime || currentArea != lastDrawnArea) {
 
-                updateWmsLayer(view, mapScreenUiState, sliderPosition)
+                updateWmsLayer(view, mapScreenUiState)
 
                 // Oppdater "hukommelsen"
                 lastDrawnLayerName = currentLayer?.name
@@ -139,6 +164,26 @@ fun MapScreen(
         }
     )
 
+    // Sjekker og ber om posisjonertillatelse etter at kartet er klart
+    LaunchedEffect(Unit) {
+        val fineGranted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val coarseGranted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (fineGranted || coarseGranted) {
+            mapViewRef?.let { centerMapOnUserLocation(context, it) }
+        } else {
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
 
     Box() {
 
@@ -157,6 +202,10 @@ fun MapScreen(
                     onValueChange = { newValue ->
                         // Force snap to integer during movement
                         sliderPosition = newValue.roundToInt().toFloat()
+                        var now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC)
+                        now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
+                        mapViewModel.updateTime(now.format(java.time.format.DateTimeFormatter.ISO_INSTANT))
+
                     },
                     colors = SliderDefaults.colors(
                         thumbColor = MaterialTheme.colorScheme.secondary,
@@ -167,6 +216,29 @@ fun MapScreen(
                     valueRange = 0f..240f,
                 )
                 Text(text = sliderPosition.toInt().toString())
+
+
+                OutlinedButton(
+                    //Kan byttes ut med IconButton
+                    onClick = {
+                        animate = !animate
+                        CoroutineScope(Dispatchers.Default).launch {
+                            while (isActive && animate) { // isActive checks if the coroutine is still running
+                                var now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC)
+                                now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
+                                sliderPosition += 1
+                                mapViewModel.updateTime(now.format(java.time.format.DateTimeFormatter.ISO_INSTANT))
+                                delay(500) // timeInterval is in milliseconds (e.g., 5000 for 5s)
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
+                ) {
+                    Text(
+                        text = "Animate",
+                        color = ComposeColor.Black
+                    )
+                }
 
 
             }
@@ -220,17 +292,31 @@ fun MapScreen(
                         if (mapScreenUiState.layerList.isNotEmpty()) {
                             ExposedDropdownMenu(
                                 expanded = expanded, onDismissRequest = { expanded = false }) {
-                                mapScreenUiState.layerList.forEach { layer ->
                                     //PROSJEKT CUSTOM AREA
                                     //Funksjonalitet for å fjerne suffix basert på hvilket område som benyttes
-                                    var nyTitle: String = ""
-                                    if (mapScreenUiState.area == AreaData.NORDEN) {
-                                        nyTitle = layer.title.removeSuffix("in MEPS VDIV")
-                                    } else if (mapScreenUiState.area == AreaData.ARKTIS) {
-                                        nyTitle = layer.title.removeSuffix("in Arctic VDIV")
-                                    } else if (mapScreenUiState.area == AreaData.VERDEN) {
-                                        nyTitle = layer.title.removeSuffix("in ECMWF VDIV 1h")
+                                    val updatedList = mapScreenUiState.layerList.map { layer ->
+                                        layer.copy(
+                                            title = when (mapScreenUiState.area) {
+                                                AreaData.NORDEN -> layer.title.removeSuffix(" in MEPS VDIV")
+                                                AreaData.ARKTIS -> layer.title.removeSuffix(" in Arctic VDIV")
+                                                AreaData.VERDEN -> layer.title.removeSuffix(" in ECMWF VDIV 1h")
+                                                else -> layer.title
+                                            }
+                                        )
                                     }
+
+                                    val allowedLayers = setOf(
+                                        "Air temperature 2m",
+                                        "Precipitation amount 1h",
+                                        "Wind 10m speed",
+                                        "Wind 10m vector"
+                                    )
+
+                                    updatedList
+                                        .filter { it.title in allowedLayers }
+                                        .forEach { layer ->
+                                            var nyTitle: String = layer.title
+
                                     //-----------------------
                                     DropdownMenuItem(
                                         text = {
@@ -258,7 +344,6 @@ fun MapScreen(
                         }
                     }
                 }
-
             }
         }
     }
@@ -269,13 +354,13 @@ fun MapScreen(
 * som genereres for bildet man trenger. Den tar hensyn til alle parametrene i URL-en, slik at man kan
 * endre etter behov - eks. TIME kan endres dynamisk.
 * */
-fun updateWmsLayer(map: MapView, uiState: MapScreenUiState, slider: Float) {
+fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
     val layer = uiState.selectedLayer ?: return
-    // Finn forrige lag slik at vi kan fjerne det ETTER at det nye er klart
-    val oldLayers = map.overlays.filterIsInstance<TilesOverlay>()
+    val currentTime = uiState.selectedTime ?: ""
 
-    val wmsSource = object : XYTileSource(
-        "${layer.name}_${uiState.selectedTime}", // Unikt navn tvinger ny caching hvis tid endres
+    // 1. Lag den nye kilden (TileSource)
+    val newSource = object : XYTileSource(
+        "${layer.name}_$currentTime",
         1, 20, 256, ".png",
         arrayOf("https://public-victoria.met.no/wms?")
     ) {
@@ -322,27 +407,26 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState, slider: Float) {
         }
     }
 
-    val provider = MapTileProviderBasic(map.context, wmsSource).apply{
-        setOfflineFirst(false)
+    //Finner og fjerner gamle værlag, og lukker dem!
+    val oldOverlays = map.overlays.filterIsInstance<TilesOverlay>()
+    oldOverlays.forEach { oldOverlay ->
+        // Dette stopper "Too many receivers"
+        oldOverlay.onDetach(map)
+        map.overlays.remove(oldOverlay)
     }
 
-    val tilesOverlay = TilesOverlay(provider, map.context).apply{
+    //Opprett ny provider og overlay
+    val provider = MapTileProviderBasic(map.context, newSource)
+    val tilesOverlay = TilesOverlay(provider, map.context).apply {
         loadingBackgroundColor = AndroidColor.TRANSPARENT
-        loadingLineColor = AndroidColor.TRANSPARENT
-        setUseDataConnection(true)
+
+        //Alphafilter
+        val alphaMatrix = ColorMatrix().apply { setScale(1f, 1f, 1f, 0.7f) }
+        setColorFilter(ColorMatrixColorFilter(alphaMatrix))
     }
 
-    // Bruk ColorMatrix for alpha-kontroll (0.7f = 70% synlig)
-    val alphaMatrix = ColorMatrix().apply {
-        setScale(1f, 1f, 1f, 0.7f)
-    }
-
-    tilesOverlay.setColorFilter(ColorMatrixColorFilter(alphaMatrix))
+    // 4. Legg til det nye laget
     map.overlays.add(tilesOverlay)
-    if (oldLayers.isNotEmpty()) {
-        map.overlays.removeAll(oldLayers)
-    }
-
     map.invalidate()
 }
 
@@ -406,3 +490,17 @@ fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean){
     map.invalidate()
 
 }
+
+
+// FUNKSJON FOR ANIMASJON
+@SuppressLint("MissingPermission")
+fun centerMapOnUserLocation(context: Context, mapView: MapView) {
+    val fusedClient = LocationServices.getFusedLocationProviderClient(context)
+    fusedClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+        .addOnSuccessListener { location ->
+            if (location != null) {
+                mapView.controller.animateTo(GeoPoint(location.latitude, location.longitude))
+            }
+        }
+}
+
