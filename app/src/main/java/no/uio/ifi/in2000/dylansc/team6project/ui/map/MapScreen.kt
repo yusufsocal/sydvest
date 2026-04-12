@@ -259,7 +259,7 @@ fun MapScreen(
                 TextField(
                     value = addresse,
                     onValueChange = { addresse = it },
-                    label = { Text("Enter your name") }
+                    label = { Text("Stedsnavn") }
                 )
                 val geocoder = Geocoder(context, Locale.getDefault())
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
