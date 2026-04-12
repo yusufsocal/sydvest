@@ -110,19 +110,10 @@ class MapViewModel(
         return Duration.between(now, selectedTime).toHours()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    //Oppdaterer tiden på værvarselet man ser på basert på sliderens posisjon
-    /*fun updateTime(time: String) {
-        _uiState.update{
-            it.copy(
-                selectedTime = time
-            )
-        }
-    }*/
-
     //Kalles når slideren endrer tidspunkt
     //Lagre valgt tid, finne ut om vi skal bruke originalt område eller bytte til VERDEN
     //Henter ny lagliste hvis området endrer seg
+    @RequiresApi(Build.VERSION_CODES.O)
     fun updateTime(time: String) {
         viewModelScope.launch {
             try {
