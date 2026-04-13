@@ -263,7 +263,13 @@ fun MapScreen(
                 }
                 // LISTE MED VÆRLAG (DROPDOWN)
                 var expanded by remember { mutableStateOf(false) }
-                var selectedOptionText by remember { mutableStateOf("Velg værlag...") }
+                val selectedOptionText = mapScreenUiState.selectedLayer?.title
+                    ?.removeSuffix(" in MEPS VDIV")
+                    ?.removeSuffix(" in Arctic VDIV")
+                    ?.removeSuffix(" in ECMWF VDIV 1h")
+                    ?.trim()
+                    ?: "Velg værlag..."
+
                 //leser direkte fra state hver gang UI oppdateres
                 var areaData = mapScreenUiState.area?.toString() ?: ""
 
@@ -323,7 +329,6 @@ fun MapScreen(
                                             Text(text = nyTitle)
                                         },
                                         onClick = {
-                                            selectedOptionText = nyTitle // Oppdaterer teksten i feltet
                                             expanded = false
 
                                             // FORTELL ViewModel hvilket lag som er valgt
@@ -400,9 +405,6 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
             if (uiState.selectedTime?.isNotEmpty() ?: true) {
                 url.append("&TIME=${uiState.selectedTime}")
             }
-
-            Log.e("WMS_SJEKK", "Henter tile fra: $url")
-
             return url.toString()
         }
     }
