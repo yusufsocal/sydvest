@@ -153,11 +153,9 @@ class MapViewModel(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-
     //Kalles når slideren endrer tidspunkt
     //Henter ny lagliste hvis området endrer seg
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi( Build.VERSION_CODES.O)
     fun updateTime(time: String) {
         viewModelScope.launch {
             try {
