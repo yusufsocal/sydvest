@@ -353,7 +353,13 @@ fun MapScreen(
 
                 // LISTE MED VÆRLAG (DROPDOWN)
                 var expanded by remember { mutableStateOf(false) }
-                var selectedOptionText by remember { mutableStateOf("Velg værlag...") }
+                val selectedOptionText = mapScreenUiState.selectedLayer?.title
+                    ?.removeSuffix(" in MEPS VDIV")
+                    ?.removeSuffix(" in Arctic VDIV")
+                    ?.removeSuffix(" in ECMWF VDIV 1h")
+                    ?.trim()
+                    ?: "Velg værlag..."
+
                 //leser direkte fra state hver gang UI oppdateres
                 var areaData = mapScreenUiState.area?.toString() ?: ""
 
@@ -395,6 +401,8 @@ fun MapScreen(
                                         )
                                     }
 
+
+=======
                                 // Liste med lag som vi vil ha i appen
                                 val allowedLayers = setOf(
                                     "Air temperature 2m",
@@ -430,6 +438,7 @@ fun MapScreen(
                                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                                         )
                                     }
+
                             }
                         } else {
                             // Hvis lista er tom, viser vi en liten hjelpetekst i steden
@@ -498,9 +507,6 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
             if (uiState.selectedTime?.isNotEmpty() ?: true) {
                 url.append("&TIME=${uiState.selectedTime}")
             }
-
-            Log.e("WMS_SJEKK", "Henter tile fra: $url")
-
             return url.toString()
         }
     }

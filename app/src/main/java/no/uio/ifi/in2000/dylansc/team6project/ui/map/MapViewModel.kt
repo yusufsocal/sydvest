@@ -110,13 +110,61 @@ class MapViewModel(
         return Duration.between(now, selectedTime).toHours()
     }
 
+    //Fjerner ekstra, slik at type lag kan matches på tvers av modeller
+    private fun normalizeLayerTitle(title: String): String {
+        return title
+            .removeSuffix(" in MEPS VDIV")
+            .removeSuffix(" in Arctic VDIV")
+            .removeSuffix(" in ECMWF VDIV 1h")
+            .trim()
+    }
+
+    //Tvinger et tidspunkt til å bli gyldig for et WMS-layer
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun coerceTimeToDimension(requestedTime: String, dimension: String): String {
+        return try {
+            val parts = dimension.split("/")
+            if (parts.size != 3) return requestedTime
+
+            val start = OffsetDateTime.parse(parts[0], java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmZ"))
+            val end = OffsetDateTime.parse(parts[1], java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmZ"))
+            val step = Duration.parse(parts[2])
+
+            val requested = OffsetDateTime.parse(requestedTime)
+
+            //Sørger for at tiden er innenfor start og slutt
+            val clamped = when {
+                requested.isBefore(start) -> start
+                requested.isAfter(end) -> end
+                else -> requested
+            }
+
+            //Runder ned til nærmeste gyldige min fra start
+            val minutesFromStart = Duration.between(start, clamped).toMinutes()
+            val stepMinutes = step.toMinutes()
+
+            val steps = if (stepMinutes > 0) minutesFromStart / stepMinutes else 0
+            val aligned = start.plusMinutes(steps * stepMinutes)
+
+            aligned.format(java.time.format.DateTimeFormatter.ISO_INSTANT)
+        } catch (e: Exception) {
+            //Hvis noe feiler, bruk original tid
+            requestedTime
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+
     //Kalles når slideren endrer tidspunkt
-    //Lagre valgt tid, finne ut om vi skal bruke originalt område eller bytte til VERDEN
     //Henter ny lagliste hvis området endrer seg
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateTime(time: String) {
         viewModelScope.launch {
             try {
+                //Hvis tiden er lik, gjør vi ingenting
+                if (_uiState.value.selectedTime == time)
+                    return@launch
+
                 val hoursAhead = getHoursAhead(time)
                 val resolvedArea = wmsDomain.resolveArea(originalArea, hoursAhead)
                 val currentArea = _uiState.value.area
@@ -124,13 +172,25 @@ class MapViewModel(
                 if (resolvedArea != currentArea) {
                     //Hvis området skal endres
                     val newLayerList = locationRepo.getArea(resolvedArea) ?: emptyList()
+                    val oldSelectedLayer = _uiState.value.selectedLayer
+                    val oldNormalizedTitle = oldSelectedLayer?.title?.let { normalizeLayerTitle(it) }
+
+                    val matchedLayer = newLayerList.find{ newLayer ->
+                        normalizeLayerTitle(newLayer.title) == oldNormalizedTitle
+                    }
+
+                    val validTime = if (matchedLayer?.dimension != null) {
+                        coerceTimeToDimension(time, matchedLayer.dimension)
+                    } else {
+                        time
+                    }
+
                     _uiState.update { state ->
                         state.copy(
-                            selectedTime = time,
+                            selectedTime = validTime,
                             area = resolvedArea,
                             layerList = newLayerList,
-                            //nullstiller valgt værlag - kan endres seinere. Er for å unngå at man sender med feil værlag til ny modell
-                            selectedLayer = null
+                            selectedLayer = matchedLayer
                         )
                     }
                 } else {
