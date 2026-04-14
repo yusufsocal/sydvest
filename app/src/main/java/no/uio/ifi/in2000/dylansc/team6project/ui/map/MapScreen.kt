@@ -64,12 +64,23 @@ import androidx.compose.ui.graphics.Color as ComposeColor
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.OutlinedTextField
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import androidx.compose.runtime.LaunchedEffect
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -82,15 +93,22 @@ fun MapScreen(
     val context = LocalContext.current
     var mapViewRef by remember { mutableStateOf<MapView?>(null) }
 
+    // Oppsett for at kartet skal kunne lagre bilder på telefonen
+    Configuration.getInstance().load(
+        context,
+        context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
+    )
+
+    //Variabel for å sjekke om man har lagret et område når man går ut av appen
+    var locationButton by remember { mutableStateOf(false) }
+    //Variabel for å sjekke om bruker gir tillatelse for å bruke geolokasjon
+    var granted by remember { mutableStateOf(false)}
+
     // Launcher for å be om posisjonstillatelse
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
-                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-        if (granted) {
-            mapViewRef?.let { centerMapOnUserLocation(context, it) }
-        }
+        granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
     }
 
     //Variabler for å sjekke om endringer har forekommet i værlagene.
@@ -100,13 +118,6 @@ fun MapScreen(
 
     //Variabel for å velge tidspunkt for værvarsel
     var sliderPosition by remember { mutableFloatStateOf(0f) }
-    //Kjører hvis slider endres - sender tidspunkt til ViewModel
-    LaunchedEffect(sliderPosition) {
-        var now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC)
-        now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
-
-        mapViewModel.updateTime(now.format(java.time.format.DateTimeFormatter.ISO_INSTANT))
-    }
 
     //Variabel for å sjekke om animasjon er skrudd av eller på - aktiveres med "Animate"-knappen
     var animate by remember { mutableStateOf(false)}
@@ -114,13 +125,39 @@ fun MapScreen(
     //Variabel for å sjekke om varevarsler er skrudd av eller på - aktiveres med "Farevarsler"-knappen
     var fareVarsel by remember { mutableStateOf(false)}
 
-    // 1. Viktig oppsett for at kartet skal kunne lagre bilder på telefonen
-    Configuration.getInstance().load(
-        context,
-        context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
-    )
+    //Variabel for å skrive inn addresse
+    var addresse by remember { mutableStateOf("") }
 
-    // 2. Vi bruker AndroidView for å putte det gamle Android-kartet inn i Compose
+    //Kjører hvis slider endres - sender tidspunkt til ViewModel
+    LaunchedEffect(sliderPosition) {
+        var now = OffsetDateTime.now(ZoneOffset.UTC)
+        now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
+
+        mapViewModel.updateTime(now.format(DateTimeFormatter.ISO_INSTANT))
+    }
+
+    // Sjekker og ber om posisjonertillatelse etter at kartet er klart
+    LaunchedEffect(Unit) {
+        val fineGranted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val coarseGranted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (fineGranted || coarseGranted) {
+            mapViewRef?.let { centerMapOnUserLocation(context, it) }
+        } else {
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+
+    // AndroidView brukes for å putte det gamle Android-kartet inn i Compose
     AndroidView(
         factory = { ctx ->
             MapView(ctx).apply {
@@ -128,15 +165,21 @@ fun MapScreen(
                 setTilesScaledToDpi(true)
                 setMultiTouchControls(true)
                 controller.setZoom(10.0)
-                controller.setCenter(GeoPoint(60.90, 10.75)) // Fallback posisjon
+                val prefs = ctx.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
+                val savedLat = prefs.getFloat("last_lat", 60.90f).toDouble()
+                val savedLon = prefs.getFloat("last_lon", 10.75f).toDouble()
+                controller.setCenter(GeoPoint(savedLat, savedLon))
                 setMinZoomLevel(3.0)
                 setMaxZoomLevel(18.0)
                 setScrollableAreaLimitLatitude(85.0, -85.0, height + 1000)
                 setFlingEnabled(true)
                 setVerticalMapRepetitionEnabled(false)
                 Configuration.getInstance().cacheMapTileCount = 5000
-
+                if (granted) {
+                    let { centerMapOnUserLocation(context, it) }
+                } //Setter brukerens posisjon til deres geolokasjon
                 mapViewRef = this
+
             }
         },
         modifier = Modifier.fillMaxSize(),
@@ -160,30 +203,14 @@ fun MapScreen(
             //aktiverer / deaktiverer farevarsler
             drawAlerts(view, mapScreenUiState, fareVarsel)
 
-
+            val prefs = view.context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
+            val center = view.mapCenter
+            prefs.edit()
+                .putFloat("current_lat", center.latitude.toFloat())
+                .putFloat("current_lon", center.longitude.toFloat())
+                .apply()
         }
     )
-
-    // Sjekker og ber om posisjonertillatelse etter at kartet er klart
-    LaunchedEffect(Unit) {
-        val fineGranted = ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        val coarseGranted = ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (fineGranted || coarseGranted) {
-            mapViewRef?.let { centerMapOnUserLocation(context, it) }
-        } else {
-            locationPermissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
-        }
-    }
 
     Box() {
 
@@ -202,9 +229,9 @@ fun MapScreen(
                     onValueChange = { newValue ->
                         // Force snap to integer during movement
                         sliderPosition = newValue.roundToInt().toFloat()
-                        var now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC)
+                        var now = OffsetDateTime.now(ZoneOffset.UTC)
                         now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
-                        mapViewModel.updateTime(now.format(java.time.format.DateTimeFormatter.ISO_INSTANT))
+                        mapViewModel.updateTime(now.format(DateTimeFormatter.ISO_INSTANT))
 
                     },
                     colors = SliderDefaults.colors(
@@ -215,31 +242,76 @@ fun MapScreen(
                     steps = 239,
                     valueRange = 0f..240f,
                 )
-                Text(text = sliderPosition.toInt().toString())
 
 
-                OutlinedButton(
-                    //Kan byttes ut med IconButton
-                    onClick = {
-                        animate = !animate
-                        CoroutineScope(Dispatchers.Default).launch {
-                            while (isActive && animate) { // isActive checks if the coroutine is still running
-                                var now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC)
-                                now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
-                                sliderPosition += 1
-                                mapViewModel.updateTime(now.format(java.time.format.DateTimeFormatter.ISO_INSTANT))
-                                delay(500) // timeInterval is in milliseconds (e.g., 5000 for 5s)
-                            }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
-                ) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ){
+                    //Tekst som viser antall timer frem i tid
                     Text(
-                        text = "Animate",
-                        color = ComposeColor.Black
-                    )
-                }
+                        text = sliderPosition.toInt().toString(),
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .background(
+                                color =ComposeColor.White,
+                                shape = RoundedCornerShape(12.dp) // Background shape (should match border)
+                            )
 
+                            .border(
+                                width = 2.dp,
+                                color = ComposeColor.Black,
+                                shape = RoundedCornerShape(12.dp) // Border shape
+                            )
+                            .padding(16.dp)
+                    )
+                    //Knapp for å animere
+                    OutlinedButton(
+                        //Kan byttes ut med IconButton
+                        onClick = {
+                            animate = !animate
+                            CoroutineScope(Dispatchers.Default).launch {
+                                while (isActive && animate && sliderPosition < 240) { // isActive checks if the coroutine is still running
+                                    var now = OffsetDateTime.now(ZoneOffset.UTC)
+                                    now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
+                                    sliderPosition += 1
+                                    mapViewModel.updateTime(now.format(DateTimeFormatter.ISO_INSTANT))
+                                    delay(500) // timeInterval is in milliseconds (e.g., 5000 for 5s)
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
+                    ) {//Tekst for animasjonsknapp
+                        Text(
+                            text = "Animer",
+                            color = ComposeColor.Black
+                        )
+                    }
+                }
+                //Søkefelt for addresse
+                TextField(
+                    value = addresse,
+                    onValueChange = { addresse = it },
+                    label = { Text("Stedsnavn") },
+                    colors = ExposedDropdownMenuDefaults.textFieldColors(
+                        focusedContainerColor = ComposeColor(0xFFF7FCFE),
+                        unfocusedContainerColor = ComposeColor(0xFFF7FCFE)
+                    )
+                )
+                val geocoder = Geocoder(context, Locale.getDefault())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    geocoder.getFromLocationName(addresse, 1) { addresses ->
+                        val location = addresses.firstOrNull()
+                        val lat = location?.latitude?.toDouble() ?: 0.0
+                        val lng = location?.longitude?.toDouble() ?: 0.0
+                        mapViewRef?.controller?.setCenter(GeoPoint(lat, lng))
+                        mapViewRef?.controller?.setZoom(15.0)
+
+
+                        Log.e("Addresser", "$addresses")
+                    }
+                }
 
             }
             Column(
@@ -248,19 +320,37 @@ fun MapScreen(
                     .align(Alignment.BottomCenter)
                     .padding(16.dp)
             ) {
-                //Knapp for å aktivere farevarsler på kartet.
-                OutlinedButton(
-                    //Kan byttes ut med IconButton
-                    onClick = {
-                        fareVarsel = !fareVarsel
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
-                ) {
-                    Text(
-                        text = "Farevarsler",
-                        color = ComposeColor.Black
-                    )
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ){
+                    OutlinedButton(
+                        onClick = {
+                            mapViewRef?.let { centerMapOnUserLocation(context, it) }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
+                    ) {
+                        Text(
+                            text = "Sentrer",
+                            color = ComposeColor.Black
+                        )
+                    }
+                    //Knapp for å aktivere farevarsler på kartet.
+                    OutlinedButton(
+                        //Kan byttes ut med IconButton
+                        onClick = {
+                            fareVarsel = !fareVarsel
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
+                    ) {
+                        Text(
+                            text = "Farevarsler",
+                            color = ComposeColor.Black
+                        )
+                    }
                 }
+
                 // LISTE MED VÆRLAG (DROPDOWN)
                 var expanded by remember { mutableStateOf(false) }
                 val selectedOptionText = mapScreenUiState.selectedLayer?.title
@@ -299,7 +389,7 @@ fun MapScreen(
                             ExposedDropdownMenu(
                                 expanded = expanded, onDismissRequest = { expanded = false }) {
                                     //PROSJEKT CUSTOM AREA
-                                    //Funksjonalitet for å fjerne suffix basert på hvilket område som benyttes
+                                    //Funksjonalitet for å fjerne suffix basert på hvilket område som benyttes og legge de i en ny list
                                     val updatedList = mapScreenUiState.layerList.map { layer ->
                                         layer.copy(
                                             title = when (mapScreenUiState.area) {
@@ -311,32 +401,44 @@ fun MapScreen(
                                         )
                                     }
 
-                                    val allowedLayers = setOf(
-                                        "Air temperature 2m",
-                                        "Precipitation amount 1h",
-                                        "Wind 10m speed",
-                                        "Wind 10m vector"
-                                    )
 
-                                    updatedList
-                                        .filter { it.title in allowedLayers }
-                                        .forEach { layer ->
-                                            var nyTitle: String = layer.title
+=======
+                                // Liste med lag som vi vil ha i appen
+                                val allowedLayers = setOf(
+                                    "Air temperature 2m",
+                                    "Precipitation amount 1h",
+                                    "Wind 10m speed",
+                                    "Wind 10m vector"
+                                )
 
-                                    //-----------------------
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(text = nyTitle)
-                                        },
-                                        onClick = {
-                                            expanded = false
+                                // filtrer ut alt som ikke er i allowedLayers og leg dem i dropdown-menyen med ny navn
+                                updatedList
+                                    .filter { it.title in allowedLayers }
+                                    .forEach { layer ->
+                                        var nyTitle: String = when (layer.title) {
+                                            "Air temperature 2m" -> "Temperature"
+                                            "Precipitation amount 1h" -> "Rainfall"
+                                            "Wind 10m speed" -> "Wind speed"
+                                            "Wind 10m vector" -> "Wind direction"
+                                            else -> error("Unexpected layer title: ${layer.title}")
+                                        }
 
-                                            // FORTELL ViewModel hvilket lag som er valgt
-                                            mapViewModel.setSelectedLayer(layer)
-                                        },
-                                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                    )
-                                }
+                                        //-----------------------
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(text = nyTitle)
+                                            },
+                                            onClick = {
+                                                selectedOptionText = nyTitle // Oppdaterer teksten i feltet
+                                                expanded = false
+
+                                                // FORTELL ViewModel hvilket lag som er valgt
+                                                mapViewModel.setSelectedLayer(layer)
+                                            },
+                                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                        )
+                                    }
+
                             }
                         } else {
                             // Hvis lista er tom, viser vi en liten hjelpetekst i steden
@@ -494,7 +596,7 @@ fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean){
 }
 
 
-// FUNKSJON FOR ANIMASJON
+// FUNKSJON FOR SENTRERING AV POSISJON
 @SuppressLint("MissingPermission")
 fun centerMapOnUserLocation(context: Context, mapView: MapView) {
     val fusedClient = LocationServices.getFusedLocationProviderClient(context)
