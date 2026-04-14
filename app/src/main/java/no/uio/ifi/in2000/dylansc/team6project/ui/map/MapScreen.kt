@@ -402,7 +402,6 @@ fun MapScreen(
                                     }
 
 
-=======
                                 // Liste med lag som vi vil ha i appen
                                 val allowedLayers = setOf(
                                     "Air temperature 2m",
@@ -429,8 +428,8 @@ fun MapScreen(
                                                 Text(text = nyTitle)
                                             },
                                             onClick = {
-                                                selectedOptionText = nyTitle // Oppdaterer teksten i feltet
-                                                expanded = false
+                                                nyTitle // Oppdaterer teksten i feltet
+                                                false
 
                                                 // FORTELL ViewModel hvilket lag som er valgt
                                                 mapViewModel.setSelectedLayer(layer)
