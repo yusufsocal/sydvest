@@ -2,6 +2,8 @@
 
 package no.uio.ifi.in2000.dylansc.team6project.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -17,6 +19,7 @@ import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSource
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapScreen
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavHost(
     navController: NavHostController,
