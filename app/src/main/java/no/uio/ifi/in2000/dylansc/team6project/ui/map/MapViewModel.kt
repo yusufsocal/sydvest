@@ -2,7 +2,6 @@
 
 package no.uio.ifi.in2000.dylansc.team6project.ui.map
 
-import android.hardware.Camera
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -21,8 +20,6 @@ import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 import no.uio.ifi.in2000.dylansc.team6project.model.domene.WMSDomain
 import java.time.Duration
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -159,7 +156,7 @@ class MapViewModel(
     fun updateTime(time: String) {
         viewModelScope.launch {
             try {
-                //Hvis tiden er lik, gjør vi ingenting
+                //Hvis tiden er lik, gjøres ingenting
                 if (_uiState.value.selectedTime == time)
                     return@launch
 
