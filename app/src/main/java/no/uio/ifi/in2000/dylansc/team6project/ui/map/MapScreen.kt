@@ -6,10 +6,13 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.location.Geocoder
 import android.os.Build
+import android.os.Looper
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -49,6 +52,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.CoroutineScope
@@ -60,6 +67,7 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
+import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderBasic
@@ -69,6 +77,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.FolderOverlay
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
 import java.time.OffsetDateTime
@@ -96,8 +105,6 @@ fun MapScreen(
         context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
     )
 
-    //Variabel for å sjekke om man har lagret et område når man går ut av appen
-    var locationButton by remember { mutableStateOf(false) }
     //Variabel for å sjekke om bruker gir tillatelse for å bruke geolokasjon
     var granted by remember { mutableStateOf(false)}
 
@@ -125,11 +132,16 @@ fun MapScreen(
     //Variabel for å skrive inn addresse
     var addresse by remember { mutableStateOf("") }
 
+    //Variabel for å se brukerens posisjon
+    var geoLocation by remember { mutableStateOf<GeoPoint?>(null)}
+
+    //Variabel for å sjekke om GPS er på eller ikke
+    var locationServicesEnabled by remember { mutableStateOf(true) }
+
     //Kjører hvis slider endres - sender tidspunkt til ViewModel
     LaunchedEffect(sliderPosition) {
         var now = OffsetDateTime.now(ZoneOffset.UTC)
         now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
-
         mapViewModel.updateTime(now.format(DateTimeFormatter.ISO_INSTANT))
     }
 
@@ -141,9 +153,9 @@ fun MapScreen(
         val coarseGranted = ContextCompat.checkSelfPermission(
             context, Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-
         if (fineGranted || coarseGranted) {
             mapViewRef?.let { centerMapOnUserLocation(context, it) }
+            granted = true
         } else {
             locationPermissionLauncher.launch(
                 arrayOf(
@@ -151,6 +163,30 @@ fun MapScreen(
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             )
+        }
+    }
+
+    //Starter en lytter for å se om brukeren flytter på seg
+    LaunchedEffect(granted, mapViewRef) {
+        if (granted) {
+            mapViewRef?.let { view ->
+                startLocationUpdates(view) { newPoint ->
+                    geoLocation = newPoint
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        while(true) {
+            val currentStatus = checkLocationEnabled(context)
+            if (locationServicesEnabled != currentStatus) {
+                locationServicesEnabled = currentStatus
+                if (!currentStatus) {
+                    geoLocation = null // Nullstill posisjonen hvis GPS skrus av
+                }
+            }
+            delay(1000) // Vent 1 sekund før neste sjekk
         }
     }
 
@@ -163,8 +199,8 @@ fun MapScreen(
                 setMultiTouchControls(true)
                 controller.setZoom(10.0)
                 val prefs = ctx.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
-                val savedLat = prefs.getFloat("last_lat", 60.90f).toDouble()
-                val savedLon = prefs.getFloat("last_lon", 10.75f).toDouble()
+                val savedLat = prefs.getFloat("last_lat", 59.9127f).toDouble()
+                val savedLon = prefs.getFloat("last_lon", 10.7461f).toDouble()
                 controller.setCenter(GeoPoint(savedLat, savedLon))
                 setMinZoomLevel(3.0)
                 setMaxZoomLevel(18.0)
@@ -172,14 +208,18 @@ fun MapScreen(
                 setFlingEnabled(true)
                 setVerticalMapRepetitionEnabled(false)
                 Configuration.getInstance().cacheMapTileCount = 5000
-                if (granted) {
+                if (granted) { //Setter brukerens posisjon til deres geolokasjon
                     let { centerMapOnUserLocation(context, it) }
-                } //Setter brukerens posisjon til deres geolokasjon
+                }
                 mapViewRef = this
 
             }
         },
+
+
         modifier = Modifier.fillMaxSize(),
+
+        //UPDATE SCREEN
         update = { view ->
 
             val currentLayer = mapScreenUiState.selectedLayer
@@ -206,6 +246,16 @@ fun MapScreen(
                 .putFloat("current_lat", center.latitude.toFloat())
                 .putFloat("current_lon", center.longitude.toFloat())
                 .apply()
+
+            //aktiverer / deaktiverer markør for GPS
+            locationServicesEnabled = checkLocationEnabled(context)
+            if (locationServicesEnabled) {
+                geoLocation?.let { punkt ->
+                    updateUserMarker(view, punkt)
+                }
+            } else {
+                removeUserMarker(view)
+            }
         }
     )
 
@@ -324,8 +374,15 @@ fun MapScreen(
                 ){
                     OutlinedButton(
                         onClick = {
-                            mapViewRef?.let { centerMapOnUserLocation(context, it)}
-                            mapViewRef?.controller?.setZoom(12.0)
+                            locationServicesEnabled = checkLocationEnabled(context)
+                            if (locationServicesEnabled) {
+                                mapViewRef?.let { centerMapOnUserLocation(context, it)}
+                                mapViewRef?.zoomLevelDouble?.let {
+                                    if (it < 12.0)
+                                        mapViewRef?.controller?.zoomTo(12.0)
+                                }
+                            }
+
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
                     ) {
@@ -592,6 +649,70 @@ fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean){
 
 }
 
+//FUNKSJON FOR Å VISE BRUKERENS POSISJON
+@SuppressLint("MissingPermission")
+fun startLocationUpdates(mapView: MapView, onLocationChanged: (GeoPoint) -> Unit) {
+    val context = mapView.context
+    val fusedClient = LocationServices.getFusedLocationProviderClient(context)
+
+    //Definer kravene til oppdatering
+    val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000) //Bruk GPS for å få nøyaktig posisjon, hvert 5. sekund
+        .setMinUpdateDistanceMeters(2f) // Kartet endres kun hvis man flytter seg mer enn 2 meter
+        .build()
+
+    //Lytteren -> Ser om man flytter på seg
+    val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            val location = locationResult.lastLocation ?: return
+            val newPoint = GeoPoint(location.latitude, location.longitude)
+
+            // Oppdater markøren på kartet
+            updateUserMarker(mapView, newPoint)
+
+            // Send den nye posisjonen tilbake til ViewModel/State hvis du trenger den der
+            onLocationChanged(newPoint)
+        }
+    }
+
+    //Start lytting
+    fusedClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+}
+
+// TEGNER MARKØR
+private fun updateUserMarker(mapView: MapView, point: GeoPoint) {
+    val context = mapView.context
+
+    // Finn eksisterende markør eller lag en ny
+    val existingMarker = mapView.overlays.find { it is Marker && it.title == "user_location" } as? Marker
+
+    if (existingMarker != null) {
+        existingMarker.position = point
+    } else {
+        val marker = Marker(mapView).apply {
+            title = "user_location"
+            position = point
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER) // Senter/Senter er ofte bedre for "prikk"
+
+            // Tips: Lagre denne bitmap-en et sted så du slipper å dekode hver gang
+            val b = BitmapFactory.decodeResource(context.resources,
+                R.drawable.location_placeholder
+            )
+            val scaled = Bitmap.createScaledBitmap(b, 40, 40, true)
+            icon = scaled.toDrawable(context.resources)
+        }
+        mapView.overlays.add(marker)
+    }
+    mapView.invalidate()
+}
+
+// FJERNER MARKØR
+private fun removeUserMarker(mapView: MapView) {
+    val existingMarker = mapView.overlays.find { it is Marker && it.title == "user_location" } as? Marker
+    if (existingMarker != null) {
+        mapView.overlays.remove(existingMarker)
+        mapView.invalidate() // Tving kartet til å tegne på nytt uten markøren
+    }
+}
 
 // FUNKSJON FOR SENTRERING AV POSISJON
 @SuppressLint("MissingPermission")
@@ -605,3 +726,8 @@ fun centerMapOnUserLocation(context: Context, mapView: MapView) {
         }
 }
 
+//FUNKSJON FOR Å SJEKKE OM GPS ER PÅ
+fun checkLocationEnabled(context: Context): Boolean {
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
+    return androidx.core.location.LocationManagerCompat.isLocationEnabled(locationManager)
+}
