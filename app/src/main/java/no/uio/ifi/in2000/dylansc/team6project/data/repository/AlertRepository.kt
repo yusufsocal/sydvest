@@ -4,6 +4,7 @@ package no.uio.ifi.in2000.dylansc.team6project.data.repository
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSource
 
+
 class AlertRepository (
     private val warningDataSource: AlertDataSource
 ) {
