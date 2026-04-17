@@ -119,7 +119,6 @@ fun MapScreen(
     var lastDrawnLayerName by remember { mutableStateOf<String?>(null) }
     var lastDrawnTime by remember { mutableStateOf<String?>(null) }
     var lastDrawnArea by remember { mutableStateOf<AreaData?>(null) }
-    var lastDrawnFareVarsel by remember { mutableStateOf<Boolean?>(null) }
 
     //Variabel for å velge tidspunkt for værvarsel
     var sliderPosition by remember { mutableFloatStateOf(0f) }
@@ -236,12 +235,8 @@ fun MapScreen(
                 lastDrawnArea = currentArea
             }
 
-            //aktiverer / deaktiverer farevarsler (bare tegn på nytt hvis noe har endret seg)
-            if (fareVarsel != lastDrawnFareVarsel || (fareVarsel && mapScreenUiState.alertList != (view.tag as? List<*>))) {
-                drawAlerts(view, mapScreenUiState, fareVarsel)
-                lastDrawnFareVarsel = fareVarsel
-                view.tag = mapScreenUiState.alertList
-            }
+            //aktiverer / deaktiverer farevarsler
+            drawAlerts(view, mapScreenUiState, fareVarsel)
 
             val prefs = view.context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
             val center = view.mapCenter
@@ -329,9 +324,7 @@ fun MapScreen(
                                     now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
                                     sliderPosition += 1
                                     mapViewModel.updateTime(now.format(DateTimeFormatter.ISO_INSTANT))
-
-                                    delay(1000) // Gir flisene tid til å laste inn før neste frame
-
+                                    delay(1000) // timeInterval is in milliseconds (e.g., 5000 for 5s)
                                 }
                             }
                         },
@@ -587,8 +580,13 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
         }
     }
 
-    // Ta vare på gamle lag før vi legger til det nye
-    val oldOverlays = map.overlays.filterIsInstance<TilesOverlay>().toList()
+    //Finner og fjerner gamle værlag, og lukker dem!
+    val oldOverlays = map.overlays.filterIsInstance<TilesOverlay>()
+    oldOverlays.forEach { oldOverlay ->
+        // Dette stopper "Too many receivers"
+        oldOverlay.onDetach(map)
+        map.overlays.remove(oldOverlay)
+    }
 
     //Opprett ny provider og overlay
     val provider = MapTileProviderBasic(map.context, newSource)
@@ -600,24 +598,12 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
         setColorFilter(ColorMatrixColorFilter(alphaMatrix))
     }
 
-    // Legg til nytt lag FØRST så det nye laget lastes i bakgrunnen
-    // mens det gamle laget fortsatt vises (unngår blank flash)
+    // 4. Legg til det nye laget
     map.overlays.add(tilesOverlay)
 
 
 
     map.invalidate()
-
-    // Fjern gamle lag etter at det nye har fått tid til å laste inn fliser
-    CoroutineScope(Dispatchers.Main).launch {
-        delay(400)
-        oldOverlays.forEach { oldOverlay ->
-            // Dette stopper "Too many receivers"
-            oldOverlay.onDetach(map)
-            map.overlays.remove(oldOverlay)
-        }
-        map.invalidate()
-    }
 }
 
 //FUNKSJON FOR Å LAGE FAREVARSLER
