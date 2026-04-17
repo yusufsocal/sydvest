@@ -1,17 +1,20 @@
 package no.uio.ifi.in2000.dylansc.team6project.data.warningdata
 
-import android.icu.number.Scale.none
-import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-class AlertDataSource {
+// ✅ Interface (what your repository depends on)
+interface AlertDataSource {
+    suspend fun alertDataSource(): List<AlertFeature>?
+}
+
+// ✅ Real implementation (your existing code moved here)
+class AlertDataSourceImpl : AlertDataSource {
 
     private val client = HttpClient(CIO) {
         install(ContentNegotiation) {
@@ -21,7 +24,7 @@ class AlertDataSource {
         }
     }
 
-    suspend fun alertDataSource(): List<AlertFeature>? {
+    override suspend fun alertDataSource(): List<AlertFeature>? {
         return try {
             val url = "https://api.met.no/weatherapi/metalerts/2.0/current.json"
             val response: MetAlertsResponse = client.get(url).body()
@@ -32,5 +35,4 @@ class AlertDataSource {
             null
         }
     }
-
 }

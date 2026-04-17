@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSource
+import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSource
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
@@ -30,7 +31,7 @@ fun AppNavHost(
     val locationRepo = LocationRepository(wmsDataSource)
 
     //DataSource og Repository for Alerts initialiseres her!
-    val alertDataSource = AlertDataSource()
+    val alertDataSource = AlertDataSourceImpl()
     val alertRepo = AlertRepository(alertDataSource)
 
     //PROSJEKT CUSTOM AREA -> Foreløpig placeholder for opprettelse av variabel for når
