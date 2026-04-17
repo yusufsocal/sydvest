@@ -177,14 +177,12 @@ fun MapScreen(
         }
     }
 
+    //Sjekker om geolokasjon er på
     LaunchedEffect(Unit) {
         while(true) {
             val currentStatus = checkLocationEnabled(context)
             if (locationServicesEnabled != currentStatus) {
                 locationServicesEnabled = currentStatus
-                if (!currentStatus) {
-                    geoLocation = null // Nullstill posisjonen hvis GPS skrus av
-                }
             }
             delay(1000) // Vent 1 sekund før neste sjekk
         }
@@ -252,9 +250,11 @@ fun MapScreen(
             if (locationServicesEnabled) {
                 geoLocation?.let { punkt ->
                     updateUserMarker(view, punkt)
-                }
+                    Log.d ("UPDATEUI","MARKØR LAGET")
+                } ?: Log.e ("OIOIOI", "HER GIKK NOE GALT")
             } else {
                 removeUserMarker(view)
+                Log.d ("UPDATEUI","MARKØR FJERNET")
             }
         }
     )
@@ -324,7 +324,7 @@ fun MapScreen(
                                     now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
                                     sliderPosition += 1
                                     mapViewModel.updateTime(now.format(DateTimeFormatter.ISO_INSTANT))
-                                    delay(500) // timeInterval is in milliseconds (e.g., 5000 for 5s)
+                                    delay(1000) // timeInterval is in milliseconds (e.g., 5000 for 5s)
                                 }
                             }
                         },
@@ -346,9 +346,10 @@ fun MapScreen(
                         unfocusedContainerColor = ComposeColor(0xFFF7FCFE)
                     )
                 )
+
                 val geocoder = Geocoder(context, Locale.getDefault())
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    geocoder.getFromLocationName(addresse, 1) { addresses ->
+                    geocoder.getFromLocationName(addresse, 5) { addresses ->
                         val location = addresses.firstOrNull()
                         val lat = location?.latitude?.toDouble() ?: 0.0
                         val lng = location?.longitude?.toDouble() ?: 0.0
@@ -599,6 +600,9 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
 
     // 4. Legg til det nye laget
     map.overlays.add(tilesOverlay)
+
+
+
     map.invalidate()
 }
 
