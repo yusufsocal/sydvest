@@ -213,6 +213,24 @@ fun MapScreen(
                 if (granted) { //Setter brukerens posisjon til deres geolokasjon
                     let { centerMapOnUserLocation(context, it) }
                 }
+                // Lytter for trykk på kartet
+                val mapEventsReceiver = object : org.osmdroid.events.MapEventsReceiver {
+                    override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
+                        p?.let {
+                            updateSelectedMarker(this@apply, it)
+                            Log.d("MapTap", "Bruker trykket på: ${it.latitude}, ${it.longitude}")
+                            //TODO Senere: send koordinatene til ViewModel her, f.eks.
+                            // mapViewModel.onLocationSelected(it.latitude, it.longitude)
+                        }
+                        return true
+                    }
+
+                    override fun longPressHelper(p: GeoPoint?): Boolean = false
+                }
+
+                overlays.add(0, org.osmdroid.views.overlay.MapEventsOverlay(mapEventsReceiver))
+
+
                 mapViewRef = this
 
             }
@@ -710,6 +728,29 @@ fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean){
     map.overlays.add(folderOverlay) //Legger til mappen med overlays til kartet
     map.invalidate()
 
+}
+
+// Funksjon som plasserer markøren når brukeren trykker
+// Sørger for at markøren ligger oppå datalagene
+private fun updateSelectedMarker(mapView: MapView, point: GeoPoint) {
+    val context = mapView.context
+
+    val existingMarker = mapView.overlays
+        .find { it is Marker && it.title == "selected_location" } as? Marker
+
+    if (existingMarker != null) {
+        existingMarker.position = point
+    } else {
+        val marker = Marker(mapView).apply {
+            title = "selected_location"
+            position = point
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+
+            icon = ContextCompat.getDrawable(context, R.drawable.location_pin)
+        }
+        mapView.overlays.add(marker)
+    }
+    mapView.invalidate()
 }
 
 //FUNKSJON FOR Å VISE BRUKERENS POSISJON
