@@ -76,12 +76,12 @@ class MapViewModel(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun setSelectedLayer(layer: WMSLayer) {
+    fun setSelectedLayer(layer: WMSLayer?) {
         _uiState.update {
             it.copy(
                 selectedLayer = layer,
                 // Hvis laget har en dimensjon, velges "nå" som starttidspunkt
-                selectedTime = if (layer.dimension != null) getNowTimestamp() else ""
+                selectedTime = if (layer?.dimension != null) getNowTimestamp() else ""
             )
         }
     }

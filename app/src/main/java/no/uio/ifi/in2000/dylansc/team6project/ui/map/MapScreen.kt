@@ -178,14 +178,12 @@ fun MapScreen(
         }
     }
 
+    //Sjekker om geolokasjon er på
     LaunchedEffect(Unit) {
         while(true) {
             val currentStatus = checkLocationEnabled(context)
             if (locationServicesEnabled != currentStatus) {
                 locationServicesEnabled = currentStatus
-                if (!currentStatus) {
-                    geoLocation = null // Nullstill posisjonen hvis GPS skrus av
-                }
             }
             delay(1000) // Vent 1 sekund før neste sjekk
         }
@@ -257,9 +255,11 @@ fun MapScreen(
             if (locationServicesEnabled) {
                 geoLocation?.let { punkt ->
                     updateUserMarker(view, punkt)
-                }
+                    Log.d ("UPDATEUI","MARKØR LAGET")
+                } ?: Log.e ("OIOIOI", "HER GIKK NOE GALT")
             } else {
                 removeUserMarker(view)
+                Log.d ("UPDATEUI","MARKØR FJERNET")
             }
         }
     )
@@ -329,7 +329,9 @@ fun MapScreen(
                                     now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
                                     sliderPosition += 1
                                     mapViewModel.updateTime(now.format(DateTimeFormatter.ISO_INSTANT))
+
                                     delay(1000) // Gir flisene tid til å laste inn før neste frame
+
                                 }
                             }
                         },
@@ -351,9 +353,10 @@ fun MapScreen(
                         unfocusedContainerColor = ComposeColor(0xFFF7FCFE)
                     )
                 )
+
                 val geocoder = Geocoder(context, Locale.getDefault())
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    geocoder.getFromLocationName(addresse, 1) { addresses ->
+                    geocoder.getFromLocationName(addresse, 5) { addresses ->
                         val location = addresses.firstOrNull()
                         val lat = location?.latitude?.toDouble() ?: 0.0
                         val lng = location?.longitude?.toDouble() ?: 0.0
@@ -413,12 +416,26 @@ fun MapScreen(
 
                 // LISTE MED VÆRLAG (DROPDOWN)
                 var expanded by remember { mutableStateOf(false) }
-                val selectedOptionText = mapScreenUiState.selectedLayer?.title
-                    ?.removeSuffix(" in MEPS VDIV")
-                    ?.removeSuffix(" in Arctic VDIV")
-                    ?.removeSuffix(" in ECMWF VDIV 1h")
-                    ?.trim()
-                    ?: "Velg værlag..."
+
+                val selectedOptionText = when (
+                    mapScreenUiState.selectedLayer?.title
+                        ?.removeSuffix(" in MEPS VDIV")
+                        ?.removeSuffix(" in Arctic VDIV")
+                        ?.removeSuffix(" in ECMWF VDIV 1h")
+                        ?.trim()
+                        ?: "Velg værlag..."
+                ) {
+                    "Air temperature 2m" -> "Temperature"
+                    "Precipitation amount 1h" -> "Rainfall"
+                    "Wind 10m speed" -> "Wind speed"
+                    "Wind 10m vector" -> "Wind direction"
+                    else -> mapScreenUiState.selectedLayer?.title
+                        ?.removeSuffix(" in MEPS VDIV")
+                        ?.removeSuffix(" in Arctic VDIV")
+                        ?.removeSuffix(" in ECMWF VDIV 1h")
+                        ?.trim()
+                        ?: "Velg værlag..."
+                }
 
                 //leser direkte fra state hver gang UI oppdateres
                 var areaData = mapScreenUiState.area?.toString() ?: ""
@@ -586,6 +603,9 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
     // Legg til nytt lag FØRST så det nye laget lastes i bakgrunnen
     // mens det gamle laget fortsatt vises (unngår blank flash)
     map.overlays.add(tilesOverlay)
+
+
+
     map.invalidate()
 
     // Fjern gamle lag etter at det nye har fått tid til å laste inn fliser
