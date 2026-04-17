@@ -106,13 +106,14 @@ fun MapScreen(
     )
 
     //Variabel for å sjekke om bruker gir tillatelse for å bruke geolokasjon
-    var granted by remember { mutableStateOf(false)}
+    var granted by remember { mutableStateOf(false) }
 
     // Launcher for å be om posisjonstillatelse
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        granted =
+            permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
     }
 
     //Variabler for å sjekke om endringer har forekommet i værlagene.
@@ -124,16 +125,16 @@ fun MapScreen(
     var sliderPosition by remember { mutableFloatStateOf(0f) }
 
     //Variabel for å sjekke om animasjon er skrudd av eller på - aktiveres med "Animate"-knappen
-    var animate by remember { mutableStateOf(false)}
+    var animate by remember { mutableStateOf(false) }
 
     //Variabel for å sjekke om varevarsler er skrudd av eller på - aktiveres med "Farevarsler"-knappen
-    var fareVarsel by remember { mutableStateOf(false)}
+    var fareVarsel by remember { mutableStateOf(false) }
 
     //Variabel for å skrive inn addresse
     var addresse by remember { mutableStateOf("") }
 
     //Variabel for å se brukerens posisjon
-    var geoLocation by remember { mutableStateOf<GeoPoint?>(null)}
+    var geoLocation by remember { mutableStateOf<GeoPoint?>(null) }
 
     //Variabel for å sjekke om GPS er på eller ikke
     var locationServicesEnabled by remember { mutableStateOf(true) }
@@ -179,7 +180,7 @@ fun MapScreen(
 
     //Sjekker om geolokasjon er på
     LaunchedEffect(Unit) {
-        while(true) {
+        while (true) {
             val currentStatus = checkLocationEnabled(context)
             if (locationServicesEnabled != currentStatus) {
                 locationServicesEnabled = currentStatus
@@ -209,15 +210,31 @@ fun MapScreen(
                 if (granted) { //Setter brukerens posisjon til deres geolokasjon
                     let { centerMapOnUserLocation(context, it) }
                 }
+
+                // Lytter for trykk på kartet
+                val mapEventsReceiver = object : org.osmdroid.events.MapEventsReceiver {
+                    override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
+                        p?.let {
+                            updateSelectedMarker(this@apply, it)
+                            Log.d("MapTap", "Bruker trykket på: ${it.latitude}, ${it.longitude}")
+                            //TODO Senere: send koordinatene til ViewModel her, f.eks.
+                            // mapViewModel.onLocationSelected(it.latitude, it.longitude)
+                        }
+                        return true
+                    }
+
+                    override fun longPressHelper(p: GeoPoint?): Boolean = false
+                }
+
+                overlays.add(0, org.osmdroid.views.overlay.MapEventsOverlay(mapEventsReceiver))
+
                 mapViewRef = this
 
             }
         },
-
-
         modifier = Modifier.fillMaxSize(),
 
-        //UPDATE SCREEN
+
         update = { view ->
 
             val currentLayer = mapScreenUiState.selectedLayer
@@ -250,11 +267,11 @@ fun MapScreen(
             if (locationServicesEnabled) {
                 geoLocation?.let { punkt ->
                     updateUserMarker(view, punkt)
-                    Log.d ("UPDATEUI","MARKØR LAGET")
-                } ?: Log.e ("OIOIOI", "HER GIKK NOE GALT")
+                    Log.d("UPDATEUI", "MARKØR LAGET")
+                } ?: Log.e("OIOIOI", "HER GIKK NOE GALT")
             } else {
                 removeUserMarker(view)
-                Log.d ("UPDATEUI","MARKØR FJERNET")
+                Log.d("UPDATEUI", "MARKØR FJERNET")
             }
         }
     )
@@ -269,7 +286,7 @@ fun MapScreen(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(35.dp)
-            ){
+            ) {
                 //Slider for å velge dager frem i tid
                 Slider(
                     value = sliderPosition,
@@ -277,7 +294,8 @@ fun MapScreen(
                         // Force snap to integer during movement
                         sliderPosition = newValue.roundToInt().toFloat()
                         var now = OffsetDateTime.now(ZoneOffset.UTC)
-                        now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
+                        now = now.withMinute(0).withSecond(0).withNano(0)
+                            .plusHours(sliderPosition.toLong())
                         mapViewModel.updateTime(now.format(DateTimeFormatter.ISO_INSTANT))
 
                     },
@@ -295,14 +313,14 @@ fun MapScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
-                ){
+                ) {
                     //Tekst som viser antall timer frem i tid
                     Text(
                         text = sliderPosition.toInt().toString(),
                         modifier = Modifier
                             .padding(8.dp)
                             .background(
-                                color =ComposeColor.White,
+                                color = ComposeColor.White,
                                 shape = RoundedCornerShape(12.dp) // Background shape (should match border)
                             )
 
@@ -321,7 +339,8 @@ fun MapScreen(
                             CoroutineScope(Dispatchers.Default).launch {
                                 while (isActive && animate && sliderPosition < 240) { // isActive checks if the coroutine is still running
                                     var now = OffsetDateTime.now(ZoneOffset.UTC)
-                                    now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
+                                    now = now.withMinute(0).withSecond(0).withNano(0)
+                                        .plusHours(sliderPosition.toLong())
                                     sliderPosition += 1
                                     mapViewModel.updateTime(now.format(DateTimeFormatter.ISO_INSTANT))
                                     delay(1000) // timeInterval is in milliseconds (e.g., 5000 for 5s)
@@ -372,12 +391,12 @@ fun MapScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
-                ){
+                ) {
                     OutlinedButton(
                         onClick = {
                             locationServicesEnabled = checkLocationEnabled(context)
                             if (locationServicesEnabled) {
-                                mapViewRef?.let { centerMapOnUserLocation(context, it)}
+                                mapViewRef?.let { centerMapOnUserLocation(context, it) }
                                 mapViewRef?.zoomLevelDouble?.let {
                                     if (it < 12.0)
                                         mapViewRef?.controller?.zoomTo(12.0)
@@ -458,18 +477,18 @@ fun MapScreen(
                         if (mapScreenUiState.layerList.isNotEmpty()) {
                             ExposedDropdownMenu(
                                 expanded = expanded, onDismissRequest = { expanded = false }) {
-                                    //PROSJEKT CUSTOM AREA
-                                    //Funksjonalitet for å fjerne suffix basert på hvilket område som benyttes og legge de i en ny list
-                                    val updatedList = mapScreenUiState.layerList.map { layer ->
-                                        layer.copy(
-                                            title = when (mapScreenUiState.area) {
-                                                AreaData.NORDEN -> layer.title.removeSuffix(" in MEPS VDIV")
-                                                AreaData.ARKTIS -> layer.title.removeSuffix(" in Arctic VDIV")
-                                                AreaData.VERDEN -> layer.title.removeSuffix(" in ECMWF VDIV 1h")
-                                                else -> layer.title
-                                            }
-                                        )
-                                    }
+                                //PROSJEKT CUSTOM AREA
+                                //Funksjonalitet for å fjerne suffix basert på hvilket område som benyttes og legge de i en ny list
+                                val updatedList = mapScreenUiState.layerList.map { layer ->
+                                    layer.copy(
+                                        title = when (mapScreenUiState.area) {
+                                            AreaData.NORDEN -> layer.title.removeSuffix(" in MEPS VDIV")
+                                            AreaData.ARKTIS -> layer.title.removeSuffix(" in Arctic VDIV")
+                                            AreaData.VERDEN -> layer.title.removeSuffix(" in ECMWF VDIV 1h")
+                                            else -> layer.title
+                                        }
+                                    )
+                                }
 
 
                                 // Liste med lag som vi vil ha i appen
@@ -610,7 +629,7 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
 /* Bruker 'Polygon'-objekter for å lage interaktive polygoner, og 'FolderOverlay' for å gruppere
 * de sammen, slik at flere varsler kan vises samtidig.
 * */
-fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean){
+fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean) {
     map.overlays.removeAll { it is FolderOverlay && it.name == "Farevarsler" }
 
     if (!fareVarsel) {
@@ -656,7 +675,11 @@ fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean){
         val coords = features.geometry?.coordinates?.jsonArray // Bruk .jsonArray her
         if (features.geometry?.type?.equals("Polygon", true) == true && coords != null) {
             addPolygonToFolder(coords)
-        } else if (features.geometry?.type?.equals("MultiPolygon", true) == true && coords != null) {
+        } else if (features.geometry?.type?.equals(
+                "MultiPolygon",
+                true
+            ) == true && coords != null
+        ) {
             coords.forEach { singlePolygonCoords ->
                 addPolygonToFolder(singlePolygonCoords.jsonArray)
             }
@@ -674,7 +697,10 @@ fun startLocationUpdates(mapView: MapView, onLocationChanged: (GeoPoint) -> Unit
     val fusedClient = LocationServices.getFusedLocationProviderClient(context)
 
     //Definer kravene til oppdatering
-    val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000) //Bruk GPS for å få nøyaktig posisjon, hvert 5. sekund
+    val locationRequest = LocationRequest.Builder(
+        Priority.PRIORITY_HIGH_ACCURACY,
+        5000
+    ) //Bruk GPS for å få nøyaktig posisjon, hvert 5. sekund
         .setMinUpdateDistanceMeters(2f) // Kartet endres kun hvis man flytter seg mer enn 2 meter
         .build()
 
@@ -697,6 +723,7 @@ fun startLocationUpdates(mapView: MapView, onLocationChanged: (GeoPoint) -> Unit
 }
 
 // TEGNER MARKØR
+// TEGNER MARKØR
 private fun updateUserMarker(mapView: MapView, point: GeoPoint) {
     val context = mapView.context
 
@@ -709,9 +736,8 @@ private fun updateUserMarker(mapView: MapView, point: GeoPoint) {
         val marker = Marker(mapView).apply {
             title = "user_location"
             position = point
-            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER) // Senter/Senter er ofte bedre for "prikk"
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
 
-            // Tips: Lagre denne bitmap-en et sted så du slipper å dekode hver gang
             val b = BitmapFactory.decodeResource(context.resources,
                 R.drawable.location_placeholder
             )
@@ -722,10 +748,33 @@ private fun updateUserMarker(mapView: MapView, point: GeoPoint) {
     }
     mapView.invalidate()
 }
+// Funksjon som plasserer markøren når brukeren trykker
+// Sørger for at markøren ligger oppå datalagene
+private fun updateSelectedMarker(mapView: MapView, point: GeoPoint) {
+    val context = mapView.context
+
+    val existingMarker = mapView.overlays
+        .find { it is Marker && it.title == "selected_location" } as? Marker
+
+    if (existingMarker != null) {
+        existingMarker.position = point
+    } else {
+        val marker = Marker(mapView).apply {
+            title = "selected_location"
+            position = point
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+
+            icon = ContextCompat.getDrawable(context, R.drawable.location_pin)
+        }
+        mapView.overlays.add(marker)
+    }
+    mapView.invalidate()
+}
 
 // FJERNER MARKØR
 private fun removeUserMarker(mapView: MapView) {
-    val existingMarker = mapView.overlays.find { it is Marker && it.title == "user_location" } as? Marker
+    val existingMarker =
+        mapView.overlays.find { it is Marker && it.title == "user_location" } as? Marker
     if (existingMarker != null) {
         mapView.overlays.remove(existingMarker)
         mapView.invalidate() // Tving kartet til å tegne på nytt uten markøren
@@ -746,6 +795,7 @@ fun centerMapOnUserLocation(context: Context, mapView: MapView) {
 
 //FUNKSJON FOR Å SJEKKE OM GPS ER PÅ
 fun checkLocationEnabled(context: Context): Boolean {
-    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
+    val locationManager =
+        context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
     return androidx.core.location.LocationManagerCompat.isLocationEnabled(locationManager)
 }
