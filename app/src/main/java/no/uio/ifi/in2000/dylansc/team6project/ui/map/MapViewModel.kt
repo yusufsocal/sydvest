@@ -81,7 +81,8 @@ class MapViewModel(
             it.copy(
                 selectedLayer = layer,
                 // Hvis laget har en dimensjon, velges "nå" som starttidspunkt
-                selectedTime = if (layer?.dimension != null) getNowTimestamp() else ""
+                selectedTime = if (layer?.dimension != null) coerceTimeToDimension(getNowTimestamp(), layer.dimension )
+                    else ""
             )
         }
     }
@@ -112,7 +113,7 @@ class MapViewModel(
         return title
             .removeSuffix(" in MEPS VDIV")
             .removeSuffix(" in Arctic VDIV")
-            .removeSuffix(" in ECMWF VDIV 1h")
+            .removeSuffix(" in ECMWF SFC")
             .trim()
     }
 
@@ -190,8 +191,12 @@ class MapViewModel(
                     }
                 } else {
                     //Hvis området ikke har endret seg, oppdateres bare tid
+                    val selectedLayer = _uiState.value.selectedLayer
+                    val coercedTime = if (selectedLayer?.dimension != null)
+                        coerceTimeToDimension(time, selectedLayer.dimension)
+                    else time
                     _uiState.update { state ->
-                        state.copy(selectedTime = time)
+                        state.copy(selectedTime = coercedTime)
                     }
                 }
             } catch (e: Exception) {

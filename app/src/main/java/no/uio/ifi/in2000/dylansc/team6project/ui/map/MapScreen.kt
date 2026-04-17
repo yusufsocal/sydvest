@@ -10,7 +10,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.icu.number.Scale.none
 import android.location.Geocoder
+import android.location.LocationManager
 import android.os.Build
 import android.os.Looper
 import android.util.Log
@@ -35,6 +37,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -53,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.location.LocationManagerCompat
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -250,11 +254,9 @@ fun MapScreen(
             if (locationServicesEnabled) {
                 geoLocation?.let { punkt ->
                     updateUserMarker(view, punkt)
-                    Log.d ("UPDATEUI","MARKØR LAGET")
                 } ?: Log.e ("OIOIOI", "HER GIKK NOE GALT")
             } else {
                 removeUserMarker(view)
-                Log.d ("UPDATEUI","MARKØR FJERNET")
             }
         }
     )
@@ -322,7 +324,7 @@ fun MapScreen(
                                 while (isActive && animate && sliderPosition < 240) { // isActive checks if the coroutine is still running
                                     var now = OffsetDateTime.now(ZoneOffset.UTC)
                                     now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
-                                    sliderPosition += 1
+                                    sliderPosition += 3
                                     mapViewModel.updateTime(now.format(DateTimeFormatter.ISO_INSTANT))
                                     delay(1000) // timeInterval is in milliseconds (e.g., 5000 for 5s)
                                 }
@@ -336,6 +338,27 @@ fun MapScreen(
                         )
                     }
                 }
+
+                /* OPPDATERT SØKEFELT WIP
+                var expanded by remember { mutableStateOf(false) }
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { /* Styres manuelt av tekstfeltet */ }
+                ) {
+                    OutlinedTextField(
+                        value = addresse,
+                        onValueChange = {
+                            addresse = it
+                            erUtvidet = addresse.isNotEmpty()
+                        },
+                        label = { Text("Stedsnavn") },
+                        modifier = Modifier.menuAnchor(),
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = erUtvidet)
+                        }
+                    )
+                }*/
+
                 //Søkefelt for addresse
                 TextField(
                     value = addresse,
@@ -346,6 +369,7 @@ fun MapScreen(
                         unfocusedContainerColor = ComposeColor(0xFFF7FCFE)
                     )
                 )
+
 
                 val geocoder = Geocoder(context, Locale.getDefault())
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -412,7 +436,7 @@ fun MapScreen(
                 val selectedOptionText = mapScreenUiState.selectedLayer?.title
                     ?.removeSuffix(" in MEPS VDIV")
                     ?.removeSuffix(" in Arctic VDIV")
-                    ?.removeSuffix(" in ECMWF VDIV 1h")
+                    ?.removeSuffix(" in ECMWF SFC")
                     ?.trim()
                     ?: "Velg værlag..."
 
@@ -424,7 +448,9 @@ fun MapScreen(
                         .fillMaxWidth()
                 ) {
                     ExposedDropdownMenuBox(
-                        expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                        expanded = expanded,
+                        onExpandedChange = { expanded = !expanded }
+                    ) {
                         TextField(
                             modifier = Modifier
                                 .menuAnchor() // KRITISK: Denne kobler TextField til menyen
@@ -443,7 +469,9 @@ fun MapScreen(
                         // Vi sjekker om det faktisk er noe i lista før vi prøver å vise menyen
                         if (mapScreenUiState.layerList.isNotEmpty()) {
                             ExposedDropdownMenu(
-                                expanded = expanded, onDismissRequest = { expanded = false }) {
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
                                     //PROSJEKT CUSTOM AREA
                                     //Funksjonalitet for å fjerne suffix basert på hvilket område som benyttes og legge de i en ny list
                                     val updatedList = mapScreenUiState.layerList.map { layer ->
@@ -451,7 +479,7 @@ fun MapScreen(
                                             title = when (mapScreenUiState.area) {
                                                 AreaData.NORDEN -> layer.title.removeSuffix(" in MEPS VDIV")
                                                 AreaData.ARKTIS -> layer.title.removeSuffix(" in Arctic VDIV")
-                                                AreaData.VERDEN -> layer.title.removeSuffix(" in ECMWF VDIV 1h")
+                                                AreaData.VERDEN -> layer.title.removeSuffix(" in ECMWF SFC")
                                                 else -> layer.title
                                             }
                                         )
@@ -459,12 +487,18 @@ fun MapScreen(
 
 
                                 // Liste med lag som vi vil ha i appen
-                                val allowedLayers = setOf(
+                                val allowedLayers = when (mapScreenUiState.area) {AreaData.VERDEN -> setOf(
+                                    "Air temperature 2m",
+                                    "Precipitation amount 3h",
+                                    "Wind 10m speed",
+                                    "Wind 10m vector"
+                                ) else -> setOf(
                                     "Air temperature 2m",
                                     "Precipitation amount 1h",
                                     "Wind 10m speed",
                                     "Wind 10m vector"
-                                )
+                                    )
+                                }
 
                                 // filtrer ut alt som ikke er i allowedLayers og leg dem i dropdown-menyen med ny navn
                                 updatedList
@@ -473,6 +507,7 @@ fun MapScreen(
                                         var nyTitle: String = when (layer.title) {
                                             "Air temperature 2m" -> "Temperature"
                                             "Precipitation amount 1h" -> "Rainfall"
+                                            "Precipitation amount 3h" -> "Rainfall"
                                             "Wind 10m speed" -> "Wind speed"
                                             "Wind 10m vector" -> "Wind direction"
                                             else -> error("Unexpected layer title: ${layer.title}")
@@ -498,7 +533,9 @@ fun MapScreen(
                         } else {
                             // Hvis lista er tom, viser vi en liten hjelpetekst i steden
                             ExposedDropdownMenu(
-                                expanded = expanded, onDismissRequest = { expanded = false }) {
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
                                 DropdownMenuItem(
                                     text = { Text("Laster lag...") },
                                     onClick = { expanded = false })
@@ -541,6 +578,28 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
 
             // Victoria WMS med CRS:84 forventer minLon, minLat, maxLon, maxLat
             val bbox = "$lonMin,$latMin,$lonMax,$latMax"
+
+            /* NASA DATA
+
+            https://neo.gsfc.nasa.gov/wms/wms?version=1.3.0&service=WMS&request=GetCapabilities
+
+            Finn et lagnavn fra NASA XML-en, f.eks. "MOD_LSTD_CLIM_M" (Land Surface Temp)
+            val nasaLayer = "MOD_LSTD_CLIM_M"
+
+            val url2 = StringBuilder("https://neo.gsfc.nasa.gov/wms/wms?") // Lagt til https og ?
+            url2.append("SERVICE=WMS")
+            url2.append("&VERSION=1.3.0")
+            url2.append("&REQUEST=GetMap")
+            url2.append("&LAYERS=$nasaLayer") // Her velger du "modellen"
+            url2.append("&STYLES=")
+            url2.append("&CRS=CRS:84")
+            url2.append("&BBOX=$bbox")
+            url2.append("&WIDTH=256")
+            url2.append("&HEIGHT=256")
+            url2.append("&FORMAT=image/png")
+            url2.append("&TRANSPARENT=TRUE")
+            return url2.toString()
+            */
 
             // Hent model-navnet fra staten (f.eks. "meps", "arome" eller "ec")
             val modelParam = uiState.area?.area ?: "meps"
@@ -732,6 +791,6 @@ fun centerMapOnUserLocation(context: Context, mapView: MapView) {
 
 //FUNKSJON FOR Å SJEKKE OM GPS ER PÅ
 fun checkLocationEnabled(context: Context): Boolean {
-    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
-    return androidx.core.location.LocationManagerCompat.isLocationEnabled(locationManager)
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    return LocationManagerCompat.isLocationEnabled(locationManager)
 }
