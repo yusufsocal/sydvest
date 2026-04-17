@@ -408,12 +408,26 @@ fun MapScreen(
 
                 // LISTE MED VÆRLAG (DROPDOWN)
                 var expanded by remember { mutableStateOf(false) }
-                val selectedOptionText = mapScreenUiState.selectedLayer?.title
-                    ?.removeSuffix(" in MEPS VDIV")
-                    ?.removeSuffix(" in Arctic VDIV")
-                    ?.removeSuffix(" in ECMWF VDIV 1h")
-                    ?.trim()
-                    ?: "Velg værlag..."
+
+                val selectedOptionText = when (
+                    mapScreenUiState.selectedLayer?.title
+                        ?.removeSuffix(" in MEPS VDIV")
+                        ?.removeSuffix(" in Arctic VDIV")
+                        ?.removeSuffix(" in ECMWF VDIV 1h")
+                        ?.trim()
+                        ?: "Velg værlag..."
+                ) {
+                    "Air temperature 2m" -> "Temperature"
+                    "Precipitation amount 1h" -> "Rainfall"
+                    "Wind 10m speed" -> "Wind speed"
+                    "Wind 10m vector" -> "Wind direction"
+                    else -> mapScreenUiState.selectedLayer?.title
+                        ?.removeSuffix(" in MEPS VDIV")
+                        ?.removeSuffix(" in Arctic VDIV")
+                        ?.removeSuffix(" in ECMWF VDIV 1h")
+                        ?.trim()
+                        ?: "Velg værlag..."
+                }
 
                 //leser direkte fra state hver gang UI oppdateres
                 var areaData = mapScreenUiState.area?.toString() ?: ""
