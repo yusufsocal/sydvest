@@ -87,6 +87,17 @@ class MapViewModel(
         }
     }
 
+    //Fjerner ekstra, slik at type lag kan matches på tvers av modeller
+    private fun normalizeLayerTitle(title: String): String {
+        return title
+            .removeSuffix(" in MEPS VDIV")
+            .removeSuffix(" in Arctic VDIV")
+            .removeSuffix(" in ECMWF SFC")
+            .trim()
+    }
+
+    //METODER FOR TID ----------------------------------------------------------------
+
     //Returnerer nåværende tispunkt i riktig format for WMS
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getNowTimestamp(): String {
@@ -108,14 +119,6 @@ class MapViewModel(
         return Duration.between(now, selectedTime).toHours()
     }
 
-    //Fjerner ekstra, slik at type lag kan matches på tvers av modeller
-    private fun normalizeLayerTitle(title: String): String {
-        return title
-            .removeSuffix(" in MEPS VDIV")
-            .removeSuffix(" in Arctic VDIV")
-            .removeSuffix(" in ECMWF SFC")
-            .trim()
-    }
 
     //Tvinger et tidspunkt til å bli gyldig for et WMS-layer
     @RequiresApi(Build.VERSION_CODES.O)
@@ -133,7 +136,7 @@ class MapViewModel(
             //Sørger for at tiden er innenfor start og slutt
             val clamped = when {
                 requested.isBefore(start) -> start
-                requested.isAfter(end) -> end
+                //requested.isAfter(end) -> end
                 else -> requested
             }
 
@@ -158,8 +161,7 @@ class MapViewModel(
         viewModelScope.launch {
             try {
                 //Hvis tiden er lik, gjøres ingenting
-                if (_uiState.value.selectedTime == time)
-                    return@launch
+                //if (_uiState.value.selectedTime == time) return@launch
 
                 val hoursAhead = getHoursAhead(time)
                 val resolvedArea = wmsDomain.resolveArea(originalArea, hoursAhead)
@@ -198,6 +200,7 @@ class MapViewModel(
                     _uiState.update { state ->
                         state.copy(selectedTime = coercedTime)
                     }
+                    Log.d("ViewModel", "Slider tid: $time -> Blir til: $coercedTime")
                 }
             } catch (e: Exception) {
                 Log.e("ViewModel", "Feil ved oppdatering av tid/område: ${e.message}")
