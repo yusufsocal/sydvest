@@ -239,13 +239,13 @@ fun MapScreen(
 
         modifier = Modifier.fillMaxSize(),
 
-        //UPDATE SCREEN
+        //UPDATE SCREEN ----------------------------------------------------------------
         update = { view ->
 
             val currentLayer = mapScreenUiState.selectedLayer
             val currentTime = mapScreenUiState.selectedTime
             val currentArea = mapScreenUiState.area
-
+            Log.d("UPDATE", "SKJERM OPPDATERES")
             // Sjekk om vi faktisk trenger å tegne på nytt
             if (currentLayer?.name != lastDrawnLayerName || currentTime != lastDrawnTime || currentArea != lastDrawnArea) {
 
@@ -277,8 +277,10 @@ fun MapScreen(
                 removeUserMarker(view)
             }
         }
+        //----------------------------------------------------------------------
     )
 
+    //UI LAYOUT----------------------------------------------------------------------
     Box() {
 
         if (mapScreenUiState.isLoading) {
@@ -342,9 +344,10 @@ fun MapScreen(
                                 while (isActive && animate && sliderPosition < 240) { // isActive checks if the coroutine is still running
                                     var now = OffsetDateTime.now(ZoneOffset.UTC)
                                     now = now.withMinute(0).withSecond(0).withNano(0).plusHours(sliderPosition.toLong())
-                                    sliderPosition += 3
+                                    if (mapScreenUiState.area == AreaData.VERDEN) sliderPosition += 3
+                                    else sliderPosition += 1
                                     mapViewModel.updateTime(now.format(DateTimeFormatter.ISO_INSTANT))
-                                    delay(1000) // timeInterval is in milliseconds (e.g., 5000 for 5s)
+                                    delay(500) // timeInterval is in milliseconds (e.g., 5000 for 5s)
                                 }
                             }
                         },
@@ -565,6 +568,7 @@ fun MapScreen(
         }
     }
 }
+//FUNKSJONER ----------------------------------------------------------------------
 
 //FUNKSJON FOR Å TEGNE VÆRLAG
 /* Bruker TilesOverlay for å tegne værlaget på hver "rute" OSM består av. 'wmsSource' består av URL-en
@@ -575,9 +579,16 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
     val layer = uiState.selectedLayer ?: return
     val currentTime = uiState.selectedTime ?: ""
 
+    val oldOverlays = map.overlays.filterIsInstance<TilesOverlay>()
+    oldOverlays.forEach { oldOverlay ->
+        oldOverlay.onDetach(map)
+        map.overlays.remove(oldOverlay)
+    }
+    map.tileProvider.clearTileCache()
+
     // 1. Lag den nye kilden (TileSource)
     val newSource = object : XYTileSource(
-        "${layer.name}_$currentTime",
+        "${layer.name}_($currentTime.replace(\":\", \"\")}",
         1, 20, 256, ".png",
         arrayOf("https://public-victoria.met.no/wms?")
     ) {
@@ -644,12 +655,7 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
     }
 
     //Finner og fjerner gamle værlag, og lukker dem!
-    val oldOverlays = map.overlays.filterIsInstance<TilesOverlay>()
-    oldOverlays.forEach { oldOverlay ->
-        // Dette stopper "Too many receivers"
-        oldOverlay.onDetach(map)
-        map.overlays.remove(oldOverlay)
-    }
+
 
     //Opprett ny provider og overlay
     val provider = MapTileProviderBasic(map.context, newSource)
@@ -657,10 +663,11 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
         loadingBackgroundColor = AndroidColor.TRANSPARENT
 
         //Alphafilter
-        val alphaMatrix = ColorMatrix().apply { setScale(1f, 1f, 1f, 0.7f) }
+        val alphaMatrix = ColorMatrix().apply { setScale(1f, 1f, 1f, 0.5f) }
         setColorFilter(ColorMatrixColorFilter(alphaMatrix))
     }
 
+    Log.e("endrer tid til","$currentTime")
     // 4. Legg til det nye laget
     map.overlays.add(tilesOverlay)
 
