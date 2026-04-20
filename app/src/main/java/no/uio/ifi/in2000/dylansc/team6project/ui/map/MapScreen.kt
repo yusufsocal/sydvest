@@ -10,7 +10,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
-import android.icu.number.Scale.none
 import android.location.Geocoder
 import android.location.LocationManager
 import android.os.Build
@@ -37,7 +36,6 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -215,17 +213,16 @@ fun MapScreen(
                 }
                 // Lytter for trykk på kartet
                 val mapEventsReceiver = object : org.osmdroid.events.MapEventsReceiver {
-                    override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
+                    override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean = false
+                    override fun longPressHelper(p: GeoPoint?): Boolean {
                         p?.let {
                             updateSelectedMarker(this@apply, it)
                             Log.d("MapTap", "Bruker trykket på: ${it.latitude}, ${it.longitude}")
                             //TODO Senere: send koordinatene til ViewModel her, f.eks.
                             // mapViewModel.onLocationSelected(it.latitude, it.longitude)
-                        }
-                        return true
                     }
-
-                    override fun longPressHelper(p: GeoPoint?): Boolean = false
+                    return true
+                }
                 }
 
                 overlays.add(0, org.osmdroid.views.overlay.MapEventsOverlay(mapEventsReceiver))
