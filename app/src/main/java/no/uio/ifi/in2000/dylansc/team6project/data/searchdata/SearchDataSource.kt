@@ -14,7 +14,7 @@ class SearchDataSource {
     suspend fun fetchSearchSuggestions(query: String): List<SearchResult> {
         return withContext(Dispatchers.IO) {
             try {
-                val url = "https://photon.komoot.io/api/?q=${query}&limit=5&lang=en"
+                val url = "https://photon.komoot.io/api/?q=${query}&limit=10&lang=en"
                 val response = java.net.URL(url).readText()
                 val jsonElement = json.parseToJsonElement(response)
                 val features = jsonElement.jsonObject["features"]?.jsonArray ?: return@withContext emptyList()

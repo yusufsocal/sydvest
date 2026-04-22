@@ -200,7 +200,6 @@ fun MapScreen(
     LaunchedEffect(addresse) {
         delay(400) // Litt raskere respons enn 500ms
         mapViewModel.onSearchQueryChanged(addresse)
-        Log.d("ADDRESSE", "${mapScreenUiState.searchSuggestions}")
     }
 
 
@@ -386,24 +385,21 @@ fun MapScreen(
                     )
                 )
 
-                /*
-                val geocoder = Geocoder(context, Locale.getDefault())
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    geocoder.getFromLocationName(addresse, 5) { addresses ->
-
-                        adList.add(addresses.toString())
-
-                        val location = addresses.firstOrNull()
-                        val lat = location?.latitude?.toDouble() ?: 0.0
-                        val lng = location?.longitude?.toDouble() ?: 0.0
-                        mapViewRef?.controller?.setCenter(GeoPoint(lat, lng))
-                        mapViewRef?.controller?.setZoom(15.0)
-
-
-                        Log.e("Addresser", "$addresses")
-                    }
+                mapScreenUiState.searchSuggestions.forEach { forslag ->
+                    DropdownMenuItem(
+                        text = { Text(
+                            text = forslag.name,
+                            modifier = Modifier.background(ComposeColor.White, shape = RoundedCornerShape(4.dp))
+                        ) },
+                        onClick = {
+                            addresse = forslag.name
+                            // Be ViewModel tømme lista eller håndtere valget
+                            //mapViewModel.onLocationSelected(forslag.lat, forslag.lon)
+                            mapViewRef?.controller?.animateTo(GeoPoint(forslag.lat, forslag.lon))
+                            mapViewRef?.controller?.setZoom(14.0)
+                        }
+                    )
                 }
-                Log.d("ADDRESSER", "$adList")*/
 
             }
             Column(
