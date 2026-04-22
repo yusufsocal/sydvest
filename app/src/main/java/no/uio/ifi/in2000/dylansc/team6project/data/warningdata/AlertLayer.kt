@@ -2,7 +2,6 @@ package no.uio.ifi.in2000.dylansc.team6project.data.warningdata
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 
 @Serializable

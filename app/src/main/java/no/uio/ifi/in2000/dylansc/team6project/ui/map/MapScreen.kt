@@ -10,6 +10,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.location.Address
 import android.location.Geocoder
 import android.location.LocationManager
 import android.os.Build
@@ -65,11 +66,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import no.uio.ifi.in2000.dylansc.team6project.R
+import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderBasic
@@ -86,6 +90,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.collections.isNotEmpty
 import kotlin.math.roundToInt
 import android.graphics.Color as AndroidColor
 import androidx.compose.ui.graphics.Color as ComposeColor
@@ -140,6 +145,8 @@ fun MapScreen(
     //Variabel for å sjekke om GPS er på eller ikke
     var locationServicesEnabled by remember { mutableStateOf(true) }
 
+
+
     //Kjører hvis slider endres - sender tidspunkt til ViewModel
     LaunchedEffect(sliderPosition) {
         var now = OffsetDateTime.now(ZoneOffset.UTC)
@@ -190,6 +197,13 @@ fun MapScreen(
         }
     }
 
+    LaunchedEffect(addresse) {
+        delay(400) // Litt raskere respons enn 500ms
+        mapViewModel.onSearchQueryChanged(addresse)
+        Log.d("ADDRESSE", "${mapScreenUiState.searchSuggestions}")
+    }
+
+
     // AndroidView brukes for å putte det gamle Android-kartet inn i Compose
     AndroidView(
         factory = { ctx ->
@@ -238,7 +252,6 @@ fun MapScreen(
 
         //UPDATE SCREEN ----------------------------------------------------------------
         update = { view ->
-
             val currentLayer = mapScreenUiState.selectedLayer
             val currentTime = mapScreenUiState.selectedTime
             val currentArea = mapScreenUiState.area
@@ -357,25 +370,10 @@ fun MapScreen(
                     }
                 }
 
-                /* OPPDATERT SØKEFELT WIP
-                var expanded by remember { mutableStateOf(false) }
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { /* Styres manuelt av tekstfeltet */ }
-                ) {
-                    OutlinedTextField(
-                        value = addresse,
-                        onValueChange = {
-                            addresse = it
-                            erUtvidet = addresse.isNotEmpty()
-                        },
-                        label = { Text("Stedsnavn") },
-                        modifier = Modifier.menuAnchor(),
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = erUtvidet)
-                        }
-                    )
-                }*/
+                // OPPDATERT SØKEFELT WIP
+
+
+
 
                 //Søkefelt for addresse
                 TextField(
@@ -388,10 +386,13 @@ fun MapScreen(
                     )
                 )
 
-
+                /*
                 val geocoder = Geocoder(context, Locale.getDefault())
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     geocoder.getFromLocationName(addresse, 5) { addresses ->
+
+                        adList.add(addresses.toString())
+
                         val location = addresses.firstOrNull()
                         val lat = location?.latitude?.toDouble() ?: 0.0
                         val lng = location?.longitude?.toDouble() ?: 0.0
@@ -402,6 +403,7 @@ fun MapScreen(
                         Log.e("Addresser", "$addresses")
                     }
                 }
+                Log.d("ADDRESSER", "$adList")*/
 
             }
             Column(
