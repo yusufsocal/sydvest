@@ -13,6 +13,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
+import no.uio.ifi.in2000.dylansc.team6project.data.repository.SearchRepository
+import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
@@ -34,6 +36,9 @@ fun AppNavHost(
     val alertDataSource = AlertDataSourceImpl()
     val alertRepo = AlertRepository(alertDataSource)
 
+    val searchDataSource = SearchDataSource()
+    val searchRepo = SearchRepository(searchDataSource)
+
     //PROSJEKT CUSTOM AREA -> Foreløpig placeholder for opprettelse av variabel for når
     //hvilken data som skal benyttes velges ->
     var area: AreaData = AreaData.NORDEN
@@ -41,7 +46,7 @@ fun AppNavHost(
 
     //Hoister ViewModel opp til NavHost
     val mapViewModel: MapViewModel = viewModel(
-        factory = MapViewModel.provideFactory(locationRepo, alertRepo, area)
+        factory = MapViewModel.provideFactory(locationRepo, alertRepo, searchRepo, area)
     )
     val uiState by mapViewModel.uiState.collectAsState()
 

@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
+import no.uio.ifi.in2000.dylansc.team6project.data.repository.SearchRepository
+import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
@@ -34,15 +36,16 @@ data class MapScreenUiState(
     val alertList: List<AlertFeature> = emptyList(),
     //Boolean som sjekker om en side laster eller ikke
     val isLoading: Boolean = true,
-    //PROSJEKT CUSTOM AREA - Brukes i sammenheng med Victoria for å bestemme datalag
-    //NORDEN, ARKTIS eller VERDEN)
+    //Sjekker hvilket område man er på
     val area: AreaData? = null,
     //
+    val searchSuggestions: List<SearchResult> = emptyList()
 )
 
 class MapViewModel(
     private val locationRepo: LocationRepository,
     private val alertRepo: AlertRepository,
+    private val searchRepo: SearchRepository,
     private var newArea: AreaData
 ): ViewModel() {
     private val _uiState = MutableStateFlow(MapScreenUiState())
@@ -208,16 +211,24 @@ class MapViewModel(
         }
     }
 
+    //
+    fun onSearchQueryChanged(query: String) {
+        viewModelScope.launch {
+            val suggestions = searchRepo.getSuggestions(query)
+            _uiState.update { it.copy(searchSuggestions = suggestions) }
+        }
+    }
+
     companion object {
         fun provideFactory(
             locationRepo: LocationRepository,
             alertRepo: AlertRepository,
-            //PROSJEKT CUSTOM AREA
+            searchRepo: SearchRepository,
             area: AreaData
             //
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return MapViewModel(locationRepo, alertRepo,area) as T
+                return MapViewModel(locationRepo, alertRepo, searchRepo, area) as T
             }
         }
     }
