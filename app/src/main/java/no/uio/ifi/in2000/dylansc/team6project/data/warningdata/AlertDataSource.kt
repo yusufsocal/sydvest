@@ -8,12 +8,10 @@ import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-// ✅ Interface (what your repository depends on)
 interface AlertDataSource {
     suspend fun alertDataSource(): List<AlertFeature>?
 }
 
-// ✅ Real implementation (your existing code moved here)
 class AlertDataSourceImpl : AlertDataSource {
 
     private val client = HttpClient(CIO) {
