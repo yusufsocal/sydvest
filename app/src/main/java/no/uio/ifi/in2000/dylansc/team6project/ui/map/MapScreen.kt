@@ -197,10 +197,6 @@ fun MapScreen(
         }
     }
 
-    LaunchedEffect(addresse) {
-        delay(400) // Litt raskere respons enn 500ms
-        mapViewModel.onSearchQueryChanged(addresse)
-    }
 
 
     // AndroidView brukes for å putte det gamle Android-kartet inn i Compose
@@ -249,7 +245,7 @@ fun MapScreen(
 
         modifier = Modifier.fillMaxSize(),
 
-        //UPDATE SCREEN ----------------------------------------------------------------
+        //UPDATE SCREEN
         update = { view ->
             val currentLayer = mapScreenUiState.selectedLayer
             val currentTime = mapScreenUiState.selectedTime
@@ -371,36 +367,41 @@ fun MapScreen(
 
                 // OPPDATERT SØKEFELT WIP
 
-
-
-
-                //Søkefelt for addresse
-                TextField(
-                    value = addresse,
-                    onValueChange = { addresse = it },
-                    label = { Text("Stedsnavn") },
-                    colors = ExposedDropdownMenuDefaults.textFieldColors(
-                        focusedContainerColor = ComposeColor(0xFFF7FCFE),
-                        unfocusedContainerColor = ComposeColor(0xFFF7FCFE)
+                ExposedDropdownMenuBox(
+                    expanded = mapScreenUiState.searchSuggestions.isNotEmpty(),
+                    onExpandedChange = { /* styres av state, ikke brukerklikk */ }
+                ) {
+                    TextField(
+                        value = addresse,
+                        onValueChange = { nyTekst ->
+                            addresse = nyTekst
+                            mapViewModel.onSearchQueryChanged(nyTekst)
+                        },
+                        label = { Text("Stedsnavn") },
+                        modifier = Modifier.menuAnchor(),
+                        colors = ExposedDropdownMenuDefaults.textFieldColors(
+                            focusedContainerColor = ComposeColor(0xFFF7FCFE),
+                            unfocusedContainerColor = ComposeColor(0xFFF7FCFE)
+                        )
                     )
-                )
 
-                mapScreenUiState.searchSuggestions.forEach { forslag ->
-                    DropdownMenuItem(
-                        text = { Text(
-                            text = forslag.name,
-                            modifier = Modifier.background(ComposeColor.White, shape = RoundedCornerShape(4.dp))
-                        ) },
-                        onClick = {
-                            addresse = forslag.name
-                            // Be ViewModel tømme lista eller håndtere valget
-                            //mapViewModel.onLocationSelected(forslag.lat, forslag.lon)
-                            mapViewRef?.controller?.animateTo(GeoPoint(forslag.lat, forslag.lon))
-                            mapViewRef?.controller?.setZoom(14.0)
+                    ExposedDropdownMenu(
+                        expanded = mapScreenUiState.searchSuggestions.isNotEmpty(),
+                        onDismissRequest = { mapViewModel.onSearchDismissed() }
+                    ) {
+                        mapScreenUiState.searchSuggestions.forEach { forslag ->
+                            DropdownMenuItem(
+                                text = { Text(forslag.name) },
+                                onClick = {
+                                    addresse = forslag.name
+                                    mapViewRef?.controller?.animateTo(GeoPoint(forslag.lat, forslag.lon))
+                                    mapViewRef?.controller?.setZoom(14.0)
+                                    mapViewModel.onSuggestionSelected(forslag)
+                                }
+                            )
                         }
-                    )
+                    }
                 }
-
             }
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Bottom),
@@ -466,7 +467,8 @@ fun MapScreen(
                     ExposedDropdownMenuBox(
                         expanded = expanded,
                         onExpandedChange = { expanded = !expanded }
-                    ) {
+                    )
+                    {
                         TextField(
                             modifier = Modifier
                                 .menuAnchor() // KRITISK: Denne kobler TextField til menyen
@@ -563,6 +565,7 @@ fun MapScreen(
         }
     }
 }
+
 //FUNKSJONER ----------------------------------------------------------------------
 
 //FUNKSJON FOR Å TEGNE VÆRLAG
