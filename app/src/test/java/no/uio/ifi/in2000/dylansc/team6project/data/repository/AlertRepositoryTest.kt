@@ -79,9 +79,10 @@ class AlertRepositoryTest {
     }
 }
 
+// helper class
 private fun alert(area: String?): AlertFeature {
     return AlertFeature(
-        geometry = null, // not needed for tests
+        geometry = null,
         properties = AlertProperties(
             area = area,
             description = null,
