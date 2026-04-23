@@ -6,7 +6,11 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import nl.adaptivity.xmlutil.serialization.XML
 
-class WMSDataSource {
+interface WMSDataSource {
+    suspend fun fetchWmsCapabilities(model: AreaData): WMSCapabilities?
+}
+
+class WMSDataSourceImpl: WMSDataSource {
     private val client = HttpClient(CIO)
 
     // Vi lager XML-parseren her i stedet for inne i Ktor
@@ -17,7 +21,7 @@ class WMSDataSource {
         repairNamespaces = true
     }
 
-    suspend fun fetchWmsCapabilities(model: AreaData): WMSCapabilities? {
+    override suspend fun fetchWmsCapabilities(model: AreaData): WMSCapabilities? {
         val url = "https://public-victoria.met.no/wms?service=WMS&version=1.3.0&request=GetCapabilities&model=${model.area}"
 
         return try {

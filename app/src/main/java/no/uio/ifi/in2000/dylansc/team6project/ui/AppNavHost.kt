@@ -17,6 +17,7 @@ import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSource
+import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapScreen
 
@@ -27,7 +28,7 @@ fun AppNavHost(
     //Alle repositories sendes hit! Husk å oppdatere etter hvert som vi får flere!
 ) {
     //DataSource og Repository for værdata fra Victoria initialiseres her!
-    val wmsDataSource = WMSDataSource()
+    val wmsDataSource = WMSDataSourceImpl()
     val locationRepo = LocationRepository(wmsDataSource)
 
     //DataSource og Repository for Alerts initialiseres her!
