@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +25,14 @@ import no.uio.ifi.in2000.dylansc.team6project.model.domene.WMSDomain
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 
 data class MapScreenUiState(
     //Liste som inneholder egenskaper for lag fra Victoria - XML
@@ -39,9 +48,13 @@ data class MapScreenUiState(
     //Sjekker hvilket område man er på
     val area: AreaData? = null,
     //
-    val searchSuggestions: List<SearchResult> = emptyList()
+    val searchSuggestions: List<SearchResult> = emptyList(),
+
+    //sørger for at den nye verdien ikke trigger et nytt søk
+    val searchQuery: String = ""
 )
 
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class MapViewModel(
     private val locationRepo: LocationRepository,
     private val alertRepo: AlertRepository,
@@ -50,6 +63,7 @@ class MapViewModel(
 ): ViewModel() {
     private val _uiState = MutableStateFlow(MapScreenUiState())
     val uiState: StateFlow<MapScreenUiState> = _uiState.asStateFlow()
+    private val searchQuery = MutableStateFlow("")
 
     //Lagrer startområde, hva vi skal gå tilbake til hvis bruker velger under 60t
     private val originalArea: AreaData = newArea
@@ -75,6 +89,26 @@ class MapViewModel(
                 android.util.Log.e("ViewModel", "Feil ved henting av data: ${e.message}")
             }
 
+        }
+
+        viewModelScope.launch {
+            searchQuery
+                .debounce(300)
+                .distinctUntilChanged()
+                .flatMapLatest { query ->
+                    if (query.isBlank()) {
+                        flowOf(emptyList())
+                    } else {
+                        flow { emit(searchRepo.getSuggestions(query)) }
+                    }
+                }
+                .catch { e ->
+                    Log.e("ViewModel", "Feil ved søk: ${e.message}")
+                    emit(emptyList())
+                }
+                .collect { suggestions ->
+                    _uiState.update { it.copy(searchSuggestions = suggestions) }
+                }
         }
     }
 
@@ -213,10 +247,12 @@ class MapViewModel(
 
     //
     fun onSearchQueryChanged(query: String) {
-        viewModelScope.launch {
-            val suggestions = searchRepo.getSuggestions(query)
-            _uiState.update { it.copy(searchSuggestions = suggestions) }
+        searchQuery.value = query
         }
+
+    // Funksjon for søkefeltet - sørger for at søkefeltet lukkes når man har trykket på stedet man har søkt på
+    fun onSuggestionSelected(suggestion: SearchResult) {
+        _uiState.update { it.copy(searchSuggestions = emptyList()) }
     }
 
     companion object {
@@ -232,6 +268,8 @@ class MapViewModel(
             }
         }
     }
-
+    fun onSearchDismissed() {
+        _uiState.update { it.copy(searchSuggestions = emptyList()) }
+    }
 }
 
