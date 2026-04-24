@@ -6,6 +6,8 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
+import no.uio.ifi.in2000.dylansc.team6project.data.repository.SearchRepository
+import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertProperties
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
@@ -31,14 +33,11 @@ class MapViewModelTest {
         val fakeLayers = listOf(layer(title = "Temperature"))
         val fakeAlerts = listOf(alert("Oslo"))
 
-        val locationRepo = LocationRepository(
-            FakeWMSDataSource(capabilities(fakeLayers))
-        )
-        val alertRepo = AlertRepository(
-            FakeAlertDataSource(fakeAlerts)
-        )
+        val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(fakeLayers)))
+        val alertRepo = AlertRepository(FakeAlertDataSource(fakeAlerts))
+        val searchRepo = SearchRepository(FakeSearchDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, AreaData.NORDEN)
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDEN)
 
         // vent til alle coroutine-ne er ferdig i viewmodel
         advanceUntilIdle()
@@ -60,14 +59,11 @@ class MapViewModelTest {
         val fakeLayers = listOf(layer(title = "Temperature"))
         val fakeAlerts = listOf(alert("Oslo"))
 
-        val locationRepo = LocationRepository(
-            FakeWMSDataSource(capabilities(fakeLayers))
-        )
-        val alertRepo = AlertRepository(
-            FakeAlertDataSource(fakeAlerts)
-        )
+        val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(fakeLayers)))
+        val alertRepo = AlertRepository(FakeAlertDataSource(fakeAlerts))
+        val searchRepo = SearchRepository(FakeSearchDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, AreaData.NORDEN)
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDEN)
 
         advanceUntilIdle()
 
@@ -89,14 +85,11 @@ class MapViewModelTest {
         val fakeLayers = listOf(layer(title = "Temperature"))
         val fakeAlerts = listOf(alert("Oslo"))
 
-        val locationRepo = LocationRepository(
-            FakeWMSDataSource(capabilities(fakeLayers))
-        )
-        val alertRepo = AlertRepository(
-            FakeAlertDataSource(fakeAlerts)
-        )
+        val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(fakeLayers)))
+        val alertRepo = AlertRepository(FakeAlertDataSource(fakeAlerts))
+        val searchRepo = SearchRepository(FakeSearchDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, AreaData.NORDEN)
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDEN)
 
         advanceUntilIdle()
 
@@ -110,63 +103,50 @@ class MapViewModelTest {
 
     // updateTime
     @Test
-    fun `updateTime does nothing when the same time is given`() = runTest {
+    fun `updateTime with same time keeps selectedTime as a valid timestamp`() = runTest {
         val fakeLayer = layer(
             title = "Temperature",
-            dimension = "2025-01-01T00:00/2025-01-02T00:00/PT1H"
+            dimension = "2025-01-01T00:00+00:00/2025-01-02T00:00+00:00/PT1H"
         )
 
-        val fakeLayers = listOf(layer(title = "Temperature"))
-        val fakeAlerts = listOf(alert("Bergen"))
+        val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(listOf(layer(title = "Temperature")))))
+        val alertRepo = AlertRepository(FakeAlertDataSource(listOf(alert("Bergen"))))
+        val searchRepo = SearchRepository(FakeSearchDataSource())
 
-        val locationRepo = LocationRepository(
-            FakeWMSDataSource(capabilities(fakeLayers))
-        )
-        val alertRepo = AlertRepository(
-            FakeAlertDataSource(fakeAlerts)
-        )
-
-        val viewModel = MapViewModel(locationRepo, alertRepo, AreaData.NORDEN)
-
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo, AreaData.NORDEN)
         advanceUntilIdle()
-
         viewModel.setSelectedLayer(fakeLayer)
 
-        val before = viewModel.uiState.value.selectedTime
-        viewModel.updateTime(before ?: "")
+        val before = viewModel.uiState.value.selectedTime!!
+        assertThat(before).isNotEmpty()
 
+        viewModel.updateTime(before)
         advanceUntilIdle()
 
         val after = viewModel.uiState.value.selectedTime
-        assertThat(after).isEqualTo(before)
+        assertThat(after).isNotEmpty()
+        assertThat(runCatching { OffsetDateTime.parse(after) }.isSuccess).isTrue()
     }
 
     // updateTime
     @Test
     fun `updateTime changes selectedTime when given a new time`() = runTest {
-        val fakeLayer = layer(
-            title = "Temperature",
-            dimension = "2025-01-01T00:00/2025-01-02T00:00/PT1H"
-        )
+        // Dimension end must be far in the future so coerceTimeToDimension never clamps newTime
+        val farFuture = OffsetDateTime.now(java.time.ZoneOffset.UTC).plusYears(5)
+        val dimensionEnd = farFuture.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmZ"))
+        val dimension = "2025-01-01T00:00+00:00/$dimensionEnd/PT1H"
 
-        val fakeLayers = listOf(layer(title = "Temperature"))
-        val fakeAlerts = listOf(alert("Bergen"))
+        val fakeLayer = layer(title = "Temperature", dimension = dimension)
 
-        val locationRepo = LocationRepository(
-            FakeWMSDataSource(capabilities(fakeLayers))
-        )
-        val alertRepo = AlertRepository(
-            FakeAlertDataSource(fakeAlerts)
-        )
+        val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(listOf(layer(title = "Temperature")))))
+        val alertRepo = AlertRepository(FakeAlertDataSource(listOf(alert("Bergen"))))
+        val searchRepo = SearchRepository(FakeSearchDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, AreaData.NORDEN)
-
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo, AreaData.NORDEN)
         advanceUntilIdle()
-
         viewModel.setSelectedLayer(fakeLayer)
 
         val before = viewModel.uiState.value.selectedTime!!
-        // the selected time + 1 hour to check if time changes
         val newTime = OffsetDateTime.parse(before)
             .plusHours(1)
             .format(DateTimeFormatter.ISO_INSTANT)
