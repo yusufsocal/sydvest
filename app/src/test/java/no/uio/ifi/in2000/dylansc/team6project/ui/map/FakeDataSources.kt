@@ -1,5 +1,7 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map
 
+import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchDataSource
+import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
@@ -16,4 +18,10 @@ class FakeWMSDataSource(
     private val result: WMSCapabilities?
 ) : WMSDataSource {
     override suspend fun fetchWmsCapabilities(model: AreaData): WMSCapabilities? = result
+}
+
+class FakeSearchDataSource(
+    private val result: List<SearchResult> = emptyList()
+) : SearchDataSource {
+    override suspend fun fetchSearchSuggestions(query: String): List<SearchResult> = result
 }

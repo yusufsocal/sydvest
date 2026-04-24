@@ -15,6 +15,7 @@ import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.SearchRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchDataSource
+import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
@@ -37,7 +38,7 @@ fun AppNavHost(
     val alertDataSource = AlertDataSourceImpl()
     val alertRepo = AlertRepository(alertDataSource)
 
-    val searchDataSource = SearchDataSource()
+    val searchDataSource = SearchDataSourceImpl()
     val searchRepo = SearchRepository(searchDataSource)
 
     //PROSJEKT CUSTOM AREA -> Foreløpig placeholder for opprettelse av variabel for når

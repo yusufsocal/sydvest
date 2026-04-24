@@ -8,10 +8,14 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-class SearchDataSource {
+interface SearchDataSource {
+    suspend fun fetchSearchSuggestions(query: String): List<SearchResult>
+}
+
+class SearchDataSourceImpl : SearchDataSource {
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun fetchSearchSuggestions(query: String): List<SearchResult> {
+    override suspend fun fetchSearchSuggestions(query: String): List<SearchResult> {
         return withContext(Dispatchers.IO) {
             try {
                 val url = "https://photon.komoot.io/api/?q=${query}&limit=10&lang=en"
