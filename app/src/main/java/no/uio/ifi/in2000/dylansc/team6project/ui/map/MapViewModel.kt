@@ -1,5 +1,3 @@
-//Selve ViewModel, kommuniserer med ulike Repositories og Screens
-
 package no.uio.ifi.in2000.dylansc.team6project.ui.map
 
 import android.os.Build
@@ -9,10 +7,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
@@ -25,33 +32,24 @@ import no.uio.ifi.in2000.dylansc.team6project.model.domene.WMSDomain
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import kotlin.math.roundToInt
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 
 data class MapScreenUiState(
-    //Liste som inneholder egenskaper for lag fra Victoria - XML
     val layerList: List<WMSLayer> = emptyList(),
-    //WMS lag
     val selectedLayer: WMSLayer? = null,
-    //tid fra WMS lag
     val selectedTime: String? = "",
-    //Liste over Farevarsler
     val alertList: List<AlertFeature> = emptyList(),
-    //Boolean som sjekker om en side laster eller ikke
     val isLoading: Boolean = true,
-    //Sjekker hvilket område man er på
     val area: AreaData? = null,
-    //
     val searchSuggestions: List<SearchResult> = emptyList(),
-
-    //sørger for at den nye verdien ikke trigger et nytt søk
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+    val fareVarsel: Boolean = false,
+    val isAnimating: Boolean = false,
+    val sliderPosition: Float = 0f,
+    val displayLayers: List<Pair<WMSLayer, String>> = emptyList(),
+    val selectedLayerDisplayName: String = "Velg værlag..."
 )
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
@@ -60,35 +58,33 @@ class MapViewModel(
     private val alertRepo: AlertRepository,
     private val searchRepo: SearchRepository,
     private var newArea: AreaData
-): ViewModel() {
+) : ViewModel() {
+
     private val _uiState = MutableStateFlow(MapScreenUiState())
     val uiState: StateFlow<MapScreenUiState> = _uiState.asStateFlow()
-    private val searchQuery = MutableStateFlow("")
 
-    //Lagrer startområde, hva vi skal gå tilbake til hvis bruker velger under 60t
+    private val searchQuery = MutableStateFlow("")
     private val originalArea: AreaData = newArea
-    //Regel for hvilket område som skal bruker
     private val wmsDomain = WMSDomain()
+    private var animationJob: Job? = null
 
     init {
         viewModelScope.launch {
             try {
                 val newLayerList = locationRepo.getArea(newArea) ?: emptyList()
                 val newAlertList = alertRepo.getAlertList()
-                _uiState.update {
-                    it.copy(
+                _uiState.update { state ->
+                    state.copy(
                         layerList = newLayerList,
                         alertList = newAlertList,
                         isLoading = false,
-                        //PROSJEKT CUSTOM AREA
-                        area = newArea
-                        //
+                        area = newArea,
+                        displayLayers = computeDisplayLayers(newLayerList, newArea)
                     )
                 }
             } catch (e: Exception) {
-                android.util.Log.e("ViewModel", "Feil ved henting av data: ${e.message}")
+                Log.e("ViewModel", "Feil ved henting av data: ${e.message}")
             }
-
         }
 
         viewModelScope.launch {
@@ -96,11 +92,8 @@ class MapViewModel(
                 .debounce(300)
                 .distinctUntilChanged()
                 .flatMapLatest { query ->
-                    if (query.isBlank()) {
-                        flowOf(emptyList())
-                    } else {
-                        flow { emit(searchRepo.getSuggestions(query)) }
-                    }
+                    if (query.isBlank()) flowOf(emptyList())
+                    else flow { emit(searchRepo.getSuggestions(query)) }
                 }
                 .catch { e ->
                     Log.e("ViewModel", "Feil ved søk: ${e.message}")
@@ -114,130 +107,96 @@ class MapViewModel(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun setSelectedLayer(layer: WMSLayer?) {
-        _uiState.update {
-            it.copy(
+        _uiState.update { state ->
+            val newTime = if (layer?.dimension != null)
+                coerceTimeToDimension(getNowTimestamp(), layer.dimension)
+            else ""
+            state.copy(
                 selectedLayer = layer,
-                // Hvis laget har en dimensjon, velges "nå" som starttidspunkt
-                selectedTime = if (layer?.dimension != null) coerceTimeToDimension(getNowTimestamp(), layer.dimension )
-                    else ""
+                selectedTime = newTime,
+                selectedLayerDisplayName = computeSelectedLayerDisplayName(layer)
             )
         }
     }
 
-    //Fjerner ekstra, slik at type lag kan matches på tvers av modeller
-    private fun normalizeLayerTitle(title: String): String {
-        return title
-            .removeSuffix(" in MEPS VDIV")
-            .removeSuffix(" in Arctic VDIV")
-            .removeSuffix(" in ECMWF SFC")
-            .trim()
+    fun toggleFareVarsel() {
+        _uiState.update { it.copy(fareVarsel = !it.fareVarsel) }
     }
 
-    //METODER FOR TID ----------------------------------------------------------------
-
-    //Returnerer nåværende tispunkt i riktig format for WMS
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun getNowTimestamp(): String {
-        // Bruk OffsetDateTime eller ZonedDateTime for å sikre UTC/Z-format
-        val now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC)
-        val rounded = now.withMinute(0).withSecond(0).withNano(0)
-        return rounded.format(java.time.format.DateTimeFormatter.ISO_INSTANT)
-    }
-
-    //Tar inn et tidspunkt, regner ut hvor mange timer det er fram i tid fra "nå"
-    //Bruker for å sjekke om vi har passert 60t
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun getHoursAhead(time: String): Long {
-        val selectedTime = OffsetDateTime.parse(time)
+    fun updateSliderPosition(position: Float) {
+        val snapped = position.roundToInt().toFloat()
+        _uiState.update { it.copy(sliderPosition = snapped) }
         val now = OffsetDateTime.now(ZoneOffset.UTC)
-            .withMinute(0)
-            .withSecond(0)
-            .withNano(0)
-        return Duration.between(now, selectedTime).toHours()
+            .withMinute(0).withSecond(0).withNano(0)
+            .plusHours(snapped.toLong())
+        updateTime(now.format(DateTimeFormatter.ISO_INSTANT))
     }
 
-
-    //Tvinger et tidspunkt til å bli gyldig for et WMS-layer
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun coerceTimeToDimension(requestedTime: String, dimension: String): String {
-        return try {
-            val parts = dimension.split("/")
-            if (parts.size != 3) return requestedTime
-
-            val start = OffsetDateTime.parse(parts[0], java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmZ"))
-            val end = OffsetDateTime.parse(parts[1], java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmZ"))
-            val step = Duration.parse(parts[2])
-
-            val requested = OffsetDateTime.parse(requestedTime)
-
-            //Sørger for at tiden er innenfor start og slutt
-            val clamped = when {
-                requested.isBefore(start) -> start
-                //requested.isAfter(end) -> end
-                else -> requested
+    fun toggleAnimate() {
+        if (_uiState.value.isAnimating) {
+            animationJob?.cancel()
+            _uiState.update { it.copy(isAnimating = false) }
+        } else {
+            _uiState.update { it.copy(isAnimating = true) }
+            animationJob = viewModelScope.launch {
+                while (isActive && _uiState.value.sliderPosition < 240f) {
+                    val step = if (_uiState.value.area == AreaData.VERDEN) 3f else 1f
+                    val newPos = (_uiState.value.sliderPosition + step).coerceAtMost(240f)
+                    updateSliderPosition(newPos)
+                    delay(500)
+                }
+                _uiState.update { it.copy(isAnimating = false) }
             }
-
-            //Runder ned til nærmeste gyldige min fra start
-            val minutesFromStart = Duration.between(start, clamped).toMinutes()
-            val stepMinutes = step.toMinutes()
-
-            val steps = if (stepMinutes > 0) minutesFromStart / stepMinutes else 0
-            val aligned = start.plusMinutes(steps * stepMinutes)
-
-            aligned.format(java.time.format.DateTimeFormatter.ISO_INSTANT)
-        } catch (e: Exception) {
-            //Hvis noe feiler, bruk original tid
-            requestedTime
         }
     }
 
-    //Kalles når slideren endrer tidspunkt
-    //Henter ny lagliste hvis området endrer seg
-    @RequiresApi( Build.VERSION_CODES.O)
+    fun onSearchQueryChanged(query: String) {
+        searchQuery.value = query
+    }
+
+    fun onSuggestionSelected(suggestion: SearchResult) {
+        _uiState.update { it.copy(searchSuggestions = emptyList()) }
+    }
+
+    fun onSearchDismissed() {
+        _uiState.update { it.copy(searchSuggestions = emptyList()) }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     fun updateTime(time: String) {
         viewModelScope.launch {
             try {
-                //Hvis tiden er lik, gjøres ingenting
-                //if (_uiState.value.selectedTime == time) return@launch
-
                 val hoursAhead = getHoursAhead(time)
                 val resolvedArea = wmsDomain.resolveArea(originalArea, hoursAhead)
                 val currentArea = _uiState.value.area
 
                 if (resolvedArea != currentArea) {
-                    //Hvis området skal endres
                     val newLayerList = locationRepo.getArea(resolvedArea) ?: emptyList()
-                    val oldSelectedLayer = _uiState.value.selectedLayer
-                    val oldNormalizedTitle = oldSelectedLayer?.title?.let { normalizeLayerTitle(it) }
-
-                    val matchedLayer = newLayerList.find{ newLayer ->
-                        normalizeLayerTitle(newLayer.title) == oldNormalizedTitle
-                    }
-
-                    val validTime = if (matchedLayer?.dimension != null) {
+                    val oldNormalizedTitle = _uiState.value.selectedLayer?.title?.let { normalizeLayerTitle(it) }
+                    val matchedLayer = newLayerList.find { normalizeLayerTitle(it.title) == oldNormalizedTitle }
+                    val validTime = if (matchedLayer?.dimension != null)
                         coerceTimeToDimension(time, matchedLayer.dimension)
-                    } else {
-                        time
-                    }
+                    else time
 
                     _uiState.update { state ->
                         state.copy(
                             selectedTime = validTime,
                             area = resolvedArea,
                             layerList = newLayerList,
-                            selectedLayer = matchedLayer
+                            selectedLayer = matchedLayer,
+                            displayLayers = computeDisplayLayers(newLayerList, resolvedArea),
+                            selectedLayerDisplayName = computeSelectedLayerDisplayName(matchedLayer)
                         )
                     }
                 } else {
-                    //Hvis området ikke har endret seg, oppdateres bare tid
                     val selectedLayer = _uiState.value.selectedLayer
                     val coercedTime = if (selectedLayer?.dimension != null)
                         coerceTimeToDimension(time, selectedLayer.dimension)
                     else time
-                    _uiState.update { state ->
-                        state.copy(selectedTime = coercedTime)
-                    }
                     Log.d("ViewModel", "Slider tid: $time -> Blir til: $coercedTime")
+                    _uiState.update { it.copy(selectedTime = coercedTime) }
                 }
             } catch (e: Exception) {
                 Log.e("ViewModel", "Feil ved oppdatering av tid/område: ${e.message}")
@@ -245,14 +204,73 @@ class MapViewModel(
         }
     }
 
-    //
-    fun onSearchQueryChanged(query: String) {
-        searchQuery.value = query
+    private fun computeDisplayLayers(layerList: List<WMSLayer>, area: AreaData?): List<Pair<WMSLayer, String>> {
+        val suffix = when (area) {
+            AreaData.NORDEN -> " in MEPS VDIV"
+            AreaData.ARKTIS -> " in Arctic VDIV"
+            AreaData.VERDEN -> " in ECMWF SFC"
+            else -> ""
         }
+        val allowedLayers = when (area) {
+            AreaData.VERDEN -> setOf("Air temperature 2m", "Precipitation amount 3h", "Wind 10m speed", "Wind 10m vector")
+            else -> setOf("Air temperature 2m", "Precipitation amount 1h", "Wind 10m speed", "Wind 10m vector")
+        }
+        val displayNames = mapOf(
+            "Air temperature 2m" to "Temperature",
+            "Precipitation amount 1h" to "Rainfall",
+            "Precipitation amount 3h" to "Rainfall",
+            "Wind 10m speed" to "Wind speed",
+            "Wind 10m vector" to "Wind direction"
+        )
+        return layerList
+            .map { it.copy(title = it.title.removeSuffix(suffix).trim()) }
+            .filter { it.title in allowedLayers }
+            .mapNotNull { layer -> displayNames[layer.title]?.let { name -> layer to name } }
+    }
 
-    // Funksjon for søkefeltet - sørger for at søkefeltet lukkes når man har trykket på stedet man har søkt på
-    fun onSuggestionSelected(suggestion: SearchResult) {
-        _uiState.update { it.copy(searchSuggestions = emptyList()) }
+    private fun computeSelectedLayerDisplayName(layer: WMSLayer?): String =
+        layer?.title?.let { normalizeLayerTitle(it) } ?: "Velg værlag..."
+
+    private fun normalizeLayerTitle(title: String): String =
+        title.removeSuffix(" in MEPS VDIV")
+            .removeSuffix(" in Arctic VDIV")
+            .removeSuffix(" in ECMWF SFC")
+            .trim()
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getNowTimestamp(): String {
+        val now = OffsetDateTime.now(ZoneOffset.UTC)
+        return now.withMinute(0).withSecond(0).withNano(0)
+            .format(DateTimeFormatter.ISO_INSTANT)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getHoursAhead(time: String): Long {
+        val selected = OffsetDateTime.parse(time)
+        val now = OffsetDateTime.now(ZoneOffset.UTC).withMinute(0).withSecond(0).withNano(0)
+        return Duration.between(now, selected).toHours()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun coerceTimeToDimension(requestedTime: String, dimension: String): String {
+        return try {
+            val parts = dimension.split("/")
+            if (parts.size != 3) return requestedTime
+
+            val fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmZ")
+            val start = OffsetDateTime.parse(parts[0], fmt)
+            val end = OffsetDateTime.parse(parts[1], fmt)
+            val step = Duration.parse(parts[2])
+            val requested = OffsetDateTime.parse(requestedTime)
+
+            val clamped = if (requested.isBefore(start)) start else requested
+            val minutesFromStart = Duration.between(start, clamped).toMinutes()
+            val stepMinutes = step.toMinutes()
+            val steps = if (stepMinutes > 0) minutesFromStart / stepMinutes else 0
+            start.plusMinutes(steps * stepMinutes).format(DateTimeFormatter.ISO_INSTANT)
+        } catch (e: Exception) {
+            requestedTime
+        }
     }
 
     companion object {
@@ -261,15 +279,11 @@ class MapViewModel(
             alertRepo: AlertRepository,
             searchRepo: SearchRepository,
             area: AreaData
-            //
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                @Suppress("UNCHECKED_CAST")
                 return MapViewModel(locationRepo, alertRepo, searchRepo, area) as T
             }
         }
     }
-    fun onSearchDismissed() {
-        _uiState.update { it.copy(searchSuggestions = emptyList()) }
-    }
 }
-
