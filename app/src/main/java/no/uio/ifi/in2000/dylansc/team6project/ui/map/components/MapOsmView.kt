@@ -41,8 +41,8 @@ fun MapOsmView(
                 val prefs = ctx.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
                 controller.setCenter(
                     GeoPoint(
-                        prefs.getFloat("last_lat", 59.9127f).toDouble(),
-                        prefs.getFloat("last_lon", 10.7461f).toDouble()
+                        prefs.getFloat("start_lat", 59.9127f).toDouble(),
+                        prefs.getFloat("start_lon", 10.7461f).toDouble()
                     )
                 )
                 setMinZoomLevel(3.0)

@@ -111,10 +111,13 @@ class MapViewModel(
             val newTime = if (layer?.dimension != null)
                 coerceTimeToDimension(getNowTimestamp(), layer.dimension)
             else ""
+            val displayName = state.displayLayers
+                .find { it.first.name == layer?.name }
+                ?.second ?: "Velg værlag..."
             state.copy(
                 selectedLayer = layer,
                 selectedTime = newTime,
-                selectedLayerDisplayName = computeSelectedLayerDisplayName(layer)
+                selectedLayerDisplayName = displayName
             )
         }
     }
@@ -212,20 +215,22 @@ class MapViewModel(
             else -> ""
         }
         val allowedLayers = when (area) {
-            AreaData.VERDEN -> setOf("Air temperature 2m", "Precipitation amount 3h", "Wind 10m speed", "Wind 10m vector")
-            else -> setOf("Air temperature 2m", "Precipitation amount 1h", "Wind 10m speed", "Wind 10m vector")
+            AreaData.VERDEN -> setOf("Air temperature 2m", "Precipitation amount 3h", "Wind 10m speed")
+            else -> setOf("Air temperature 2m", "Precipitation amount 1h", "Wind 10m speed")
         }
         val displayNames = mapOf(
             "Air temperature 2m" to "Temperature",
             "Precipitation amount 1h" to "Rainfall",
             "Precipitation amount 3h" to "Rainfall",
-            "Wind 10m speed" to "Wind speed",
-            "Wind 10m vector" to "Wind direction"
+            "Wind 10m speed" to "Wind"
         )
+        // Beholder originalen for å teste
         return layerList
-            .map { it.copy(title = it.title.removeSuffix(suffix).trim()) }
-            .filter { it.title in allowedLayers }
-            .mapNotNull { layer -> displayNames[layer.title]?.let { name -> layer to name } }
+            .filter { normalizeLayerTitle(it.title) in allowedLayers }
+            .mapNotNull { layer ->
+                val normalizedTitle = normalizeLayerTitle(layer.title)
+                displayNames[normalizedTitle]?.let { name -> layer to name }
+            }
     }
 
     private fun computeSelectedLayerDisplayName(layer: WMSLayer?): String =
