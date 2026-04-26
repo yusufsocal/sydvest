@@ -101,12 +101,6 @@ fun MapScreen(
                     .align(Alignment.TopCenter)
                     .padding(35.dp)
             ) {
-                MapTimeSliderSection(
-                    sliderPosition = mapScreenUiState.sliderPosition,
-                    isAnimating = mapScreenUiState.isAnimating,
-                    onSliderChange = { mapViewModel.updateSliderPosition(it) },
-                    onAnimateToggle = { mapViewModel.toggleAnimate() }
-                )
 
                 MapSearchField(
                     suggestions = mapScreenUiState.searchSuggestions,
@@ -118,6 +112,14 @@ fun MapScreen(
                     },
                     onDismiss = { mapViewModel.onSearchDismissed() }
                 )
+                MapTimeSliderSection(
+                    sliderPosition = mapScreenUiState.sliderPosition,
+                    isAnimating = mapScreenUiState.isAnimating,
+                    onSliderChange = { mapViewModel.updateSliderPosition(it) },
+                    onAnimateToggle = { mapViewModel.toggleAnimate() }
+                )
+
+
             }
 
             Column(

@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MenuAnchorType
@@ -37,7 +38,8 @@ fun MapSearchField(
                 onQueryChange(newText)
             },
             label = { Text("Stedsnavn") },
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable),
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable)
+                .fillMaxWidth(),
             colors = ExposedDropdownMenuDefaults.textFieldColors(
                 focusedContainerColor = ComposeColor(0xFFF7FCFE),
                 unfocusedContainerColor = ComposeColor(0xFFF7FCFE)
