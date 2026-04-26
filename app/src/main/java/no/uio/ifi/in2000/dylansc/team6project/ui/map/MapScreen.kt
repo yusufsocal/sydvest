@@ -44,6 +44,7 @@ fun MapScreen(
     var granted by remember { mutableStateOf(false) }
     var geoLocation by remember { mutableStateOf<GeoPoint?>(null) }
     var locationServicesEnabled by remember { mutableStateOf(true) }
+    var isCenterActive by remember { mutableStateOf(false) }
 
     Configuration.getInstance().load(context, context.getSharedPreferences("osmdroid", android.content.Context.MODE_PRIVATE))
 
@@ -130,13 +131,16 @@ fun MapScreen(
             ) {
                 MapBottomControls(
                     onCenterClick = {
+                        isCenterActive = !isCenterActive
                         locationServicesEnabled = checkLocationEnabled(context)
                         if (locationServicesEnabled) {
                             mapViewRef?.let { centerMapOnUserLocation(context, it) }
                             mapViewRef?.let { if (it.zoomLevelDouble < 12.0) it.controller.zoomTo(12.0) }
                         }
                     },
-                    onFareVarselToggle = { mapViewModel.toggleFareVarsel() }
+                    isCenterActive = isCenterActive,
+                    onFareVarselToggle = { mapViewModel.toggleFareVarsel() },
+                    isFareVarselActive = mapScreenUiState.fareVarsel
                 )
 
                 MapLayerDropdown(
