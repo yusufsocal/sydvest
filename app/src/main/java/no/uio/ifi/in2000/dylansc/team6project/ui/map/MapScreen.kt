@@ -1,7 +1,12 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.delay
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapBottomControls
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapLayerDropdown
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapOsmView
@@ -100,11 +104,15 @@ fun MapScreen(
         onDispose { stopUpdates?.invoke() }
     }
 
-    LaunchedEffect(Unit) {
-        while (true) {
-            locationServicesEnabled = checkLocationEnabled(context)
-            delay(1000)
+    DisposableEffect(context) {
+        locationServicesEnabled = checkLocationEnabled(context)
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context, intent: Intent) {
+                locationServicesEnabled = checkLocationEnabled(ctx)
+            }
         }
+        context.registerReceiver(receiver, IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION))
+        onDispose { context.unregisterReceiver(receiver) }
     }
 
     //Lager en lytter for kartsøk: PendingLocation oppdaterer seg om man velger et område
