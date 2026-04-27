@@ -21,6 +21,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -89,12 +90,14 @@ fun MapScreen(
         }
     }
 
-    LaunchedEffect(granted, mapViewRef) {
+    DisposableEffect(granted, mapViewRef) {
+        var stopUpdates: (() -> Unit)? = null
         if (granted) {
             mapViewRef?.let { view ->
-                startLocationUpdates(view) { newPoint -> geoLocation = newPoint }
+                stopUpdates = startLocationUpdates(view) { newPoint -> geoLocation = newPoint }
             }
         }
+        onDispose { stopUpdates?.invoke() }
     }
 
     LaunchedEffect(Unit) {
