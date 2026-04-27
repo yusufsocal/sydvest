@@ -23,6 +23,7 @@ import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapScreen
+import no.uio.ifi.in2000.dylansc.team6project.ui.search.SearchScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -55,13 +56,21 @@ fun AppNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = "map"
     ) {
         // Rute 1 -> Hjemskjerm
-        composable("home") {
+        composable("map") {
             MapScreen(
                 uiState,
-                mapViewModel
+                mapViewModel,
+                onNavigateToSearch = { navController.navigate(route = "search") }
+            )
+        }
+        composable("search") {
+            SearchScreen(
+                uiState,
+                mapViewModel,
+                navController
             )
         }
     }

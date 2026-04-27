@@ -33,7 +33,9 @@ fun MapLayerDropdown(
             onExpandedChange = { expanded = !expanded }
         ) {
             TextField(
-                modifier = Modifier.menuAnchor().fillMaxWidth(),
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth(),
                 readOnly = true,
                 value = selectedLayerDisplayName,
                 onValueChange = {},
