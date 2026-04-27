@@ -165,20 +165,23 @@ fun updateSelectedMarker(mapView: MapView, point: GeoPoint) {
 }
 
 @SuppressLint("MissingPermission")
-fun startLocationUpdates(mapView: MapView, onLocationChanged: (GeoPoint) -> Unit) {
+fun startLocationUpdates(mapView: MapView, onLocationChanged: (GeoPoint) -> Unit): () -> Unit {
     val fusedClient = LocationServices.getFusedLocationProviderClient(mapView.context)
     val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
         .setMinUpdateDistanceMeters(2f)
         .build()
 
-    fusedClient.requestLocationUpdates(request, object : LocationCallback() {
+    val callback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
             val location = result.lastLocation ?: return
             val point = GeoPoint(location.latitude, location.longitude)
             updateUserMarker(mapView, point)
             onLocationChanged(point)
         }
-    }, Looper.getMainLooper())
+    }
+
+    fusedClient.requestLocationUpdates(request, callback, Looper.getMainLooper())
+    return { fusedClient.removeLocationUpdates(callback) }
 }
 
 fun updateUserMarker(mapView: MapView, point: GeoPoint) {
