@@ -38,59 +38,68 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
     val currentTime = uiState.selectedTime ?: ""
 
     val oldOverlays = map.overlays.filterIsInstance<TilesOverlay>()
-    oldOverlays.forEach { oldOverlay ->
-        oldOverlay.onDetach(map)
-        map.overlays.remove(oldOverlay)
-    }
+    oldOverlays.forEach { it.onDetach(map); map.overlays.remove(it) }
     map.tileProvider.clearTileCache()
 
-    val newSource = object : XYTileSource(
-        "${layer.name}_${currentTime.replace(":", "")}",
-        1, 20, 256, ".png",
-        arrayOf("https://public-victoria.met.no/wms?")
-    ) {
-        override fun getTileURLString(pTileIndex: Long): String {
-            val zoom = MapTileIndex.getZoom(pTileIndex)
-            val x = MapTileIndex.getX(pTileIndex)
-            val y = MapTileIndex.getY(pTileIndex)
+    fun makeTilesOverlay(layerName: String, style: String = "", useEPSG3857: Boolean = false): TilesOverlay {
+        val source = object : XYTileSource(
+            "${layerName}_${currentTime.replace(":", "")}",
+            1, 20, 256, ".png",
+            arrayOf("https://public-victoria.met.no/wms?")
+        ) {
+            override fun getTileURLString(pTileIndex: Long): String {
+                val zoom = MapTileIndex.getZoom(pTileIndex)
+                val x = MapTileIndex.getX(pTileIndex)
+                val y = MapTileIndex.getY(pTileIndex)
 
-            val n = Math.pow(2.0, zoom.toDouble())
-            val lonMin = x / n * 360.0 - 180.0
-            val lonMax = (x + 1) / n * 360.0 - 180.0
-            val latMin = Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 1) / n))))
-            val latMax = Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))))
-            val bbox = "$lonMin,$latMin,$lonMax,$latMax"
-            val modelParam = uiState.area?.area ?: "meps"
+                val url = StringBuilder("https://public-victoria.met.no/wms?")
+                url.append("SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap")
+                url.append("&LAYERS=$layerName")
+                url.append("&STYLES=$style")
 
-            val url = StringBuilder("https://public-victoria.met.no/wms?")
-            url.append("SERVICE=WMS")
-            url.append("&VERSION=1.3.0")
-            url.append("&REQUEST=GetMap")
-            url.append("&LAYERS=${layer.name}")
-            url.append("&STYLES=")
-            url.append("&CRS=CRS:84")
-            url.append("&BBOX=$bbox")
-            url.append("&WIDTH=256")
-            url.append("&HEIGHT=256")
-            url.append("&FORMAT=image/png")
-            url.append("&TRANSPARENT=TRUE")
-            url.append("&model=$modelParam")
-            if (!uiState.selectedTime.isNullOrEmpty()) {
-                url.append("&TIME=${uiState.selectedTime}")
+                if (useEPSG3857) {
+                    val n = Math.pow(2.0, zoom.toDouble())
+                    val tileSize = 20037508.34 * 2 / n
+                    val xMin = -20037508.34 + x * tileSize
+                    val xMax = xMin + tileSize
+                    val yMax = 20037508.34 - y * tileSize
+                    val yMin = yMax - tileSize
+                    url.append("&CRS=EPSG:3857")
+                    url.append("&BBOX=$xMin,$yMin,$xMax,$yMax")
+                } else {
+                    val n = Math.pow(2.0, zoom.toDouble())
+                    val lonMin = x / n * 360.0 - 180.0
+                    val lonMax = (x + 1) / n * 360.0 - 180.0
+                    val latMin = Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 1) / n))))
+                    val latMax = Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))))
+                    url.append("&CRS=CRS:84")
+                    url.append("&BBOX=$lonMin,$latMin,$lonMax,$latMax")
+                }
+
+                url.append("&WIDTH=256&HEIGHT=256")
+                url.append("&FORMAT=image/png&TRANSPARENT=TRUE")
+                url.append("&model=${uiState.area?.area ?: "meps"}")
+                if (!uiState.selectedTime.isNullOrEmpty()) {
+                    url.append("&TIME=${uiState.selectedTime}")
+                }
+                return url.toString()
             }
-            return url.toString()
+        }
+        val provider = MapTileProviderBasic(map.context, source)
+        return TilesOverlay(provider, map.context).apply {
+            loadingBackgroundColor = AndroidColor.TRANSPARENT
+            setColorFilter(ColorMatrixColorFilter(ColorMatrix().apply { setScale(1f, 1f, 1f, 0.5f) }))
         }
     }
 
-    val provider = MapTileProviderBasic(map.context, newSource)
-    val tilesOverlay = TilesOverlay(provider, map.context).apply {
-        loadingBackgroundColor = AndroidColor.TRANSPARENT
-        val alphaMatrix = ColorMatrix().apply { setScale(1f, 1f, 1f, 0.5f) }
-        setColorFilter(ColorMatrixColorFilter(alphaMatrix))
+    map.overlays.add(makeTilesOverlay(layer.name))
+
+    // Legg til vector-laget oppå hvis det er wind speed
+    if (layer.title.contains("Wind 10m speed", ignoreCase = true)) {
+        val vectorName = layer.name.replace("speed", "vector")
+        map.overlays.add(makeTilesOverlay(vectorName, style = "wind_barb", useEPSG3857 = true))
     }
 
-    Log.e("endrer tid til", "$currentTime")
-    map.overlays.add(tilesOverlay)
     map.invalidate()
 }
 
@@ -156,20 +165,23 @@ fun updateSelectedMarker(mapView: MapView, point: GeoPoint) {
 }
 
 @SuppressLint("MissingPermission")
-fun startLocationUpdates(mapView: MapView, onLocationChanged: (GeoPoint) -> Unit) {
+fun startLocationUpdates(mapView: MapView, onLocationChanged: (GeoPoint) -> Unit): () -> Unit {
     val fusedClient = LocationServices.getFusedLocationProviderClient(mapView.context)
     val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
         .setMinUpdateDistanceMeters(2f)
         .build()
 
-    fusedClient.requestLocationUpdates(request, object : LocationCallback() {
+    val callback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
             val location = result.lastLocation ?: return
             val point = GeoPoint(location.latitude, location.longitude)
             updateUserMarker(mapView, point)
             onLocationChanged(point)
         }
-    }, Looper.getMainLooper())
+    }
+
+    fusedClient.requestLocationUpdates(request, callback, Looper.getMainLooper())
+    return { fusedClient.removeLocationUpdates(callback) }
 }
 
 fun updateUserMarker(mapView: MapView, point: GeoPoint) {

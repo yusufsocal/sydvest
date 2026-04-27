@@ -35,19 +35,29 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 import kotlinx.coroutines.FlowPreview
+import org.osmdroid.util.GeoPoint
 
 data class MapScreenUiState(
+    val isLoading: Boolean = true,
+
     val layerList: List<WMSLayer> = emptyList(),
     val selectedLayer: WMSLayer? = null,
     val selectedTime: String? = "",
-    val alertList: List<AlertFeature> = emptyList(),
-    val isLoading: Boolean = true,
     val area: AreaData? = null,
+
+    //Søkefelt
     val searchSuggestions: List<SearchResult> = emptyList(),
     val searchQuery: String = "",
+    val pendingCenterLocation: GeoPoint? = null,
+
+    //Farevarsel
     val fareVarsel: Boolean = false,
+    val alertList: List<AlertFeature> = emptyList(),
+
+    //Slider
     val isAnimating: Boolean = false,
     val sliderPosition: Float = 0f,
+
     val displayLayers: List<Pair<WMSLayer, String>> = emptyList(),
     val selectedLayerDisplayName: String = "Velg værlag..."
 )
@@ -111,10 +121,13 @@ class MapViewModel(
             val newTime = if (layer?.dimension != null)
                 coerceTimeToDimension(getNowTimestamp(), layer.dimension)
             else ""
+            val displayName = state.displayLayers
+                .find { it.first.name == layer?.name }
+                ?.second ?: "Velg værlag..."
             state.copy(
                 selectedLayer = layer,
                 selectedTime = newTime,
-                selectedLayerDisplayName = computeSelectedLayerDisplayName(layer)
+                selectedLayerDisplayName = displayName
             )
         }
     }
@@ -157,7 +170,16 @@ class MapViewModel(
     }
 
     fun onSuggestionSelected(suggestion: SearchResult) {
-        _uiState.update { it.copy(searchSuggestions = emptyList()) }
+        _uiState.update {
+            it.copy(
+                pendingCenterLocation = GeoPoint(suggestion.lat, suggestion.lon),
+                searchSuggestions = emptyList()
+            )
+        }
+    }
+
+    fun onMapCentered() {
+        _uiState.update { it.copy(pendingCenterLocation = null) }
     }
 
     fun onSearchDismissed() {
@@ -174,8 +196,10 @@ class MapViewModel(
 
                 if (resolvedArea != currentArea) {
                     val newLayerList = locationRepo.getArea(resolvedArea) ?: emptyList()
-                    val oldNormalizedTitle = _uiState.value.selectedLayer?.title?.let { normalizeLayerTitle(it) }
-                    val matchedLayer = newLayerList.find { normalizeLayerTitle(it.title) == oldNormalizedTitle }
+                    val oldNormalizedTitle =
+                        _uiState.value.selectedLayer?.title?.let { normalizeLayerTitle(it) }
+                    val matchedLayer =
+                        newLayerList.find { normalizeLayerTitle(it.title) == oldNormalizedTitle }
                     val validTime = if (matchedLayer?.dimension != null)
                         coerceTimeToDimension(time, matchedLayer.dimension)
                     else time
@@ -204,7 +228,10 @@ class MapViewModel(
         }
     }
 
-    private fun computeDisplayLayers(layerList: List<WMSLayer>, area: AreaData?): List<Pair<WMSLayer, String>> {
+    private fun computeDisplayLayers(
+        layerList: List<WMSLayer>,
+        area: AreaData?
+    ): List<Pair<WMSLayer, String>> {
         val suffix = when (area) {
             AreaData.NORDEN -> " in MEPS VDIV"
             AreaData.ARKTIS -> " in Arctic VDIV"
@@ -212,20 +239,27 @@ class MapViewModel(
             else -> ""
         }
         val allowedLayers = when (area) {
-            AreaData.VERDEN -> setOf("Air temperature 2m", "Precipitation amount 3h", "Wind 10m speed", "Wind 10m vector")
-            else -> setOf("Air temperature 2m", "Precipitation amount 1h", "Wind 10m speed", "Wind 10m vector")
+            AreaData.VERDEN -> setOf(
+                "Air temperature 2m",
+                "Precipitation amount 3h",
+                "Wind 10m speed"
+            )
+
+            else -> setOf("Air temperature 2m", "Precipitation amount 1h", "Wind 10m speed")
         }
         val displayNames = mapOf(
             "Air temperature 2m" to "Temperature",
             "Precipitation amount 1h" to "Rainfall",
             "Precipitation amount 3h" to "Rainfall",
-            "Wind 10m speed" to "Wind speed",
-            "Wind 10m vector" to "Wind direction"
+            "Wind 10m speed" to "Wind"
         )
+        // Beholder originalen for å teste
         return layerList
-            .map { it.copy(title = it.title.removeSuffix(suffix).trim()) }
-            .filter { it.title in allowedLayers }
-            .mapNotNull { layer -> displayNames[layer.title]?.let { name -> layer to name } }
+            .filter { normalizeLayerTitle(it.title) in allowedLayers }
+            .mapNotNull { layer ->
+                val normalizedTitle = normalizeLayerTitle(layer.title)
+                displayNames[normalizedTitle]?.let { name -> layer to name }
+            }
     }
 
     private fun computeSelectedLayerDisplayName(layer: WMSLayer?): String =
