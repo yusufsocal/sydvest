@@ -116,9 +116,9 @@ fun MapScreen(
     }
 
     //Lager en lytter for kartsøk: PendingLocation oppdaterer seg om man velger et område
-    LaunchedEffect(pendingLocation) {
-        if (pendingLocation != null && mapViewRef != null) {
-            mapViewRef?.controller?.animateTo(pendingLocation)
+    LaunchedEffect(mapScreenUiState.pendingCenterLocation) {
+        if (mapScreenUiState.pendingCenterLocation != null && mapViewRef != null) {
+            mapViewRef?.controller?.animateTo(mapScreenUiState.pendingCenterLocation)
             mapViewRef?.controller?.setZoom(14.0)
 
             // Gi beskjed til ViewModel at vi har flyttet oss,
