@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,7 +14,9 @@ import androidx.compose.ui.graphics.Color as ComposeColor
 @Composable
 fun MapBottomControls(
     onCenterClick: () -> Unit,
-    onFareVarselToggle: () -> Unit
+    isCenterActive: Boolean,
+    onFareVarselToggle: () -> Unit,
+    isFareVarselActive: Boolean
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -21,16 +24,28 @@ fun MapBottomControls(
     ) {
         OutlinedButton(
             onClick = onCenterClick,
-            colors = ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
+            colors = if (isCenterActive)
+                ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            else
+                ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
         ) {
-            Text(text = "Sentrer", color = ComposeColor.Black)
+            Text(
+                text = "Sentrer",
+                color = if (isCenterActive) ComposeColor.White else ComposeColor.Black
+            )
         }
 
         OutlinedButton(
             onClick = onFareVarselToggle,
-            colors = ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
+            colors = if (isFareVarselActive)
+                ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            else
+                ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
         ) {
-            Text(text = "Farevarsler", color = ComposeColor.Black)
+            Text(
+                text = "Farevarsler",
+                color = if (isFareVarselActive) ComposeColor.White else ComposeColor.Black
+            )
         }
     }
 }

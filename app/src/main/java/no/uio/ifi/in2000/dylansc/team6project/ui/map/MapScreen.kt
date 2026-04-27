@@ -58,7 +58,7 @@ fun MapScreen(
     var granted by remember { mutableStateOf(false) }
     var geoLocation by remember { mutableStateOf<GeoPoint?>(null) }
     var locationServicesEnabled by remember { mutableStateOf(true) }
-    val pendingLocation = mapScreenUiState.pendingCenterLocation
+    var isCenterActive by remember { mutableStateOf(false) }
 
     Configuration.getInstance().load(
         context,
@@ -181,6 +181,7 @@ fun MapScreen(
             ) {
                 MapBottomControls(
                     onCenterClick = {
+                        isCenterActive = !isCenterActive
                         locationServicesEnabled = checkLocationEnabled(context)
                         if (locationServicesEnabled) {
                             mapViewRef?.let { centerMapOnUserLocation(context, it) }
@@ -191,7 +192,9 @@ fun MapScreen(
                             }
                         }
                     },
-                    onFareVarselToggle = { mapViewModel.toggleFareVarsel() }
+                    isCenterActive = isCenterActive,
+                    onFareVarselToggle = { mapViewModel.toggleFareVarsel() },
+                    isFareVarselActive = mapScreenUiState.fareVarsel
                 )
 
                 MapLayerDropdown(
