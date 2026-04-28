@@ -8,7 +8,6 @@ import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.location.LocationManager
 import android.os.Looper
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.location.LocationManagerCompat
@@ -33,15 +32,19 @@ import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
 import android.graphics.Color as AndroidColor
 
-fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
+fun updateWmsLayer(mapView: MapView, uiState: MapScreenUiState) {
     val layer = uiState.selectedLayer ?: return
     val currentTime = uiState.selectedTime ?: ""
 
-    val oldOverlays = map.overlays.filterIsInstance<TilesOverlay>()
-    oldOverlays.forEach { it.onDetach(map); map.overlays.remove(it) }
-    map.tileProvider.clearTileCache()
+    val oldOverlays = mapView.overlays.filterIsInstance<TilesOverlay>()
+    oldOverlays.forEach { it.onDetach(mapView); mapView.overlays.remove(it) }
+    mapView.tileProvider.clearTileCache()
 
-    fun makeTilesOverlay(layerName: String, style: String = "", useEPSG3857: Boolean = false): TilesOverlay {
+    fun makeTilesOverlay(
+        layerName: String,
+        style: String = "",
+        useEPSG3857: Boolean = false
+    ): TilesOverlay {
         val source = object : XYTileSource(
             "${layerName}_${currentTime.replace(":", "")}",
             1, 20, 256, ".png",
@@ -70,7 +73,8 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
                     val n = Math.pow(2.0, zoom.toDouble())
                     val lonMin = x / n * 360.0 - 180.0
                     val lonMax = (x + 1) / n * 360.0 - 180.0
-                    val latMin = Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 1) / n))))
+                    val latMin =
+                        Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 1) / n))))
                     val latMax = Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))))
                     url.append("&CRS=CRS:84")
                     url.append("&BBOX=$lonMin,$latMin,$lonMax,$latMax")
@@ -85,29 +89,46 @@ fun updateWmsLayer(map: MapView, uiState: MapScreenUiState) {
                 return url.toString()
             }
         }
-        val provider = MapTileProviderBasic(map.context, source)
-        return TilesOverlay(provider, map.context).apply {
+        val provider = MapTileProviderBasic(mapView.context, source)
+        return TilesOverlay(provider, mapView.context).apply {
             loadingBackgroundColor = AndroidColor.TRANSPARENT
-            setColorFilter(ColorMatrixColorFilter(ColorMatrix().apply { setScale(1f, 1f, 1f, 0.5f) }))
+            setColorFilter(ColorMatrixColorFilter(ColorMatrix().apply {
+                setScale(
+                    1f,
+                    1f,
+                    1f,
+                    0.5f
+                )
+            }))
         }
     }
 
-    map.overlays.add(makeTilesOverlay(layer.name))
+    mapView.overlays.add(makeTilesOverlay(layer.name))
 
     // Legg til vector-laget oppå hvis det er wind speed
     if (layer.title.contains("Wind 10m speed", ignoreCase = true)) {
         val vectorName = layer.name.replace("speed", "vector")
-        map.overlays.add(makeTilesOverlay(vectorName, style = "wind_barb", useEPSG3857 = true))
+        mapView.overlays.add(makeTilesOverlay(vectorName, style = "wind_barb", useEPSG3857 = true))
     }
 
-    map.invalidate()
+    mapView.invalidate()
 }
 
-fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean) {
-    map.overlays.removeAll { it is FolderOverlay && it.name == "Farevarsler" }
+fun removeWmsLayer(mapView: MapView) {
+    // Finn alle lag som er TilesOverlay (WMS-lag)
+    val toRemove = mapView.overlays.filterIsInstance<org.osmdroid.views.overlay.TilesOverlay>()
+
+    if (toRemove.isNotEmpty()) {
+        mapView.overlays.removeAll(toRemove)
+        mapView.invalidate() // Tving kartet til å tegne på nytt
+    }
+}
+
+fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, fareVarsel: Boolean) {
+    mapView.overlays.removeAll { it is FolderOverlay && it.name == "Farevarsler" }
 
     if (!fareVarsel) {
-        map.invalidate()
+        mapView.invalidate()
         return
     }
 
@@ -121,7 +142,7 @@ fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean) {
             }
             if (points.isEmpty()) return
 
-            val polygon = Polygon(map).apply {
+            val polygon = Polygon(mapView).apply {
                 this.points = points.toMutableList()
                 title = features.properties?.title
                 snippet = features.properties?.description
@@ -140,17 +161,19 @@ fun drawAlerts(map: MapView, uiState: MapScreenUiState, fareVarsel: Boolean) {
         when {
             features.geometry?.type?.equals("Polygon", true) == true && coords != null ->
                 addPolygonToFolder(coords)
+
             features.geometry?.type?.equals("MultiPolygon", true) == true && coords != null ->
                 coords.forEach { addPolygonToFolder(it.jsonArray) }
         }
     }
 
-    map.overlays.add(folderOverlay)
-    map.invalidate()
+    mapView.overlays.add(folderOverlay)
+    mapView.invalidate()
 }
 
 fun updateSelectedMarker(mapView: MapView, point: GeoPoint) {
-    val existing = mapView.overlays.find { it is Marker && it.title == "selected_location" } as? Marker
+    val existing =
+        mapView.overlays.find { it is Marker && it.title == "selected_location" } as? Marker
     if (existing != null) {
         existing.position = point
     } else {
@@ -193,7 +216,10 @@ fun updateUserMarker(mapView: MapView, point: GeoPoint) {
             title = "user_location"
             position = point
             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-            val b = BitmapFactory.decodeResource(mapView.context.resources, R.drawable.location_placeholder)
+            val b = BitmapFactory.decodeResource(
+                mapView.context.resources,
+                R.drawable.location_placeholder
+            )
             icon = Bitmap.createScaledBitmap(b, 40, 40, true).toDrawable(mapView.context.resources)
         })
     }

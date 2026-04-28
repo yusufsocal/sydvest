@@ -1,5 +1,7 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
+import android.R.attr.text
+import android.icu.number.Scale.none
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem
@@ -16,26 +18,37 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapLayerDropdown(
     selectedLayerDisplayName: String,
-    areaLabel: String,
+    selectedLayer: WMSLayer?,
     displayLayers: List<Pair<WMSLayer, String>>,
-    onLayerSelected: (WMSLayer) -> Unit
+    onLayerSelected: (WMSLayer?) -> Unit,
+
+    onFareVarselToggle: () -> Unit,
+    isFareVarselActive: Boolean
 ) {
-    var expanded by remember { mutableStateOf(false) }
     var showLegend by remember { mutableStateOf(false) }
+    var textSize by remember { mutableStateOf(12) }
 
     if (showLegend) {
         MapLegend(
@@ -43,56 +56,57 @@ fun MapLayerDropdown(
             onDismiss = { showLegend = false }
         )
     }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(modifier = Modifier.weight(1f)) {
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
-            ) {
-                TextField(
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth(),
-                    readOnly = true,
-                    value = selectedLayerDisplayName,
-                    onValueChange = {},
-                    label = { Text("Velg værlag (${areaLabel.lowercase()})") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    colors = ExposedDropdownMenuDefaults.textFieldColors(
-                        focusedContainerColor = Color(0xFFF7FCFE),
-                        unfocusedContainerColor = Color(0xFFF7FCFE)
-                    )
-                )
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    if (displayLayers.isEmpty()) {
-                        DropdownMenuItem(
-                            text = { Text("Laster lag...") },
-                            onClick = { expanded = false }
+        Text(text = "VELG VÆRLAG")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            displayLayers.forEach { (layer, displayName) ->
+                val isSelected = selectedLayer?.name == layer.name
+                Button(
+                    onClick = {
+                        if (isSelected) onLayerSelected(null) else onLayerSelected(layer)
+                    },
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = if (isSelected)
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = Color.Black
                         )
-                    } else {
-                        displayLayers.forEach { (layer, displayName) ->
-                            DropdownMenuItem(
-                                text = { Text(displayName) },
-                                onClick = {
-                                    expanded = false
-                                    onLayerSelected(layer)
-                                },
-                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                            )
-                        }
-                    }
+                    else ButtonDefaults.buttonColors()
+                ) {
+                    Text(
+                        text = displayName,
+                        fontSize = textSize.sp,
+                        textAlign = TextAlign.Center,
+                    )
                 }
             }
-        }
+            Button(
+                onClick = onFareVarselToggle,
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(0.dp),
+                colors = if (isFareVarselActive)
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = Color.Black
+                    )
+                else
+                    ButtonDefaults.buttonColors(),
+            ) {
+                Text(
+                    text = "Farevarsler",
+                    fontSize = textSize.sp,
+                    textAlign = TextAlign.Center,
+                )
+            }
 
+        }
         // (i) knappen vises bare hvis et værlag er valgt
         if (selectedLayerDisplayName != "Velg værlag...") {
             IconButton(onClick = { showLegend = true }) {

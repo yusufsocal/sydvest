@@ -36,6 +36,7 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapBottomScaffol
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapLayerDropdown
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapOsmView
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSearchField
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSideControls
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapTimeSliderSection
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
@@ -147,7 +148,23 @@ fun MapScreen(
                         mapViewModel.onSuggestionSelected(suggestion) // Lagrer punktet i staten
                     },
                 )
+                MapSideControls(
+                    onCenterClick = {
+                        isCenterActive = !isCenterActive
+                        locationServicesEnabled = checkLocationEnabled(context)
+                        if (locationServicesEnabled) {
+                            mapViewRef?.let { centerMapOnUserLocation(context, it) }
+                            mapViewRef?.let {
+                                if (it.zoomLevelDouble < 12.0) it.controller.zoomTo(
+                                    12.0
+                                )
+                            }
+                        }
+                    },
+                    isCenterActive = isCenterActive,
+                )
             }
+
 
             MapBottomScaffold(
                 //MapTimeSliderSection
@@ -156,28 +173,15 @@ fun MapScreen(
                 onSliderChange = { mapViewModel.updateSliderPosition(it) },
                 onAnimateToggle = { mapViewModel.toggleAnimate() },
 
-                //MapBottomControls
-                onCenterClick = {
-                    isCenterActive = !isCenterActive
-                    locationServicesEnabled = checkLocationEnabled(context)
-                    if (locationServicesEnabled) {
-                        mapViewRef?.let { centerMapOnUserLocation(context, it) }
-                        mapViewRef?.let {
-                            if (it.zoomLevelDouble < 12.0) it.controller.zoomTo(
-                                12.0
-                            )
-                        }
-                    }
-                },
-                isCenterActive = isCenterActive,
-                onFareVarselToggle = { mapViewModel.toggleFareVarsel() },
-                isFareVarselActive = mapScreenUiState.fareVarsel,
-
                 //MapLayerDropdown
                 selectedLayerDisplayName = mapScreenUiState.selectedLayerDisplayName,
-                areaLabel = mapScreenUiState.area?.toString() ?: "",
+                selectedLayer = mapScreenUiState.selectedLayer,         // NY: Send med selve objektet fra uiState,
                 displayLayers = mapScreenUiState.displayLayers,
-                onLayerSelected = { mapViewModel.setSelectedLayer(it) }
+                onLayerSelected = { mapViewModel.setSelectedLayer(it) },
+
+                //Farevarsel
+                onFareVarselToggle = { mapViewModel.toggleFareVarsel() },
+                isFareVarselActive = mapScreenUiState.fareVarsel
             )
         }
     }

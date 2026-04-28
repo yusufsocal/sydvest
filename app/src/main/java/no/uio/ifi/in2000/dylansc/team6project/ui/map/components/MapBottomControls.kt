@@ -15,8 +15,6 @@ import androidx.compose.ui.graphics.Color as ComposeColor
 fun MapBottomControls(
     onCenterClick: () -> Unit,
     isCenterActive: Boolean,
-    onFareVarselToggle: () -> Unit,
-    isFareVarselActive: Boolean
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -32,19 +30,6 @@ fun MapBottomControls(
             Text(
                 text = "Sentrer",
                 color = if (isCenterActive) ComposeColor.White else ComposeColor.Black
-            )
-        }
-
-        OutlinedButton(
-            onClick = onFareVarselToggle,
-            colors = if (isFareVarselActive)
-                ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-            else
-                ButtonDefaults.buttonColors(containerColor = ComposeColor.White),
-        ) {
-            Text(
-                text = "Farevarsler",
-                color = if (isFareVarselActive) ComposeColor.White else ComposeColor.Black
             )
         }
     }
