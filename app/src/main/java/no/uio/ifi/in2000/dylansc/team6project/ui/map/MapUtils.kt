@@ -218,9 +218,9 @@ fun updateUserMarker(mapView: MapView, point: GeoPoint) {
             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
             val b = BitmapFactory.decodeResource(
                 mapView.context.resources,
-                R.drawable.location_placeholder
+                R.drawable.location_marker
             )
-            icon = Bitmap.createScaledBitmap(b, 40, 40, true).toDrawable(mapView.context.resources)
+            icon = Bitmap.createScaledBitmap(b, 60, 60, true).toDrawable(mapView.context.resources)
         })
     }
     mapView.invalidate()

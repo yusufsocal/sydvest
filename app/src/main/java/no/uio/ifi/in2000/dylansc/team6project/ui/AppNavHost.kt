@@ -14,15 +14,12 @@ import androidx.navigation.compose.composable
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.SearchRepository
-import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchDataSourceImpl
-import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSourceImpl
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapScreen
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
