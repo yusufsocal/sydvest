@@ -49,7 +49,6 @@ fun MapLayerDropdown(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // Dropdown takes up remaining space
         Box(modifier = Modifier.weight(1f)) {
             ExposedDropdownMenuBox(
                 expanded = expanded,
@@ -94,7 +93,7 @@ fun MapLayerDropdown(
             }
         }
 
-        // (i) button — only shown when a layer is selected
+        // (i) knappen vises bare hvis et værlag er valgt
         if (selectedLayerDisplayName != "Velg værlag...") {
             IconButton(onClick = { showLegend = true }) {
                 Icon(
