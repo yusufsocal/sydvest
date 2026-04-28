@@ -173,8 +173,6 @@ fun MapScreen(
                         onSliderChange = { mapViewModel.updateSliderPosition(it) },
                         onAnimateToggle = { mapViewModel.toggleAnimate() }
                     )
-
-
                 }
             }
 
