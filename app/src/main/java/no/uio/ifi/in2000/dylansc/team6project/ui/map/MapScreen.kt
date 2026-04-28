@@ -11,29 +11,13 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -48,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapBottomControls
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapBottomScaffold
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapLayerDropdown
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapOsmView
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSearchField
@@ -162,52 +147,38 @@ fun MapScreen(
                         mapViewModel.onSuggestionSelected(suggestion) // Lagrer punktet i staten
                     },
                 )
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Bottom),
-                    modifier = Modifier
-                        .padding(35.dp)
-                ) {
-                    MapTimeSliderSection(
-                        sliderPosition = mapScreenUiState.sliderPosition,
-                        isAnimating = mapScreenUiState.isAnimating,
-                        onSliderChange = { mapViewModel.updateSliderPosition(it) },
-                        onAnimateToggle = { mapViewModel.toggleAnimate() }
-                    )
-                }
             }
 
+            MapBottomScaffold(
+                //MapTimeSliderSection
+                sliderPosition = mapScreenUiState.sliderPosition,
+                isAnimating = mapScreenUiState.isAnimating,
+                onSliderChange = { mapViewModel.updateSliderPosition(it) },
+                onAnimateToggle = { mapViewModel.toggleAnimate() },
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Bottom),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp)
-            ) {
-                MapBottomControls(
-                    onCenterClick = {
-                        isCenterActive = !isCenterActive
-                        locationServicesEnabled = checkLocationEnabled(context)
-                        if (locationServicesEnabled) {
-                            mapViewRef?.let { centerMapOnUserLocation(context, it) }
-                            mapViewRef?.let {
-                                if (it.zoomLevelDouble < 12.0) it.controller.zoomTo(
-                                    12.0
-                                )
-                            }
+                //MapBottomControls
+                onCenterClick = {
+                    isCenterActive = !isCenterActive
+                    locationServicesEnabled = checkLocationEnabled(context)
+                    if (locationServicesEnabled) {
+                        mapViewRef?.let { centerMapOnUserLocation(context, it) }
+                        mapViewRef?.let {
+                            if (it.zoomLevelDouble < 12.0) it.controller.zoomTo(
+                                12.0
+                            )
                         }
-                    },
-                    isCenterActive = isCenterActive,
-                    onFareVarselToggle = { mapViewModel.toggleFareVarsel() },
-                    isFareVarselActive = mapScreenUiState.fareVarsel
-                )
+                    }
+                },
+                isCenterActive = isCenterActive,
+                onFareVarselToggle = { mapViewModel.toggleFareVarsel() },
+                isFareVarselActive = mapScreenUiState.fareVarsel,
 
-                MapLayerDropdown(
-                    selectedLayerDisplayName = mapScreenUiState.selectedLayerDisplayName,
-                    areaLabel = mapScreenUiState.area?.toString() ?: "",
-                    displayLayers = mapScreenUiState.displayLayers,
-                    onLayerSelected = { mapViewModel.setSelectedLayer(it) }
-                )
-            }
+                //MapLayerDropdown
+                selectedLayerDisplayName = mapScreenUiState.selectedLayerDisplayName,
+                areaLabel = mapScreenUiState.area?.toString() ?: "",
+                displayLayers = mapScreenUiState.displayLayers,
+                onLayerSelected = { mapViewModel.setSelectedLayer(it) }
+            )
         }
     }
 }

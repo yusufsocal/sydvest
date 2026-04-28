@@ -10,10 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.dylansc.team6project.ui.AppNavHost
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 
 class MainActivity : ComponentActivity() {
 
     // Instansiering av datakildene manuelt (Dependency Injection)
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
