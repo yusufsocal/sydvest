@@ -11,20 +11,29 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -36,10 +45,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapBottomControls
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapLayerDropdown
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapOsmView
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSearchField
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapTimeSliderSection
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
@@ -51,7 +62,6 @@ import org.osmdroid.views.MapView
 fun MapScreen(
     mapScreenUiState: MapScreenUiState,
     mapViewModel: MapViewModel,
-    onNavigateToSearch: (String) -> Unit
 ) {
     val context = LocalContext.current
     var mapViewRef by remember { mutableStateOf<MapView?>(null) }
@@ -141,37 +151,33 @@ fun MapScreen(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
             Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Bottom),
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(35.dp)
+                    .zIndex(1f)
             ) {
-                //Klikkbar boks som tar deg til SearchScreen
-                SearchBar(
-                    inputField = {
-                        SearchBarDefaults.InputField(
-                            query = "",
-                            onQueryChange = {},
-                            onSearch = {},
-                            expanded = false,
-                            onExpandedChange = { onNavigateToSearch("") },
-                            placeholder = { Text("Stedssøk") },
-                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
-                        )
+                MapSearchField(
+                    suggestions = mapScreenUiState.searchSuggestions,
+                    onQueryChange = { mapViewModel.onSearchQueryChanged(it) },
+                    onSuggestionSelected = { suggestion ->
+                        mapViewModel.onSuggestionSelected(suggestion) // Lagrer punktet i staten
                     },
-                    expanded = false,
-                    onExpandedChange = { onNavigateToSearch("") },
-                    modifier = Modifier.fillMaxWidth()
-                ) {}
-                MapTimeSliderSection(
-                    sliderPosition = mapScreenUiState.sliderPosition,
-                    isAnimating = mapScreenUiState.isAnimating,
-                    onSliderChange = { mapViewModel.updateSliderPosition(it) },
-                    onAnimateToggle = { mapViewModel.toggleAnimate() }
                 )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Bottom),
+                    modifier = Modifier
+                        .padding(35.dp)
+                ) {
+                    MapTimeSliderSection(
+                        sliderPosition = mapScreenUiState.sliderPosition,
+                        isAnimating = mapScreenUiState.isAnimating,
+                        onSliderChange = { mapViewModel.updateSliderPosition(it) },
+                        onAnimateToggle = { mapViewModel.toggleAnimate() }
+                    )
 
 
+                }
             }
+
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Bottom),
@@ -207,3 +213,4 @@ fun MapScreen(
         }
     }
 }
+
