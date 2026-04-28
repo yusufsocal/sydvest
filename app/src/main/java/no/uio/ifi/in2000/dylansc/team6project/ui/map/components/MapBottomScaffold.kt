@@ -27,17 +27,16 @@ fun MapBottomScaffold (
     onSliderChange: (Float) -> Unit,
     onAnimateToggle: () -> Unit,
 
-    //Variabler for "Sentrer" og "Farevarsel"
-    onCenterClick: () -> Unit,
-    isCenterActive: Boolean,
-    onFareVarselToggle: () -> Unit,
-    isFareVarselActive: Boolean,
-
     //Variabler for WMSLayers
     selectedLayerDisplayName: String,
-    areaLabel: String,
+    selectedLayer: WMSLayer?,
     displayLayers: List<Pair<WMSLayer, String>>,
-    onLayerSelected: (WMSLayer) -> Unit
+    onLayerSelected: (WMSLayer?) -> Unit,
+
+    //Variabler for "Farevarsel"
+    onFareVarselToggle: () -> Unit,
+    isFareVarselActive: Boolean
+
 ) {
     val showDragHandle  by remember { mutableStateOf(false) }
 
@@ -62,20 +61,15 @@ fun MapBottomScaffold (
                     onAnimateToggle
                 )
 
-                //Sentrer og Farevarsler
-                MapBottomControls(
-                    onCenterClick,
-                    isCenterActive,
-                    onFareVarselToggle,
-                    isFareVarselActive,
-                )
-
-                //WMSLayer
+                //WMSLayer og Farevarsel
                 MapLayerDropdown(
                     selectedLayerDisplayName,
-                    areaLabel,
+                    selectedLayer,
                     displayLayers,
-                    onLayerSelected
+                    onLayerSelected,
+
+                    onFareVarselToggle,
+                    isFareVarselActive
                 )
             }
         }
