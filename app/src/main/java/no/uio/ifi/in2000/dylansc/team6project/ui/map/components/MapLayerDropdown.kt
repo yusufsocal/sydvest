@@ -15,7 +15,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
-import androidx.compose.ui.graphics.Color as ComposeColor
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,48 +35,73 @@ fun MapLayerDropdown(
     onLayerSelected: (WMSLayer) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showLegend by remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
-        ) {
-            TextField(
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth(),
-                readOnly = true,
-                value = selectedLayerDisplayName,
-                onValueChange = {},
-                label = { Text("Velg værlag (${areaLabel.lowercase()})") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(
-                    focusedContainerColor = ComposeColor(0xFFF7FCFE),
-                    unfocusedContainerColor = ComposeColor(0xFFF7FCFE)
-                )
-            )
+    if (showLegend) {
+        MapLegend(
+            layerDisplayName = selectedLayerDisplayName,
+            onDismiss = { showLegend = false }
+        )
+    }
 
-            ExposedDropdownMenu(
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        // Dropdown takes up remaining space
+        Box(modifier = Modifier.weight(1f)) {
+            ExposedDropdownMenuBox(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onExpandedChange = { expanded = !expanded }
             ) {
-                if (displayLayers.isEmpty()) {
-                    DropdownMenuItem(
-                        text = { Text("Laster lag...") },
-                        onClick = { expanded = false }
+                TextField(
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
+                    readOnly = true,
+                    value = selectedLayerDisplayName,
+                    onValueChange = {},
+                    label = { Text("Velg værlag (${areaLabel.lowercase()})") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    colors = ExposedDropdownMenuDefaults.textFieldColors(
+                        focusedContainerColor = Color(0xFFF7FCFE),
+                        unfocusedContainerColor = Color(0xFFF7FCFE)
                     )
-                } else {
-                    displayLayers.forEach { (layer, displayName) ->
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    if (displayLayers.isEmpty()) {
                         DropdownMenuItem(
-                            text = { Text(displayName) },
-                            onClick = {
-                                expanded = false
-                                onLayerSelected(layer)
-                            },
-                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                            text = { Text("Laster lag...") },
+                            onClick = { expanded = false }
                         )
+                    } else {
+                        displayLayers.forEach { (layer, displayName) ->
+                            DropdownMenuItem(
+                                text = { Text(displayName) },
+                                onClick = {
+                                    expanded = false
+                                    onLayerSelected(layer)
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                            )
+                        }
                     }
                 }
+            }
+        }
+
+        // (i) button — only shown when a layer is selected
+        if (selectedLayerDisplayName != "Velg værlag...") {
+            IconButton(onClick = { showLegend = true }) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Vis fargeskala",
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }
