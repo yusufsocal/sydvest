@@ -19,7 +19,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -30,8 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
@@ -51,7 +48,7 @@ fun MapSearchField(
 
     Box(
         modifier = Modifier
-            .then(if (isFocused) Modifier.fillMaxSize() else Modifier.fillMaxWidth())
+            .then(if (expanded) Modifier.fillMaxSize() else Modifier.fillMaxWidth())
             .zIndex(2f)
     ) {
         if (expanded) {
@@ -120,9 +117,7 @@ fun MapSearchField(
                 onExpandedChange = { expanded = it },
                 shape =  RoundedCornerShape(16f.dp),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .onFocusChanged { focusState ->
-                        isFocused = !isFocused},
+                    .fillMaxWidth(),
                 content = {
                     LazyColumn(
                         modifier = Modifier
