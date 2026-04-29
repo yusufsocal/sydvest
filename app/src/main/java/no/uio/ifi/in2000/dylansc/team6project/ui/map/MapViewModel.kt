@@ -248,10 +248,10 @@ class MapViewModel(
             else -> setOf("Air temperature 2m", "Precipitation amount 1h", "Wind 10m speed")
         }
         val displayNames = mapOf(
-            "Air temperature 2m" to "Temperature",
-            "Precipitation amount 1h" to "Rainfall",
-            "Precipitation amount 3h" to "Rainfall",
-            "Wind 10m speed" to "Wind"
+            "Air temperature 2m" to "Temperatur",
+            "Precipitation amount 1h" to "Nedbør",
+            "Precipitation amount 3h" to "Nedbør",
+            "Wind 10m speed" to "Vind"
         )
         // Beholder originalen for å teste
         return layerList
