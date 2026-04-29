@@ -281,7 +281,7 @@ class MapViewModel(
             .trim()
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun getNowTimestamp(): String {
+    fun getNowTimestamp(): String {
         val now = OffsetDateTime.now(ZoneOffset.UTC)
         return now.withMinute(0).withSecond(0).withNano(0)
             .format(DateTimeFormatter.ISO_INSTANT)
