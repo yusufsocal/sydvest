@@ -10,7 +10,7 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapScreenUiState
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.centerMapOnUserLocation
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.drawAlerts
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.removeUserMarker
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.removeWmsLayer
+
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.updateSelectedMarker
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.updateUserMarker
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.updateWmsLayer
