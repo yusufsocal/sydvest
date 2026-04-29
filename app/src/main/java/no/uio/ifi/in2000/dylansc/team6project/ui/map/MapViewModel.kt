@@ -132,6 +132,15 @@ class MapViewModel(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun showTime(time: String, layer: WMSLayer?):String {
+        var newTime = ""
+        if (layer != null && layer.dimension != null) {
+            newTime = coerceTimeToDimension(time,layer.dimension)
+        }
+        return newTime
+    }
+
     fun toggleFareVarsel() {
         _uiState.update { it.copy(fareVarsel = !it.fareVarsel) }
     }
