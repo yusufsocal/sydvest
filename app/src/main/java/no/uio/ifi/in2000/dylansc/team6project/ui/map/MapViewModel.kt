@@ -191,10 +191,6 @@ class MapViewModel(
         _uiState.update { it.copy(pendingCenterLocation = null) }
     }
 
-    fun onSearchDismissed() {
-        _uiState.update { it.copy(searchSuggestions = emptyList()) }
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateTime(time: String) {
         viewModelScope.launch {
