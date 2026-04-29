@@ -108,20 +108,10 @@ fun updateWmsLayer(mapView: MapView, uiState: MapScreenUiState) {
     // Legg til vector-laget oppå hvis det er wind speed
     if (layer.title.contains("Wind 10m speed", ignoreCase = true)) {
         val vectorName = layer.name.replace("speed", "vector")
-        mapView.overlays.add(makeTilesOverlay(vectorName, style = "wind_barb", useEPSG3857 = true))
+        mapView.overlays.add(makeTilesOverlay(vectorName, style = "arrow", useEPSG3857 = true))
     }
 
     mapView.invalidate()
-}
-
-fun removeWmsLayer(mapView: MapView) {
-    // Finn alle lag som er TilesOverlay (WMS-lag)
-    val toRemove = mapView.overlays.filterIsInstance<org.osmdroid.views.overlay.TilesOverlay>()
-
-    if (toRemove.isNotEmpty()) {
-        mapView.overlays.removeAll(toRemove)
-        mapView.invalidate() // Tving kartet til å tegne på nytt
-    }
 }
 
 fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, fareVarsel: Boolean) {

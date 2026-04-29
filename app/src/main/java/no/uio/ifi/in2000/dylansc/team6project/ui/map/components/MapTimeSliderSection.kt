@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color as ComposeColor
 @Composable
 fun MapTimeSliderSection(
     mapViewModel: MapViewModel,
+
     sliderPosition: Float,
     isAnimating: Boolean,
     onSliderChange: (Float) -> Unit,
