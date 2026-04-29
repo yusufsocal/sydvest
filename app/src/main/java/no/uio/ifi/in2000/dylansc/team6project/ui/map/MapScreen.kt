@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapBottomScaffold
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDangerWarningHint
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapOsmView
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSearchField
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSideControls
@@ -49,6 +50,8 @@ fun MapScreen(
     var geoLocation by remember { mutableStateOf<GeoPoint?>(null) }
     var locationServicesEnabled by remember { mutableStateOf(true) }
     var isCenterActive by remember { mutableStateOf(false) }
+    var showHint by remember { mutableStateOf(false) }
+
 
     Configuration.getInstance().load(
         context,
@@ -157,8 +160,12 @@ fun MapScreen(
                     },
                     isCenterActive = isCenterActive,
                 )
-            }
 
+                MapDangerWarningHint(
+                        show = showHint,
+                onDismiss = { showHint = false }
+                )
+            }
 
             MapBottomScaffold(
                 //MapTimeSliderSection
@@ -174,7 +181,12 @@ fun MapScreen(
                 onLayerSelected = { mapViewModel.setSelectedLayer(it) },
 
                 //Farevarsel
-                onFareVarselToggle = { mapViewModel.toggleFareVarsel() },
+                onFareVarselToggle = {
+                    mapViewModel.toggleFareVarsel()
+                    if (!mapScreenUiState.fareVarsel) { // if it's currently off, it's about to turn on
+                        showHint = true
+                    }
+                },
                 isFareVarselActive = mapScreenUiState.fareVarsel
             )
         }
