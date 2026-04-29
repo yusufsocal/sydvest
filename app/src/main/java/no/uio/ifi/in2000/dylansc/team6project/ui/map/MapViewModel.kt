@@ -39,6 +39,7 @@ import org.osmdroid.util.GeoPoint
 
 data class MapScreenUiState(
     val isLoading: Boolean = true,
+    val hasError: Boolean = false,
 
     val layerList: List<WMSLayer> = emptyList(),
     val selectedLayer: WMSLayer? = null,
@@ -79,22 +80,29 @@ class MapViewModel(
     private var animationJob: Job? = null
 
     init {
+        loadData()
+    }
+
+    private fun loadData() {
         viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, hasError = false) }
             try {
                 val newLayerList = locationRepo.getArea(newArea) ?: emptyList()
                 val newAlertList = alertRepo.getAlertList()
+                val displayLayers = computeDisplayLayers(newLayerList, newArea)
                 _uiState.update { state ->
                     state.copy(
                         layerList = newLayerList,
                         alertList = newAlertList,
                         isLoading = false,
+                        hasError = displayLayers.isEmpty(),
                         area = newArea,
-                        displayLayers = computeDisplayLayers(newLayerList, newArea)
+                        displayLayers = displayLayers
                     )
                 }
             } catch (e: Exception) {
                 Log.e("ViewModel", "Feil ved henting av data: ${e.message}")
-                _uiState.update { it.copy(isLoading = false) }
+                _uiState.update { it.copy(isLoading = false, hasError = true) }
             }
         }
 
@@ -141,6 +149,8 @@ class MapViewModel(
         }
         return newTime
     }
+
+    fun retry() { loadData() }
 
     fun toggleFareVarsel() {
         _uiState.update { it.copy(fareVarsel = !it.fareVarsel) }

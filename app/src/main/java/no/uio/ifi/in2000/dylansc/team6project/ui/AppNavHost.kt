@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -28,15 +29,15 @@ fun AppNavHost(
     //Alle repositories sendes hit! Husk å oppdatere etter hvert som vi får flere!
 ) {
     //DataSource og Repository for værdata fra Victoria initialiseres her!
-    val wmsDataSource = WMSDataSourceImpl()
-    val locationRepo = LocationRepository(wmsDataSource)
+    val wmsDataSource = remember { WMSDataSourceImpl() }
+    val locationRepo = remember { LocationRepository(wmsDataSource) }
 
     //DataSource og Repository for Alerts initialiseres her!
-    val alertDataSource = AlertDataSourceImpl()
-    val alertRepo = AlertRepository(alertDataSource)
+    val alertDataSource = remember { AlertDataSourceImpl() }
+    val alertRepo = remember { AlertRepository(alertDataSource) }
 
-    val searchDataSource = SearchDataSourceImpl()
-    val searchRepo = SearchRepository(searchDataSource)
+    val searchDataSource = remember { SearchDataSourceImpl() }
+    val searchRepo = remember { SearchRepository(searchDataSource) }
 
     //PROSJEKT CUSTOM AREA -> Foreløpig placeholder for opprettelse av variabel for når
     //hvilken data som skal benyttes velges ->
