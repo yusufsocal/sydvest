@@ -159,8 +159,12 @@ fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, fareVarsel: Boolean)
                 addPolygonToFolder(coords)
 
             features.geometry?.type?.equals("MultiPolygon", true) == true && coords != null ->
-                coords.forEach { addPolygonToFolder(it.jsonArray) }
-        }
+                coords.forEach {
+                    if (it is JsonArray) {
+                        addPolygonToFolder(it)
+                    }
+                }
+            }
     }
 
     mapView.overlays.add(folderOverlay)
