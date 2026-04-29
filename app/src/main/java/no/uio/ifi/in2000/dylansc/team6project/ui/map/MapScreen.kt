@@ -15,8 +15,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -138,6 +140,16 @@ fun MapScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         if (mapScreenUiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        } else if (mapScreenUiState.hasError) {
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Kunne ikke laste værdata")
+                Button(onClick = { mapViewModel.retry() }) {
+                    Text("Prøv igjen")
+                }
+            }
         } else {
             if (searchActive) {
                 Box(
