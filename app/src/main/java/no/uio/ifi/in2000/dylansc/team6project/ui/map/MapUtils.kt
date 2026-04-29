@@ -108,7 +108,7 @@ fun updateWmsLayer(mapView: MapView, uiState: MapScreenUiState) {
     // Legg til vector-laget oppå hvis det er wind speed
     if (layer.title.contains("Wind 10m speed", ignoreCase = true)) {
         val vectorName = layer.name.replace("speed", "vector")
-        mapView.overlays.add(makeTilesOverlay(vectorName, style = "wind_barb", useEPSG3857 = true))
+        mapView.overlays.add(makeTilesOverlay(vectorName, style = "arrow", useEPSG3857 = true))
     }
 
     mapView.invalidate()
