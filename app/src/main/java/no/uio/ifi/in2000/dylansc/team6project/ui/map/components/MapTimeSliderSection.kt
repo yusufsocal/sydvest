@@ -2,6 +2,8 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
 import android.R.attr.font
 import android.R.attr.text
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,11 +31,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
 import androidx.compose.ui.graphics.Color as ComposeColor
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapTimeSliderSection(
+    mapViewModel: MapViewModel,
     sliderPosition: Float,
     isAnimating: Boolean,
     onSliderChange: (Float) -> Unit,
@@ -50,7 +55,7 @@ fun MapTimeSliderSection(
             .padding(16.dp)
     ) {
         Text(
-            text = "Placeholder: I DAG - 09:00",
+            text = mapViewModel.showTime(mapViewModel.getNowTimestamp(),selectedLayer),
             fontSize = 15.sp
         )
         Text(text = "+${sliderPosition.toInt().toString()}T")

@@ -132,6 +132,15 @@ class MapViewModel(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun showTime(time: String, layer: WMSLayer?):String {
+        var newTime = ""
+        if (layer != null && layer.dimension != null) {
+            newTime = coerceTimeToDimension(time,layer.dimension)
+        }
+        return newTime
+    }
+
     fun toggleFareVarsel() {
         _uiState.update { it.copy(fareVarsel = !it.fareVarsel) }
     }
@@ -180,10 +189,6 @@ class MapViewModel(
 
     fun onMapCentered() {
         _uiState.update { it.copy(pendingCenterLocation = null) }
-    }
-
-    fun onSearchDismissed() {
-        _uiState.update { it.copy(searchSuggestions = emptyList()) }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -272,7 +277,7 @@ class MapViewModel(
             .trim()
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun getNowTimestamp(): String {
+    fun getNowTimestamp(): String {
         val now = OffsetDateTime.now(ZoneOffset.UTC)
         return now.withMinute(0).withSecond(0).withNano(0)
             .format(DateTimeFormatter.ISO_INSTANT)
