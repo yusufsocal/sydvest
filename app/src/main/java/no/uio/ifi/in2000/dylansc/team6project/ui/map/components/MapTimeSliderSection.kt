@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import no.uio.ifi.in2000.dylansc.team6project.R
+import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,8 +37,11 @@ fun MapTimeSliderSection(
     sliderPosition: Float,
     isAnimating: Boolean,
     onSliderChange: (Float) -> Unit,
-    onAnimateToggle: () -> Unit
-) {
+    onAnimateToggle: () -> Unit,
+
+    selectedLayer: WMSLayer?
+
+    ) {
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -51,25 +55,27 @@ fun MapTimeSliderSection(
         )
         Text(text = "+${sliderPosition.toInt().toString()}T")
     }
+    if (selectedLayer != null) {
+        Slider(
+            value = sliderPosition,
+            onValueChange = onSliderChange,
+            colors = SliderDefaults.colors(
+                activeTrackColor = MaterialTheme.colorScheme.secondary,
+                inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+            ),
+            thumb = {
+                Image (
+                    painter = if (isAnimating) painterResource(id = R.drawable.pause) else painterResource(id = R.drawable.play),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .clickable {onAnimateToggle()}
+                )
+            },
+            steps = 239,
+            valueRange = 0f..240f,
+        )
+    }
 
-    Slider(
-        value = sliderPosition,
-        onValueChange = onSliderChange,
-        colors = SliderDefaults.colors(
-            activeTrackColor = MaterialTheme.colorScheme.secondary,
-            inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-        ),
-        thumb = {
-            Image (
-                painter = if (isAnimating) painterResource(id = R.drawable.pause) else painterResource(id = R.drawable.play),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(30.dp)
-                    .clip(CircleShape)
-                    .clickable {onAnimateToggle()}
-            )
-        },
-        steps = 239,
-        valueRange = 0f..240f,
-    )
 }
