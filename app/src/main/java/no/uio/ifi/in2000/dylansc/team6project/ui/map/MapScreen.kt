@@ -11,6 +11,7 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +27,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapBottomScaffold
@@ -51,6 +54,9 @@ fun MapScreen(
     var locationServicesEnabled by remember { mutableStateOf(true) }
     var isCenterActive by remember { mutableStateOf(false) }
     var showHint by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var searchActive by remember { mutableStateOf(false) }
 
 
     Configuration.getInstance().load(
@@ -133,6 +139,17 @@ fun MapScreen(
         if (mapScreenUiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
+            if (searchActive) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            searchActive = false
+                            focusManager.clearFocus()
+                            keyboardController?.hide()
+                        }
+                )
+            }
             Column(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -144,6 +161,7 @@ fun MapScreen(
                     onSuggestionSelected = { suggestion ->
                         mapViewModel.onSuggestionSelected(suggestion) // Lagrer punktet i staten
                     },
+                    onSearchActiveChange = { searchActive = it }
                 )
                 MapSideControls(
                     onCenterClick = {

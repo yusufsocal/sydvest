@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
@@ -29,6 +31,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
@@ -40,10 +45,12 @@ fun MapSearchField(
     suggestions: List<SearchResult>,
     onQueryChange: (String) -> Unit,
     onSuggestionSelected: (SearchResult) -> Unit,
+    onSearchActiveChange: (Boolean) -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
     var isFocused by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
 
     Box(
@@ -58,7 +65,11 @@ fun MapSearchField(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surface)
-                    .clickable { expanded = false }
+                    .clickable {
+                        android.util.Log.d("SØK", "Bakgrunn klikket! expanded=$expanded")
+                        expanded = false
+                        keyboardController?.hide()
+                    }
             )
         }
         Column(
@@ -75,10 +86,10 @@ fun MapSearchField(
                         onValueChange = {
                             query = it
                             onQueryChange(it)
-                            if (suggestions.isNotEmpty() && !expanded) {
-                                expanded = true
-                            }
-                        },
+                            val isActive = it.isNotEmpty()
+                            expanded = isActive
+                            onSearchActiveChange(isActive)
+                                        },
                         placeholder = { Text("Søk", color = MaterialTheme.colorScheme.onSurface) },
                         leadingIcon = {
                             Icon(
@@ -102,6 +113,13 @@ fun MapSearchField(
                             }
                         },
                         singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(
+                            onSearch = {
+                                keyboardController?.hide()
+                                expanded = false
+                            }
+                        ),
                         //Farger for søkefeltet
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = ComposeColor.Transparent,
@@ -111,10 +129,17 @@ fun MapSearchField(
                             unfocusedIndicatorColor = ComposeColor.Transparent,
                         ),
 
+                        modifier = Modifier.onFocusChanged { focusState ->
+                            onSearchActiveChange(focusState.isFocused)
+                        }
+
                         )
                 },
                 expanded = expanded,
-                onExpandedChange = { expanded = it },
+                onExpandedChange = {
+                    expanded = it
+                    if (!it) keyboardController?.hide()
+                                   },
                 shape =  RoundedCornerShape(16f.dp),
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -154,6 +179,7 @@ fun MapSearchField(
                                     modifier = Modifier.clickable {
                                         query = suggestion.name
                                         expanded = false
+                                        keyboardController?.hide()
                                         onSuggestionSelected(suggestion) // Sender resultatet tilbake
                                     }
 
