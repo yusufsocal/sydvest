@@ -94,6 +94,7 @@ class MapViewModel(
                 }
             } catch (e: Exception) {
                 Log.e("ViewModel", "Feil ved henting av data: ${e.message}")
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
 
