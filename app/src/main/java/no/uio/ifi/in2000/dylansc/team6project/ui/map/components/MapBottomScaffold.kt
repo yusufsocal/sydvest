@@ -28,10 +28,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapBottomScaffold (
+    mapViewModel: MapViewModel,
     //Variabler for slider
     sliderPosition: Float,
     isAnimating: Boolean,
@@ -114,6 +116,7 @@ fun MapBottomScaffold (
             ){
                 //Slider
                 MapTimeSliderSection(
+                    mapViewModel,
                     sliderPosition,
                     isAnimating,
                     onSliderChange,

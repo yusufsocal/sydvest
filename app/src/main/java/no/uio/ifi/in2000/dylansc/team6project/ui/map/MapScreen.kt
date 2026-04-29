@@ -161,6 +161,8 @@ fun MapScreen(
 
 
             MapBottomScaffold(
+                //MapViewModel
+                mapViewModel,
                 //MapTimeSliderSection
                 sliderPosition = mapScreenUiState.sliderPosition,
                 isAnimating = mapScreenUiState.isAnimating,
