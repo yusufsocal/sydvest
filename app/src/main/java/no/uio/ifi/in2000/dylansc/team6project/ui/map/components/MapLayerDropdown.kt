@@ -50,7 +50,6 @@ fun MapLayerDropdown(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "VELG VÆRLAG")
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
