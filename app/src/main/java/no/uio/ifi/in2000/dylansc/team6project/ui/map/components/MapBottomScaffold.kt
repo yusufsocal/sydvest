@@ -1,6 +1,5 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
-import android.icu.number.Scale.none
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,6 +16,7 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
@@ -35,7 +35,7 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapBottomScaffold (
+fun MapBottomScaffold(
     mapViewModel: MapViewModel,
     //Variabler for slider
     sliderPosition: Float,
@@ -54,9 +54,16 @@ fun MapBottomScaffold (
     isFareVarselActive: Boolean
 
 ) {
-    val showDragHandle  by remember { mutableStateOf(false) }
     var peekVal = 0
-    if (selectedLayer != null)  peekVal = 100 else peekVal = 70
+    var maxHeightVal = 0
+
+    if (selectedLayer != null) {
+        peekVal = 100
+        maxHeightVal = 400
+    } else {
+        peekVal = 100
+        maxHeightVal = 150
+    }
 
     val scaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
@@ -91,53 +98,61 @@ fun MapBottomScaffold (
                 BottomSheetDefaults.DragHandle()
             }
         },
-        sheetContent = { if (showDragHandle) {
-            Spacer(modifier = Modifier
-                .height(8.dp)
+        sheetContent = {
+            Column(modifier = Modifier.heightIn(max = maxHeightVal.dp),){
+                if (isObjectVisible && selectedLayer != null) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        MapSelectedLayer(
+                            selectedLayerDisplayName,
+                            selectedLayer,
+                        )
+                    }
+                }
 
-            )
-        }
-            if (isObjectVisible && selectedLayer != null) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxWidth()
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .padding(2.dp)
+                        .verticalScroll(rememberScrollState())
+                        .heightIn(max = 200.dp),
                 ) {
-                    MapSelectedLayer (
-                        selectedLayerDisplayName,
-                        selectedLayer,
+                    Spacer(
+                        modifier = Modifier
+                            .height(8.dp)
                     )
+                    if (selectedLayer != null) {
+                        //Slider
+                        MapTimeSliderSection(
+                            mapViewModel,
+                            sliderPosition,
+                            isAnimating,
+                            onSliderChange,
+                            onAnimateToggle,
+                            selectedLayer
+                        )
+                    }
 
+                    Text(text = "VELG VÆRLAG")
+                    //WMSLayer og Farevarsel
+                    if (!isObjectVisible) {
+                        MapLayerDropdown(
+                            selectedLayerDisplayName,
+                            selectedLayer,
+                            displayLayers,
+                            onLayerSelected,
+
+                            onFareVarselToggle,
+                            isFareVarselActive
+                        )
+                    }
                 }
             }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .padding(2.dp)
-                    .verticalScroll(rememberScrollState())
-            ){
-                //Slider
-                MapTimeSliderSection(
-                    mapViewModel,
-                    sliderPosition,
-                    isAnimating,
-                    onSliderChange,
-                    onAnimateToggle,
-                    selectedLayer
-                )
-
-                //WMSLayer og Farevarsel
-                MapLayerDropdown(
-                    selectedLayerDisplayName,
-                    selectedLayer,
-                    displayLayers,
-                    onLayerSelected,
-
-                    onFareVarselToggle,
-                    isFareVarselActive
-                )
-            }
         }
     ) { }
 }
