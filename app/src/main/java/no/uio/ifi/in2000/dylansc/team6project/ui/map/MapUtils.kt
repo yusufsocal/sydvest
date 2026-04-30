@@ -126,35 +126,45 @@ fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, fareVarsel: Boolean)
 
     uiState.alertList.forEach { features ->
         fun addPolygonToFolder(coords: JsonArray) {
-            val points = coords[0].jsonArray.map { coordinatePair ->
+            val points = coords.firstOrNull()?.jsonArray?.mapNotNull { coordinatePair ->
                 val pair = coordinatePair.jsonArray
-                GeoPoint(pair[1].jsonPrimitive.double, pair[0].jsonPrimitive.double)
+                if (pair.size >= 2) {
+                    GeoPoint(pair[1].jsonPrimitive.double, pair[0].jsonPrimitive.double)
+                } else null
             }
-            if (points.isEmpty()) return
 
-            val polygon = Polygon(mapView).apply {
-                this.points = points.toMutableList()
-                title = features.properties?.title
-                snippet = features.properties?.description
-                val hex = when (features.properties?.riskMatrixColor) {
-                    "Yellow" -> "FFFF00"
-                    "Orange" -> "FFA500"
-                    "Red" -> "FF0000"
-                    else -> "FFFFFF"
+            points?.let { safePoints ->
+
+                if (safePoints.isEmpty()) return
+
+                val polygon = Polygon(mapView).apply {
+                    this.points = safePoints.toMutableList()
+                    title = features.properties?.title
+                    snippet = features.properties?.description
+                    val hex = when (features.properties?.riskMatrixColor) {
+                        "Yellow" -> "FFFF00"
+                        "Orange" -> "FFA500"
+                        "Red" -> "FF0000"
+                        else -> "FFFFFF"
+                    }
+                    fillPaint.color = AndroidColor.parseColor("#80$hex")
                 }
-                fillPaint.color = AndroidColor.parseColor("#80$hex")
-            }
-            folderOverlay.add(polygon)
-        }
 
+                folderOverlay.add(polygon)
+            }
+        }
         val coords = features.geometry?.coordinates?.jsonArray
         when {
             features.geometry?.type?.equals("Polygon", true) == true && coords != null ->
                 addPolygonToFolder(coords)
 
             features.geometry?.type?.equals("MultiPolygon", true) == true && coords != null ->
-                coords.forEach { addPolygonToFolder(it.jsonArray) }
-        }
+                coords.forEach {
+                    if (it is JsonArray) {
+                        addPolygonToFolder(it)
+                    }
+                }
+            }
     }
 
     mapView.overlays.add(folderOverlay)
