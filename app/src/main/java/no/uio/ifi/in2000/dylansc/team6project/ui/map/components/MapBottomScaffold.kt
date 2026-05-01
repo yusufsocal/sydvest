@@ -29,14 +29,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
+import org.osmdroid.views.MapView
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapBottomScaffold(
-    mapViewModel: MapViewModel,
     //Variabler for slider
     sliderPosition: Float,
     isAnimating: Boolean,
@@ -51,7 +52,12 @@ fun MapBottomScaffold(
 
     //Variabler for "Farevarsel"
     onFareVarselToggle: () -> Unit,
-    isFareVarselActive: Boolean
+    isFareVarselActive: Boolean,
+
+    //Variabler for MapChangeArea
+    area: AreaData?,
+    changeArea : (String) -> Unit,
+    mapViewRef: MapView?
 
 ) {
     var peekVal = 0
@@ -128,19 +134,17 @@ fun MapBottomScaffold(
                     if (selectedLayer != null) {
                         //Slider
                         MapTimeSliderSection(
-                            mapViewModel,
                             sliderPosition,
                             isAnimating,
                             onSliderChange,
                             onAnimateToggle,
-                            selectedLayer
                         )
                     }
 
                     Text(text = "VELG VÆRLAG")
                     //WMSLayer og Farevarsel
                     if (!isObjectVisible) {
-                        MapLayerDropdown(
+                        MapSelectWeatherLayer(
                             selectedLayerDisplayName,
                             selectedLayer,
                             displayLayers,
@@ -150,6 +154,11 @@ fun MapBottomScaffold(
                             isFareVarselActive
                         )
                     }
+                    MapChangeArea(
+                        area,
+                        changeArea,
+                        mapViewRef
+                    )
                 }
             }
 

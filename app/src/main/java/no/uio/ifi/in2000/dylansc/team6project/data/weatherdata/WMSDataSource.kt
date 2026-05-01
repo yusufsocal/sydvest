@@ -7,7 +7,7 @@ import io.ktor.client.statement.bodyAsText
 import nl.adaptivity.xmlutil.serialization.XML
 
 interface WMSDataSource {
-    suspend fun fetchWmsCapabilities(model: AreaData): WMSCapabilities?
+    suspend fun fetchWmsCapabilities(model: AreaData?): WMSCapabilities?
 }
 
 class WMSDataSourceImpl: WMSDataSource {
@@ -21,8 +21,8 @@ class WMSDataSourceImpl: WMSDataSource {
         repairNamespaces = true
     }
 
-    override suspend fun fetchWmsCapabilities(model: AreaData): WMSCapabilities? {
-        val url = "https://public-victoria.met.no/wms?service=WMS&version=1.3.0&request=GetCapabilities&model=${model.area}"
+    override suspend fun fetchWmsCapabilities(model: AreaData?): WMSCapabilities? {
+        val url = "https://public-victoria.met.no/wms?service=WMS&version=1.3.0&request=GetCapabilities&model=${model?.area}"
 
         return try {
             val response = client.get(url)

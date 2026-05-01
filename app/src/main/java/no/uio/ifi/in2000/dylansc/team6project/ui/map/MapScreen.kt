@@ -14,7 +14,9 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -151,6 +153,7 @@ fun MapScreen(
                 }
             }
         } else {
+
             if (searchActive) {
                 Box(
                     modifier = Modifier
@@ -175,8 +178,9 @@ fun MapScreen(
                     },
                     onSearchActiveChange = { searchActive = it }
                 )
-                MapSideControls(
-                    onCenterClick = {
+                Row(modifier = Modifier.fillMaxWidth()){
+                    MapSideControls(
+                        onCenterClick = {
                         isCenterActive = !isCenterActive
                         locationServicesEnabled = checkLocationEnabled(context)
                         if (locationServicesEnabled) {
@@ -187,9 +191,11 @@ fun MapScreen(
                                 )
                             }
                         }
-                    },
-                    isCenterActive = isCenterActive,
-                )
+                        },
+                        isCenterActive = isCenterActive,
+                    )
+                }
+
 
                 MapDangerWarningHint(
                         show = showHint,
@@ -198,8 +204,6 @@ fun MapScreen(
             }
 
             MapBottomScaffold(
-                //MapViewModel
-                mapViewModel,
                 //MapTimeSliderSection
                 sliderPosition = mapScreenUiState.sliderPosition,
                 isAnimating = mapScreenUiState.isAnimating,
@@ -218,8 +222,14 @@ fun MapScreen(
                     if (!mapScreenUiState.fareVarsel) { // if it's currently off, it's about to turn on
                         showHint = true
                     }
+
                 },
-                isFareVarselActive = mapScreenUiState.fareVarsel
+                isFareVarselActive = mapScreenUiState.fareVarsel,
+
+                //MapChangeArea
+                area = mapScreenUiState.area,
+                changeArea = {mapViewModel.updateArea(it)},
+                mapViewRef,
             )
         }
     }

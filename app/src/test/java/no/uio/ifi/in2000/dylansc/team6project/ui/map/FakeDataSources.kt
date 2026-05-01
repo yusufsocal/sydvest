@@ -17,7 +17,7 @@ class FakeAlertDataSource(
 class FakeWMSDataSource(
     private val result: WMSCapabilities?
 ) : WMSDataSource {
-    override suspend fun fetchWmsCapabilities(model: AreaData): WMSCapabilities? = result
+    override suspend fun fetchWmsCapabilities(model: AreaData?): WMSCapabilities? = result
 }
 
 class FakeSearchDataSource(
