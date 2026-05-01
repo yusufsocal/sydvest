@@ -200,31 +200,36 @@ class MapViewModel(
         _uiState.update { it.copy(pendingCenterLocation = null) }
     }
 
-    fun updateArea(area: String) {
+    fun updateArea(areaName: String) {
         viewModelScope.launch {
             try {
-                val currentArea = _uiState.value.area
-                val changedArea = wmsDomain.changeArea(area ,originalArea)
+                // Finn det nye området basert på tekststrengen fra dropdown
+                val userPreferredArea = wmsDomain.changeArea(areaName, originalArea)
 
-                if ( changedArea != currentArea) {
-                    val newLayerList = locationRepo.getArea(changedArea) ?: emptyList()
-                    val oldNormalizedTitle =
-                        _uiState.value.selectedLayer?.title?.let { normalizeLayerTitle(it) }
-                    val matchedLayer =
-                        newLayerList.find { normalizeLayerTitle(it.title) == oldNormalizedTitle }
-                    _uiState.update { state ->
-                        state.copy(
-                            selectedArea = changedArea,
-                            layerList = newLayerList,
-                            selectedLayer = matchedLayer,
-                            displayLayers = computeDisplayLayers(newLayerList, changedArea),
-                            selectedLayerDisplayName = computeSelectedLayerDisplayName(matchedLayer)
-                        )
-                    }
+                // Sjekk om dette området må tvinges til WORLD pga. nåværende slider-posisjon
+                val hoursAhead = _uiState.value.sliderPosition.toLong()
+                val resolvedArea = wmsDomain.resolveArea(userPreferredArea, hoursAhead)
+
+                // Hent data for det faktiske området som skal vises
+                val newLayerList = locationRepo.getArea(resolvedArea) ?: emptyList()
+
+                // Finn igjen det valgte værlaget (f.eks. Temperatur) i den nye listen
+                val oldNormalizedTitle = _uiState.value.selectedLayer?.title?.let { normalizeLayerTitle(it) }
+                val matchedLayer = newLayerList.find { normalizeLayerTitle(it.title) == oldNormalizedTitle }
+
+                _uiState.update { state ->
+                    state.copy(
+                        selectedArea = userPreferredArea, // Lagre brukerens valg
+                        area = resolvedArea,              // Det som faktisk tegnes
+                        layerList = newLayerList,
+                        selectedLayer = matchedLayer,
+                        displayLayers = computeDisplayLayers(newLayerList, resolvedArea),
+                        selectedLayerDisplayName = computeSelectedLayerDisplayName(matchedLayer)
+                    )
                 }
             } catch (e: Exception) {
-            Log.e("ViewModel", "Feil ved oppdatering av område: ${e.message}")
-        }
+                Log.e("ViewModel", "Feil ved oppdatering av område: ${e.message}")
+            }
         }
     }
 
