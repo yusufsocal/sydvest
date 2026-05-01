@@ -22,7 +22,7 @@ class LocationRepository(
     private fun normalizeTitle(title: String): String =
         areaSuffixes.fold(title) { t, suffix -> t.removeSuffix(suffix) }.trim()
 
-    suspend fun getArea(area: AreaData): List<WMSLayer>? {
+    suspend fun getArea(area: AreaData?): List<WMSLayer>? {
         cache[area]?.let { return it }
 
         val layers = wmsDataSource.fetchWmsCapabilities(area)
@@ -30,7 +30,7 @@ class LocationRepository(
             ?.filter { normalizeTitle(it.title) in allowedTitles }
             ?: return null
 
-        cache[area] = layers
+        cache[area as AreaData] = layers
         return layers
     }
 }

@@ -8,7 +8,7 @@ package no.uio.ifi.in2000.dylansc.team6project.model.domene
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 
 class WMSDomain {
-    fun resolveArea(originalArea: AreaData, hoursAhead: Long): AreaData {
+    fun resolveArea(originalArea: AreaData?, hoursAhead: Long): AreaData? {
         return if (
             (originalArea == AreaData.NORDEN || originalArea == AreaData.ARKTIS) && hoursAhead > 60
         ) {
@@ -17,4 +17,17 @@ class WMSDomain {
             originalArea
         }
     }
+
+    // Funksjon for å endre område manuelt
+    fun changeArea(area: String, originalArea: AreaData): AreaData {
+        when (area) {
+            "Norden" -> return AreaData.NORDEN
+            "Arktis" -> return AreaData.ARKTIS
+            "Verden" -> return AreaData.VERDEN
+            else -> return originalArea
+        }
+
+
+    }
+
 }
