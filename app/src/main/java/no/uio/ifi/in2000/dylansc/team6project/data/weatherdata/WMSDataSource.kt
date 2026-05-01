@@ -21,7 +21,8 @@ class WMSDataSourceImpl: WMSDataSource {
         repairNamespaces = true
     }
 
-    override suspend fun fetchWmsCapabilities(model: AreaData): WMSCapabilities? {
+    override suspend fun fetchWmsCapabilities(model: AreaData?): WMSCapabilities? {
+        if (model == null) return null
         val url = "${ApiConstants.WMS_BASE_URL}service=WMS&version=1.3.0&request=GetCapabilities&model=${model.area}"
 
         return try {
