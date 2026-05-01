@@ -21,6 +21,7 @@ import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import no.uio.ifi.in2000.dylansc.team6project.R
+import no.uio.ifi.in2000.dylansc.team6project.data.ApiConstants
 import org.osmdroid.tileprovider.MapTileProviderBasic
 import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
@@ -48,14 +49,14 @@ fun updateWmsLayer(mapView: MapView, uiState: MapScreenUiState) {
         val source = object : XYTileSource(
             "${layerName}_${currentTime.replace(":", "")}",
             1, 20, 256, ".png",
-            arrayOf("https://public-victoria.met.no/wms?")
+            arrayOf(ApiConstants.WMS_BASE_URL)
         ) {
             override fun getTileURLString(pTileIndex: Long): String {
                 val zoom = MapTileIndex.getZoom(pTileIndex)
                 val x = MapTileIndex.getX(pTileIndex)
                 val y = MapTileIndex.getY(pTileIndex)
 
-                val url = StringBuilder("https://public-victoria.met.no/wms?")
+                val url = StringBuilder(ApiConstants.WMS_BASE_URL)
                 url.append("SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap")
                 url.append("&LAYERS=$layerName")
                 url.append("&STYLES=$style")
@@ -84,7 +85,7 @@ fun updateWmsLayer(mapView: MapView, uiState: MapScreenUiState) {
                 url.append("&FORMAT=image/png&TRANSPARENT=TRUE")
                 url.append("&model=${uiState.area?.area ?: "meps"}")
                 if (!uiState.selectedTime.isNullOrEmpty()) {
-                    url.append("&TIME=${uiState.selectedTime}")
+                    url.append("&TIME=${java.net.URLEncoder.encode(uiState.selectedTime, "UTF-8")}")
                 }
                 return url.toString()
             }

@@ -20,7 +20,13 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 
-private data class DrawnLayerState(val layerName: String?, val time: String?, val area: AreaData?)
+private data class DrawnLayerState(
+    val layerName: String?,
+    val time: String?,
+    val area: AreaData?,
+    val fareVarsel: Boolean = false,
+    val alertCount: Int = 0
+)
 
 @Composable
 fun MapOsmView(
@@ -72,26 +78,39 @@ fun MapOsmView(
             val currentTime = uiState.selectedTime
             val currentArea = uiState.area
 
-            Log.d("UPDATE", "SKJERM OPPDATERES")
-
             val lastState = view.tag as? DrawnLayerState ?: DrawnLayerState(null, null, null)
-            val newState = DrawnLayerState(currentLayer?.name, currentTime, currentArea)
+            val newState = DrawnLayerState(
+                layerName = currentLayer?.name,
+                time = currentTime,
+                area = currentArea,
+                fareVarsel = uiState.fareVarsel,
+                alertCount = uiState.alertList.size
+            )
 
             if (newState != lastState) {
-                updateWmsLayer(view, uiState)
+                // Oppdater værlaget hvis lag, tid eller område har endret seg
+                if (newState.layerName != lastState.layerName ||
+                    newState.time != lastState.time ||
+                    newState.area != lastState.area) {
+                    if (currentLayer == null) {
+                        view.overlays.removeAll(
+                            view.overlays.filterIsInstance<org.osmdroid.views.overlay.TilesOverlay>()
+                        )
+                    } else {
+                        updateWmsLayer(view, uiState)
+                    }
+                }
+
+                // Oppdater farevarsler kun hvis fareVarsel eller antall varsler har endret seg
+                if (newState.fareVarsel != lastState.fareVarsel ||
+                    newState.alertCount != lastState.alertCount) {
+                    drawAlerts(view, uiState, uiState.fareVarsel)
+                }
+
                 view.tag = newState
             }
 
-            if (newState != lastState) {
-                if (currentLayer == null) {
-                    // Brukeren har skrudd av laget -> fjern det fra kartet
-                    view.overlays.removeAll(view.overlays.filterIsInstance<org.osmdroid.views.overlay.TilesOverlay>())
-                    //removeWmsLayer(view)
-                }
-            }
-
-            drawAlerts(view, uiState, uiState.fareVarsel)
-
+            // Brukermarkør oppdateres alltid
             val prefs = view.context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
             val center = view.mapCenter
             prefs.edit()

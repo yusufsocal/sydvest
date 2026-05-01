@@ -75,7 +75,10 @@ fun MapScreen(
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
     }
 
-    LaunchedEffect(Unit) {
+    //Venter til kartet er ferdig initialisert før lokasjon sjekkes og kjøres
+    LaunchedEffect(mapViewRef) {
+        val mapView = mapViewRef ?: return@LaunchedEffect // venter til kartet er klart
+
         val fineGranted = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -84,11 +87,14 @@ fun MapScreen(
             context,
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+
         if (fineGranted || coarseGranted) {
-            mapViewRef?.let { centerMapOnUserLocation(context, it) }
+            // Tillatelse er allerede gitt — sentrer kartet på brukerens posisjon
+            centerMapOnUserLocation(context, mapView)
             granted = true
         } else {
             locationPermissionLauncher.launch(
+                // Tillatelse er ikke gitt — spør brukeren om tillatelse
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION

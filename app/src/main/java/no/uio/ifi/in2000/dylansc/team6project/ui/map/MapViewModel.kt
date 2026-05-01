@@ -72,7 +72,7 @@ class MapViewModel(
     private val locationRepo: LocationRepository,
     private val alertRepo: AlertRepository,
     private val searchRepo: SearchRepository,
-    private var newArea: AreaData
+    private val newArea: AreaData
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapScreenUiState())
@@ -305,8 +305,12 @@ class MapViewModel(
             }
     }
 
-    private fun computeSelectedLayerDisplayName(layer: WMSLayer?): String =
-        layer?.title?.let { normalizeLayerTitle(it) } ?: "Velg værlag..."
+    private fun computeSelectedLayerDisplayName(layer: WMSLayer?): String {
+        if (layer == null) return "Velg værlag..."
+        return _uiState.value.displayLayers
+            .find { it.first.name == layer.name }
+            ?.second ?: normalizeLayerTitle(layer.title)
+    }
 
     private fun normalizeLayerTitle(title: String): String =
         title.removeSuffix(" in MEPS VDIV")
@@ -314,6 +318,7 @@ class MapViewModel(
             .removeSuffix(" in ECMWF SFC")
             .trim()
 
+    // Returnerer nåværende tidspunkt som ISO 8601-formatert streng
     @RequiresApi(Build.VERSION_CODES.O)
     fun getNowTimestamp(): String {
         val now = OffsetDateTime.now(ZoneOffset.UTC)
@@ -321,6 +326,7 @@ class MapViewModel(
             .format(DateTimeFormatter.ISO_INSTANT)
     }
 
+    // Regner ut timer frem i tid fra nå
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getHoursAhead(time: String): Long {
         val selected = OffsetDateTime.parse(time)
@@ -328,6 +334,7 @@ class MapViewModel(
         return Duration.between(now, selected).toHours()
     }
 
+    // Sjekker at tidspunktet er i riktig intervall
     @RequiresApi(Build.VERSION_CODES.O)
     private fun coerceTimeToDimension(requestedTime: String, dimension: String): String {
         return try {
