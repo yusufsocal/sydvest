@@ -173,7 +173,7 @@ class MapViewModel(
             _uiState.update { it.copy(isAnimating = true) }
             animationJob = viewModelScope.launch {
                 while (isActive && _uiState.value.sliderPosition < 240f) {
-                    val step = if (_uiState.value.area == AreaData.VERDEN) 3f else 1f
+                    val step = if (_uiState.value.area == AreaData.WORLD) 3f else 1f
                     val newPos = (_uiState.value.sliderPosition + step).coerceAtMost(240f)
                     updateSliderPosition(newPos)
                     delay(1000)
@@ -276,13 +276,13 @@ class MapViewModel(
         area: AreaData?
     ): List<Pair<WMSLayer, String>> {
         val suffix = when (area) {
-            AreaData.NORDEN -> " in MEPS VDIV"
-            AreaData.ARKTIS -> " in Arctic VDIV"
-            AreaData.VERDEN -> " in ECMWF SFC"
+            AreaData.NORDIC -> " in MEPS VDIV"
+            AreaData.ARCTIC -> " in Arctic VDIV"
+            AreaData.WORLD -> " in ECMWF SFC"
             else -> ""
         }
         val allowedLayers = when (area) {
-            AreaData.VERDEN -> setOf(
+            AreaData.WORLD -> setOf(
                 "Air temperature 2m",
                 "Precipitation amount 3h",
                 "Wind 10m speed"

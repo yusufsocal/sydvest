@@ -129,42 +129,42 @@ class MapScreenLogicTest {
     //
     //    Logic:
     //      when (area) {
-    //        AreaData.NORDEN -> title.removeSuffix(" in MEPS VDIV")
-    //        AreaData.ARKTIS -> title.removeSuffix(" in Arctic VDIV")
-    //        AreaData.VERDEN -> title.removeSuffix(" in ECMWF SFC")
+    //        AreaData.NORDIC -> title.removeSuffix(" in MEPS VDIV")
+    //        AreaData.ARCTIC -> title.removeSuffix(" in Arctic VDIV")
+    //        AreaData.WORLD -> title.removeSuffix(" in ECMWF SFC")
     //        else            -> title
     //      }
     // -------------------------------------------------------------------------
 
     private fun stripLayerSuffixByArea(title: String, area: AreaData?): String =
         when (area) {
-            AreaData.NORDEN -> title.removeSuffix(" in MEPS VDIV")
-            AreaData.ARKTIS -> title.removeSuffix(" in Arctic VDIV")
-            AreaData.VERDEN -> title.removeSuffix(" in ECMWF SFC")
+            AreaData.NORDIC -> title.removeSuffix(" in MEPS VDIV")
+            AreaData.ARCTIC -> title.removeSuffix(" in Arctic VDIV")
+            AreaData.WORLD -> title.removeSuffix(" in ECMWF SFC")
             else -> title
         }
 
     @Test
-    fun `stripLayerSuffixByArea NORDEN removes MEPS suffix`() {
+    fun `stripLayerSuffixByArea NORDIC removes MEPS suffix`() {
         assertEquals(
             "Air temperature 2m",
-            stripLayerSuffixByArea("Air temperature 2m in MEPS VDIV", AreaData.NORDEN)
+            stripLayerSuffixByArea("Air temperature 2m in MEPS VDIV", AreaData.NORDIC)
         )
     }
 
     @Test
-    fun `stripLayerSuffixByArea ARKTIS removes Arctic suffix`() {
+    fun `stripLayerSuffixByArea ARCTIC removes Arctic suffix`() {
         assertEquals(
             "Wind 10m speed",
-            stripLayerSuffixByArea("Wind 10m speed in Arctic VDIV", AreaData.ARKTIS)
+            stripLayerSuffixByArea("Wind 10m speed in Arctic VDIV", AreaData.ARCTIC)
         )
     }
 
     @Test
-    fun `stripLayerSuffixByArea VERDEN removes ECMWF suffix`() {
+    fun `stripLayerSuffixByArea WORLD removes ECMWF suffix`() {
         assertEquals(
             "Precipitation amount 3h",
-            stripLayerSuffixByArea("Precipitation amount 3h in ECMWF SFC", AreaData.VERDEN)
+            stripLayerSuffixByArea("Precipitation amount 3h in ECMWF SFC", AreaData.WORLD)
         )
     }
 
@@ -180,7 +180,7 @@ class MapScreenLogicTest {
     //
     //    Logic:
     //      when (area) {
-    //        AreaData.VERDEN -> setOf("Air temperature 2m", "Precipitation amount 3h",
+    //        AreaData.WORLD -> setOf("Air temperature 2m", "Precipitation amount 3h",
     //                                "Wind 10m speed", "Wind 10m vector")
     //        else            -> setOf("Air temperature 2m", "Precipitation amount 1h",
     //                                "Wind 10m speed", "Wind 10m vector")
@@ -189,7 +189,7 @@ class MapScreenLogicTest {
 
     private fun getAllowedLayerTitles(area: AreaData?): Set<String> =
         when (area) {
-            AreaData.VERDEN -> setOf(
+            AreaData.WORLD -> setOf(
                 "Air temperature 2m",
                 "Precipitation amount 3h",
                 "Wind 10m speed",
@@ -204,15 +204,15 @@ class MapScreenLogicTest {
         }
 
     @Test
-    fun `getAllowedLayerTitles VERDEN contains 3h precipitation`() {
-        val titles = getAllowedLayerTitles(AreaData.VERDEN)
+    fun `getAllowedLayerTitles WORLD contains 3h precipitation`() {
+        val titles = getAllowedLayerTitles(AreaData.WORLD)
         assertTrue(titles.contains("Precipitation amount 3h"))
         assertFalse(titles.contains("Precipitation amount 1h"))
     }
 
     @Test
-    fun `getAllowedLayerTitles NORDEN contains 1h precipitation`() {
-        val titles = getAllowedLayerTitles(AreaData.NORDEN)
+    fun `getAllowedLayerTitles NORDIC contains 1h precipitation`() {
+        val titles = getAllowedLayerTitles(AreaData.NORDIC)
         assertTrue(titles.contains("Precipitation amount 1h"))
         assertFalse(titles.contains("Precipitation amount 3h"))
     }
@@ -225,7 +225,7 @@ class MapScreenLogicTest {
 
     @Test
     fun `getAllowedLayerTitles always contains temperature and wind layers`() {
-        listOf(AreaData.VERDEN, AreaData.NORDEN, AreaData.ARKTIS, null).forEach { area ->
+        listOf(AreaData.WORLD, AreaData.NORDIC, AreaData.ARCTIC, null).forEach { area ->
             val titles = getAllowedLayerTitles(area)
             assertTrue("$area missing temperature", titles.contains("Air temperature 2m"))
             assertTrue("$area missing wind speed", titles.contains("Wind 10m speed"))
@@ -235,7 +235,7 @@ class MapScreenLogicTest {
 
     @Test
     fun `getAllowedLayerTitles returns exactly 4 entries for every area`() {
-        listOf(AreaData.VERDEN, AreaData.NORDEN, AreaData.ARKTIS, null).forEach { area ->
+        listOf(AreaData.WORLD, AreaData.NORDIC, AreaData.ARCTIC, null).forEach { area ->
             assertEquals("$area should have 4 layers", 4, getAllowedLayerTitles(area).size)
         }
     }
