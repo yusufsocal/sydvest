@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,11 +35,12 @@ import androidx.compose.ui.text.style.TextAlign
 @Composable
 fun MapDataSourceSwitcher(
     isVisible: Boolean,
+    /*
     onDismiss: () -> Unit,
     currentSource: AreaData,
     availableSources: List<AreaData>,
     onSourceChange: (AreaData) -> Unit,
-
+*/
 ) {
     var selected by remember { mutableStateOf(AreaData.NORDIC) }
     val hasChanged = selected != AreaData.NORDIC
@@ -84,7 +86,7 @@ fun MapDataSourceSwitcher(
                         "Farevarsler",
                         "60 timer kvalitetsvarsel",
                     ),
-                    onCardClick = { /* TODO: select Nordic source */ },
+                    onCardClick = { /* TODO: logikk */ },
                     modifier = Modifier.weight(1f),
                 )
                 MapAreaDataCard(
@@ -92,10 +94,9 @@ fun MapDataSourceSwitcher(
                     metadata = "AROME Arctic - 2.5km - 1t",
                     bulletList = listOf(
                         "Polare områder",
-                        "Høy oppløsning",
                         "Ingen farevarsler",
                     ),
-                    onCardClick = { /* TODO: select Arctic source */ },
+                    onCardClick = { /* TODO: logikk */ },
                     modifier = Modifier.weight(1f),
                 )
                 MapAreaDataCard(
@@ -103,14 +104,15 @@ fun MapDataSourceSwitcher(
                     metadata = "ECMWF - 25km - 3t",
                     bulletList = listOf(
                         "Verdensdekkende",
-                        "Grovere oppløsning",
+                        "Litt dårligere oppløsning",
                         "Ingen farevarsler",
                     ),
-                    onCardClick = { /* TODO: select Global source */ },
+                    onCardClick = { /* TODO: logikk */ },
                     modifier = Modifier.weight(1f),
                 )
             }
             Spacer(Modifier.height(20.dp))
+
 
             Button(
                 onClick = { /* TODO: logikk senere */ },
@@ -143,10 +145,12 @@ private fun MapDataSourceSwitcherPreviews() {
     Team6ProjectTheme {
         MapDataSourceSwitcher(
             isVisible = true,
+            /*
             onDismiss = {},
             currentSource = AreaData.NORDIC,
             availableSources = listOf(AreaData.NORDIC, AreaData.ARCTIC, AreaData.WORLD),
             onSourceChange = {},
+             */
         )
     }
 }
