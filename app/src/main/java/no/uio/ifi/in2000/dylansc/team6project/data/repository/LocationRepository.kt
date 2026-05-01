@@ -7,7 +7,7 @@ import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 class LocationRepository(
     private val wmsDataSource: WMSDataSource
 ) {
-    private val cache = mutableMapOf<AreaData, List<WMSLayer>>()
+    private val cache = java.util.concurrent.ConcurrentHashMap<AreaData, List<WMSLayer>>()
 
     private val allowedTitles = setOf(
         "Air temperature 2m",
