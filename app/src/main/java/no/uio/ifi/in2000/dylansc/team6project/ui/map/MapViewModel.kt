@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,13 +30,12 @@ import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 import no.uio.ifi.in2000.dylansc.team6project.model.domene.WMSDomain
+import org.osmdroid.util.GeoPoint
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
-import kotlinx.coroutines.FlowPreview
-import org.osmdroid.util.GeoPoint
 
 data class MapScreenUiState(
     val isLoading: Boolean = true,
@@ -45,6 +45,8 @@ data class MapScreenUiState(
     val selectedLayer: WMSLayer? = null,
     val selectedTime: String? = "",
     val area: AreaData? = null,
+
+    val selectedArea: AreaData? = null,
 
     //Søkefelt
     val searchSuggestions: List<SearchResult> = emptyList(),
@@ -60,7 +62,9 @@ data class MapScreenUiState(
     val sliderPosition: Float = 0f,
 
     val displayLayers: List<Pair<WMSLayer, String>> = emptyList(),
-    val selectedLayerDisplayName: String = "Velg værlag..."
+    val selectedLayerDisplayName: String = "Velg værlag...",
+
+
 )
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
@@ -76,6 +80,8 @@ class MapViewModel(
 
     private val searchQuery = MutableStateFlow("")
     private val originalArea: AreaData = newArea
+
+    private val selectedArea = newArea
     private val wmsDomain = WMSDomain()
     private var animationJob: Job? = null
 
@@ -97,6 +103,7 @@ class MapViewModel(
                         isLoading = false,
                         hasError = displayLayers.isEmpty(),
                         area = newArea,
+                        selectedArea = newArea,
                         displayLayers = displayLayers
                     )
                 }
@@ -141,15 +148,6 @@ class MapViewModel(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun showTime(time: String, layer: WMSLayer?):String {
-        var newTime = ""
-        if (layer != null && layer.dimension != null) {
-            newTime = coerceTimeToDimension(time,layer.dimension)
-        }
-        return newTime
-    }
-
     fun retry() { loadData() }
 
     fun toggleFareVarsel() {
@@ -175,10 +173,10 @@ class MapViewModel(
             _uiState.update { it.copy(isAnimating = true) }
             animationJob = viewModelScope.launch {
                 while (isActive && _uiState.value.sliderPosition < 240f) {
-                    val step = if (_uiState.value.area == AreaData.VERDEN) 3f else 1f
+                    val step = if (_uiState.value.area == AreaData.WORLD) 3f else 1f
                     val newPos = (_uiState.value.sliderPosition + step).coerceAtMost(240f)
                     updateSliderPosition(newPos)
-                    delay(500)
+                    delay(1000)
                 }
                 _uiState.update { it.copy(isAnimating = false) }
             }
@@ -202,13 +200,42 @@ class MapViewModel(
         _uiState.update { it.copy(pendingCenterLocation = null) }
     }
 
+    fun updateArea(area: String) {
+        viewModelScope.launch {
+            try {
+                val currentArea = _uiState.value.area
+                val changedArea = wmsDomain.changeArea(area ,originalArea)
+
+                if ( changedArea != currentArea) {
+                    val newLayerList = locationRepo.getArea(changedArea) ?: emptyList()
+                    val oldNormalizedTitle =
+                        _uiState.value.selectedLayer?.title?.let { normalizeLayerTitle(it) }
+                    val matchedLayer =
+                        newLayerList.find { normalizeLayerTitle(it.title) == oldNormalizedTitle }
+                    _uiState.update { state ->
+                        state.copy(
+                            selectedArea = changedArea,
+                            layerList = newLayerList,
+                            selectedLayer = matchedLayer,
+                            displayLayers = computeDisplayLayers(newLayerList, changedArea),
+                            selectedLayerDisplayName = computeSelectedLayerDisplayName(matchedLayer)
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+            Log.e("ViewModel", "Feil ved oppdatering av område: ${e.message}")
+        }
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateTime(time: String) {
         viewModelScope.launch {
             try {
                 val hoursAhead = getHoursAhead(time)
-                val resolvedArea = wmsDomain.resolveArea(originalArea, hoursAhead)
+                val resolvedArea = wmsDomain.resolveArea(_uiState.value.selectedArea, hoursAhead)
                 val currentArea = _uiState.value.area
+                Log.d("OMRÅDER", "resolvedArea = $resolvedArea - currentArea = $currentArea")
 
                 if (resolvedArea != currentArea) {
                     val newLayerList = locationRepo.getArea(resolvedArea) ?: emptyList()
@@ -249,13 +276,13 @@ class MapViewModel(
         area: AreaData?
     ): List<Pair<WMSLayer, String>> {
         val suffix = when (area) {
-            AreaData.NORDEN -> " in MEPS VDIV"
-            AreaData.ARKTIS -> " in Arctic VDIV"
-            AreaData.VERDEN -> " in ECMWF SFC"
+            AreaData.NORDIC -> " in MEPS VDIV"
+            AreaData.ARCTIC -> " in Arctic VDIV"
+            AreaData.WORLD -> " in ECMWF SFC"
             else -> ""
         }
         val allowedLayers = when (area) {
-            AreaData.VERDEN -> setOf(
+            AreaData.WORLD -> setOf(
                 "Air temperature 2m",
                 "Precipitation amount 3h",
                 "Wind 10m speed"

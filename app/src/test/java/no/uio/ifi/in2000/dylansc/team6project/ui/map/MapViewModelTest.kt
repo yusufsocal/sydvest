@@ -37,7 +37,7 @@ class MapViewModelTest {
         val alertRepo = AlertRepository(FakeAlertDataSource(fakeAlerts))
         val searchRepo = SearchRepository(FakeSearchDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDEN)
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDIC)
 
         // vent til alle coroutine-ne er ferdig i viewmodel
         advanceUntilIdle()
@@ -47,7 +47,7 @@ class MapViewModelTest {
         assertThat(state.layerList).isEqualTo(fakeLayers)
         assertThat(state.alertList).isEqualTo(fakeAlerts)
         assertThat(state.isLoading).isFalse()
-        assertThat(state.area).isEqualTo(AreaData.NORDEN)
+        assertThat(state.area).isEqualTo(AreaData.NORDIC)
     }
 
     // setSelectedLayer
@@ -63,7 +63,7 @@ class MapViewModelTest {
         val alertRepo = AlertRepository(FakeAlertDataSource(fakeAlerts))
         val searchRepo = SearchRepository(FakeSearchDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDEN)
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDIC)
 
         advanceUntilIdle()
 
@@ -89,7 +89,7 @@ class MapViewModelTest {
         val alertRepo = AlertRepository(FakeAlertDataSource(fakeAlerts))
         val searchRepo = SearchRepository(FakeSearchDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDEN)
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDIC)
 
         advanceUntilIdle()
 
@@ -113,7 +113,7 @@ class MapViewModelTest {
         val alertRepo = AlertRepository(FakeAlertDataSource(listOf(alert("Bergen"))))
         val searchRepo = SearchRepository(FakeSearchDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo, AreaData.NORDEN)
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo, AreaData.NORDIC)
         advanceUntilIdle()
         viewModel.setSelectedLayer(fakeLayer)
 
@@ -142,7 +142,7 @@ class MapViewModelTest {
         val alertRepo = AlertRepository(FakeAlertDataSource(listOf(alert("Bergen"))))
         val searchRepo = SearchRepository(FakeSearchDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo, AreaData.NORDEN)
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo, AreaData.NORDIC)
         advanceUntilIdle()
         viewModel.setSelectedLayer(fakeLayer)
 

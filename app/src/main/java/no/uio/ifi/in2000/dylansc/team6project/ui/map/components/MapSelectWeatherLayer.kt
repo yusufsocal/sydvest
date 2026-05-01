@@ -29,7 +29,7 @@ import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapLayerDropdown(
+fun MapSelectWeatherLayer(
     selectedLayerDisplayName: String,
     selectedLayer: WMSLayer?,
     displayLayers: List<Pair<WMSLayer, String>>,

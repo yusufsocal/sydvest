@@ -41,7 +41,7 @@ fun AppNavHost(
 
     //PROSJEKT CUSTOM AREA -> Foreløpig placeholder for opprettelse av variabel for når
     //hvilken data som skal benyttes velges ->
-    var area: AreaData = AreaData.NORDEN
+    var area: AreaData = AreaData.NORDIC
     //
 
     //Hoister ViewModel opp til NavHost

@@ -1,20 +1,33 @@
 //Domenelag
-//Logikk: Dersom man velger en datatype innenfor norden eller arktis på et tidsintervall
-//over 60 timer, skal appen automatisk endre karttype til EC (hele verden)
-//Årsak: Kart over norden og arktis har kun data for opp til 60 timer.
+//Logikk: Dersom man velger en datatype innenfor NORDIC eller ARCTIC på et tidsintervall
+//over 60 timer, skal appen automatisk endre karttype til EC (hele WORLD)
+//Årsak: Kart over NORDIC og ARCTIC har kun data for opp til 60 timer.
 
 package no.uio.ifi.in2000.dylansc.team6project.model.domene
 
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 
 class WMSDomain {
-    fun resolveArea(originalArea: AreaData, hoursAhead: Long): AreaData {
+    fun resolveArea(originalArea: AreaData?, hoursAhead: Long): AreaData? {
         return if (
-            (originalArea == AreaData.NORDEN || originalArea == AreaData.ARKTIS) && hoursAhead > 60
+            (originalArea == AreaData.NORDIC || originalArea == AreaData.ARCTIC) && hoursAhead > 60
         ) {
-            AreaData.VERDEN
+            AreaData.WORLD
         } else {
             originalArea
         }
     }
+
+    // Funksjon for å endre område manuelt
+    fun changeArea(area: String, originalArea: AreaData): AreaData {
+        when (area) {
+            "Norden" -> return AreaData.NORDIC
+            "Arktis" -> return AreaData.ARCTIC
+            "Verden" -> return AreaData.WORLD
+            else -> return originalArea
+        }
+
+
+    }
+
 }

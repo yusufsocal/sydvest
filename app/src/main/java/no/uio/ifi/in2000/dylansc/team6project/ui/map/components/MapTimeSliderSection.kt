@@ -36,15 +36,10 @@ import java.time.format.TextStyle
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapTimeSliderSection(
-    mapViewModel: MapViewModel,
-
     sliderPosition: Float,
     isAnimating: Boolean,
     onSliderChange: (Float) -> Unit,
     onAnimateToggle: () -> Unit,
-
-    selectedLayer: WMSLayer?
-
 ) {
     val current = LocalDateTime.now()
     val hoursAhead = current.plusHours(sliderPosition.toInt().toLong())

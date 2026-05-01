@@ -8,7 +8,7 @@ import no.uio.ifi.in2000.dylansc.team6project.data.ApiConstants
 import no.uio.ifi.in2000.dylansc.team6project.data.HttpClientProvider
 
 interface WMSDataSource {
-    suspend fun fetchWmsCapabilities(model: AreaData): WMSCapabilities?
+    suspend fun fetchWmsCapabilities(model: AreaData?): WMSCapabilities?
 }
 
 class WMSDataSourceImpl: WMSDataSource {
