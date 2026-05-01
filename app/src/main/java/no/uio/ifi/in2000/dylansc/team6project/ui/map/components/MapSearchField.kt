@@ -2,6 +2,7 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +32,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -51,10 +54,13 @@ fun MapSearchField(
     var isFocused by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
 
 
     Box(
         modifier = Modifier
+            .focusRequester(focusRequester)
+            .focusable()
             .then(if (expanded) Modifier.fillMaxSize() else Modifier.fillMaxWidth())
             .zIndex(2f)
     ) {
@@ -179,8 +185,10 @@ fun MapSearchField(
                                     modifier = Modifier.clickable {
                                         query = suggestion.name
                                         expanded = false
-                                        keyboardController?.hide()
+                                        onSearchActiveChange(false)
                                         onSuggestionSelected(suggestion) // Sender resultatet tilbake
+                                        focusRequester.requestFocus()
+                                        keyboardController?.hide()
                                     }
 
                                 )
