@@ -24,6 +24,7 @@ import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.ApiConstants
 import org.osmdroid.tileprovider.MapTileProviderBasic
 import org.osmdroid.tileprovider.tilesource.XYTileSource
+import org.osmdroid.tileprovider.util.SimpleInvalidationHandler
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.MapView
@@ -36,83 +37,89 @@ import android.graphics.Color as AndroidColor
 fun updateWmsLayer(mapView: MapView, uiState: MapScreenUiState) {
     val layer = uiState.selectedLayer ?: return
     val currentTime = uiState.selectedTime ?: ""
+    val areaName = uiState.area?.area ?: "meps"
 
     val oldOverlays = mapView.overlays.filterIsInstance<TilesOverlay>()
     oldOverlays.forEach { it.onDetach(mapView); mapView.overlays.remove(it) }
-    mapView.tileProvider.clearTileCache()
 
-    fun makeTilesOverlay(
-        layerName: String,
-        style: String = "",
-        useEPSG3857: Boolean = false
-    ): TilesOverlay {
-        val source = object : XYTileSource(
-            "${layerName}_${currentTime.replace(":", "")}",
-            1, 20, 256, ".png",
-            arrayOf(ApiConstants.WMS_BASE_URL)
-        ) {
-            override fun getTileURLString(pTileIndex: Long): String {
-                val zoom = MapTileIndex.getZoom(pTileIndex)
-                val x = MapTileIndex.getX(pTileIndex)
-                val y = MapTileIndex.getY(pTileIndex)
-
-                val url = StringBuilder(ApiConstants.WMS_BASE_URL)
-                url.append("SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap")
-                url.append("&LAYERS=$layerName")
-                url.append("&STYLES=$style")
-
-                if (useEPSG3857) {
-                    val n = Math.pow(2.0, zoom.toDouble())
-                    val tileSize = 20037508.34 * 2 / n
-                    val xMin = -20037508.34 + x * tileSize
-                    val xMax = xMin + tileSize
-                    val yMax = 20037508.34 - y * tileSize
-                    val yMin = yMax - tileSize
-                    url.append("&CRS=EPSG:3857")
-                    url.append("&BBOX=$xMin,$yMin,$xMax,$yMax")
-                } else {
-                    val n = Math.pow(2.0, zoom.toDouble())
-                    val lonMin = x / n * 360.0 - 180.0
-                    val lonMax = (x + 1) / n * 360.0 - 180.0
-                    val latMin =
-                        Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 1) / n))))
-                    val latMax = Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))))
-                    url.append("&CRS=CRS:84")
-                    url.append("&BBOX=$lonMin,$latMin,$lonMax,$latMax")
-                }
-
-                url.append("&WIDTH=256&HEIGHT=256")
-                url.append("&FORMAT=image/png&TRANSPARENT=TRUE")
-                url.append("&model=${uiState.area?.area ?: "meps"}")
-                if (!uiState.selectedTime.isNullOrEmpty()) {
-                    url.append("&TIME=${java.net.URLEncoder.encode(uiState.selectedTime, "UTF-8")}")
-                }
-                return url.toString()
-            }
-        }
-        val provider = MapTileProviderBasic(mapView.context, source)
-        return TilesOverlay(provider, mapView.context).apply {
-            loadingBackgroundColor = AndroidColor.TRANSPARENT
-            setColorFilter(ColorMatrixColorFilter(ColorMatrix().apply {
-                setScale(
-                    1f,
-                    1f,
-                    1f,
-                    0.8f
-                )
-            }))
-        }
-    }
-
-    mapView.overlays.add(makeTilesOverlay(layer.name))
-
-    // Legg til vector-laget oppå hvis det er wind speed
+    addWmsTilesOverlay(mapView, layer.name, areaName, currentTime)
     if (layer.title.contains("Wind 10m speed", ignoreCase = true)) {
         val vectorName = layer.name.replace("speed", "vector")
-        mapView.overlays.add(makeTilesOverlay(vectorName, style = "wind_barb", useEPSG3857 = true))
+        addWmsTilesOverlay(
+            mapView, vectorName, areaName, currentTime,
+            style = "wind_barb", useEPSG3857 = true
+        )
     }
 
     mapView.invalidate()
+}
+
+private fun addWmsTilesOverlay(
+    mapView: MapView,
+    layerName: String,
+    areaName: String,
+    timeIso: String,
+    style: String = "",
+    useEPSG3857: Boolean = false
+) {
+    // Tile-source-navnet er cache-nøkkelen. Må inkludere område og tid slik at
+    // tiles ikke serveres feil når brukeren bytter område eller tid.
+    val sourceName = "${layerName}_${areaName}_${timeIso.replace(":", "")}"
+    val source = object : XYTileSource(
+        sourceName,
+        1, 20, 256, ".png",
+        arrayOf(ApiConstants.WMS_BASE_URL)
+    ) {
+        override fun getTileURLString(pTileIndex: Long): String {
+            val zoom = MapTileIndex.getZoom(pTileIndex)
+            val x = MapTileIndex.getX(pTileIndex)
+            val y = MapTileIndex.getY(pTileIndex)
+
+            val url = StringBuilder(ApiConstants.WMS_BASE_URL)
+            url.append("SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap")
+            url.append("&LAYERS=$layerName")
+            url.append("&STYLES=$style")
+
+            if (useEPSG3857) {
+                val n = Math.pow(2.0, zoom.toDouble())
+                val tileSize = 20037508.34 * 2 / n
+                val xMin = -20037508.34 + x * tileSize
+                val xMax = xMin + tileSize
+                val yMax = 20037508.34 - y * tileSize
+                val yMin = yMax - tileSize
+                url.append("&CRS=EPSG:3857")
+                url.append("&BBOX=$xMin,$yMin,$xMax,$yMax")
+            } else {
+                val n = Math.pow(2.0, zoom.toDouble())
+                val lonMin = x / n * 360.0 - 180.0
+                val lonMax = (x + 1) / n * 360.0 - 180.0
+                val latMin =
+                    Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 1) / n))))
+                val latMax = Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))))
+                url.append("&CRS=CRS:84")
+                url.append("&BBOX=$lonMin,$latMin,$lonMax,$latMax")
+            }
+
+            url.append("&WIDTH=256&HEIGHT=256")
+            url.append("&FORMAT=image/png&TRANSPARENT=TRUE")
+            url.append("&model=$areaName")
+            if (timeIso.isNotEmpty()) {
+                url.append("&TIME=${java.net.URLEncoder.encode(timeIso, "UTF-8")}")
+            }
+            return url.toString()
+        }
+    }
+    val provider = MapTileProviderBasic(mapView.context, source)
+    // Uten denne får ikke MapView beskjed når en tile er ferdig nedlastet,
+    // og overlayet rendres først ved neste brukergeste (drag/zoom).
+    provider.setTileRequestCompleteHandler(SimpleInvalidationHandler(mapView))
+    val overlay = TilesOverlay(provider, mapView.context).apply {
+        loadingBackgroundColor = AndroidColor.TRANSPARENT
+        setColorFilter(ColorMatrixColorFilter(ColorMatrix().apply {
+            setScale(1f, 1f, 1f, 0.8f)
+        }))
+    }
+    mapView.overlays.add(overlay)
 }
 
 fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, fareVarsel: Boolean) {

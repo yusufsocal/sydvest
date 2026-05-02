@@ -84,6 +84,7 @@ class MapViewModel(
     private val selectedArea = newArea
     private val wmsDomain = WMSDomain()
     private var animationJob: Job? = null
+    private var updateTimeJob: Job? = null
 
     init {
         loadData()
@@ -176,7 +177,7 @@ class MapViewModel(
                     val step = if (_uiState.value.area == AreaData.WORLD) 3f else 1f
                     val newPos = (_uiState.value.sliderPosition + step).coerceAtMost(240f)
                     updateSliderPosition(newPos)
-                    delay(1000)
+                    delay(1500)
                 }
                 _uiState.update { it.copy(isAnimating = false) }
             }
@@ -235,7 +236,11 @@ class MapViewModel(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateTime(time: String) {
-        viewModelScope.launch {
+        // Avbryt forrige updateTime-jobb. Ellers kan rask sliderdrag eller
+        // animasjonssteg etterlate flere parallelle jobber som skriver
+        // til _uiState i tilfeldig rekkefølge og ender med stale tid.
+        updateTimeJob?.cancel()
+        updateTimeJob = viewModelScope.launch {
             try {
                 val hoursAhead = getHoursAhead(time)
                 val resolvedArea = wmsDomain.resolveArea(_uiState.value.selectedArea, hoursAhead)
