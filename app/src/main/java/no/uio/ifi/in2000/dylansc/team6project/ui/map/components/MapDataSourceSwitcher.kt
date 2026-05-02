@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,22 +16,55 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.ui.theme.Team6ProjectTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.style.TextAlign
 
+
+private data class AreaCardContent(
+    val area: AreaData, val label: String, val metadata: String, val bullet: List<String>
+)
+
+private val areaCardList = listOf(
+    AreaCardContent(
+        area = AreaData.NORDIC,
+        label = "Norden",
+        metadata = "MET Norden - 1km - 1t",
+        bullet = listOf(
+            "Høy oppløsning",
+            "Farevarsler",
+            "60 timer kvalitetsvarsel",
+        )
+    ),
+
+    AreaCardContent(
+        area = AreaData.WORLD,
+        label = "Verden",
+        metadata = "ECMWF - 25km - 3t", //TODO: Sjekk at dette er riktig. Eventuelt forenkle
+        bullet = listOf(
+            "Verdensdekkende",
+            "Litt dårligere oppløsning",
+            "Ingen farevarsler",
+        )
+    ),
+
+    AreaCardContent(
+        area = AreaData.ARCTIC,
+        label = "Arktis",
+        metadata = "AROME Arctic - 2.5km - 1t",
+        bullet = listOf(
+            "Polare områder", "Ingen farevarsler"
+        )
+    )
+)
 
 @Composable
 fun MapDataSourceSwitcher(
@@ -42,8 +76,6 @@ fun MapDataSourceSwitcher(
     onSourceChange: (AreaData) -> Unit,
 */
 ) {
-    var selected by remember { mutableStateOf(AreaData.NORDIC) }
-    val hasChanged = selected != AreaData.NORDIC
 
     if (isVisible) {
         Column(
@@ -54,7 +86,7 @@ fun MapDataSourceSwitcher(
             Icon(
                 imageVector = Icons.Default.Public,
                 modifier = Modifier.size(56.dp),
-                contentDescription = "Globale data"
+                contentDescription = null
             )
             Spacer(Modifier.height(16.dp))
 
@@ -82,48 +114,24 @@ fun MapDataSourceSwitcher(
                     .height(IntrinsicSize.Max), // TODO: Sjekk at denne funker. Skal sørge for at alle kortene har samme høyde som den "høyeste"
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
 
-            ) {
-                MapAreaDataCard(
-                    label = "Norden",
-                    metadata = "MET Norden - 1km - 1t",
-                    bulletList = listOf(
-                        "Høy oppløsning",
-                        "Farevarsler",
-                        "60 timer kvalitetsvarsel",
-                    ),
-                    onCardClick = { /* TODO: logikk */ },
-                    modifier = Modifier.weight(1f),
-                )
-
-                MapAreaDataCard(
-                    label = "Global",
-                    metadata = "ECMWF - 25km - 3t",
-                    bulletList = listOf(
-                        "Verdensdekkende",
-                        "Litt dårligere oppløsning",
-                        "Ingen farevarsler",
-                    ),
-                    onCardClick = { /* TODO: logikk */ },
-                    modifier = Modifier.weight(1f),
-                )
-
-                MapAreaDataCard(
-                    label = "Arktis",
-                    metadata = "AROME Arctic - 2.5km - 1t",
-                    bulletList = listOf(
-                        "Polare områder",
-                        "Ingen farevarsler",
-                    ),
-                    onCardClick = { /* TODO: logikk */ },
-                    modifier = Modifier.weight(1f),
-                )
+                ) {
+                areaCardList.forEach { card ->
+                    MapAreaDataCard(
+                        label = card.label,
+                        metadata = card.metadata,
+                        bulletList = card.bullet,
+                        onCardClick = { /*TODO: logikk senere*/ },
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    )
+                }
             }
             Spacer(Modifier.height(20.dp))
 
 
             Button(
                 onClick = { /* TODO: logikk senere */ },
-                enabled = hasChanged,
             ) {
                 Icon(
                     imageVector = Icons.Default.Public,
