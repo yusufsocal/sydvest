@@ -1,18 +1,19 @@
 package no.uio.ifi.in2000.dylansc.team6project.data.weatherdata
 
 import android.util.Log
+import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import nl.adaptivity.xmlutil.serialization.XML
 import no.uio.ifi.in2000.dylansc.team6project.data.ApiConstants
-import no.uio.ifi.in2000.dylansc.team6project.data.HttpClientProvider
 
 interface WMSDataSource {
     suspend fun fetchWmsCapabilities(model: AreaData?): WMSCapabilities?
 }
 
-class WMSDataSourceImpl: WMSDataSource {
-    private val client = HttpClientProvider.client
+class WMSDataSourceImpl(
+    private val client: HttpClient
+) : WMSDataSource {
 
     private val xmlParser = XML {
         defaultPolicy {

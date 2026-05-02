@@ -1,6 +1,7 @@
 package no.uio.ifi.in2000.dylansc.team6project.data.searchdata
 
 import android.util.Log
+import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.json.Json
@@ -9,14 +10,14 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import no.uio.ifi.in2000.dylansc.team6project.data.ApiConstants
-import no.uio.ifi.in2000.dylansc.team6project.data.HttpClientProvider
 
 interface SearchDataSource {
     suspend fun fetchSearchSuggestions(query: String): List<SearchResult>
 }
 
-class SearchDataSourceImpl : SearchDataSource {
-    private val client = HttpClientProvider.client
+class SearchDataSourceImpl(
+    private val client: HttpClient
+) : SearchDataSource {
     private val json = Json { ignoreUnknownKeys = true }
 
     override suspend fun fetchSearchSuggestions(query: String): List<SearchResult> {

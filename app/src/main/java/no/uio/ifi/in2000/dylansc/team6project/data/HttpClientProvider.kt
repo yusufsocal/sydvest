@@ -1,7 +1,5 @@
-// Deler en enkelt HttpClient-instans på tvers av hele appen
-// client - brukes for enkle HTTP-kall (feks. WMS/XML)
-// jsonClient - brukes der JSON-parsing er nødvendig (feks. varsler)
-
+// Bygger HttpClient-instanser med standardkonfigurasjon.
+// Eierskap (livssyklus + close) ligger hos App, ikke her.
 
 package no.uio.ifi.in2000.dylansc.team6project.data
 
@@ -12,9 +10,9 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 object HttpClientProvider {
-    val client = HttpClient(CIO)
+    fun createDefaultClient(): HttpClient = HttpClient(CIO)
 
-    val jsonClient = HttpClient(CIO) {
+    fun createJsonClient(): HttpClient = HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json {
                 ignoreUnknownKeys = true
