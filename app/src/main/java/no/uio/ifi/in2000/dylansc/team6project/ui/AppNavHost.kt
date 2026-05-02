@@ -8,10 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import no.uio.ifi.in2000.dylansc.team6project.App
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.SearchRepository
@@ -28,15 +30,17 @@ fun AppNavHost(
     navController: NavHostController,
     //Alle repositories sendes hit! Husk å oppdatere etter hvert som vi får flere!
 ) {
+    val app = LocalContext.current.applicationContext as App
+
     //DataSource og Repository for værdata fra Victoria initialiseres her!
-    val wmsDataSource = remember { WMSDataSourceImpl() }
+    val wmsDataSource = remember { WMSDataSourceImpl(app.httpClient) }
     val locationRepo = remember { LocationRepository(wmsDataSource) }
 
     //DataSource og Repository for Alerts initialiseres her!
-    val alertDataSource = remember { AlertDataSourceImpl() }
+    val alertDataSource = remember { AlertDataSourceImpl(app.jsonHttpClient) }
     val alertRepo = remember { AlertRepository(alertDataSource) }
 
-    val searchDataSource = remember { SearchDataSourceImpl() }
+    val searchDataSource = remember { SearchDataSourceImpl(app.httpClient) }
     val searchRepo = remember { SearchRepository(searchDataSource) }
 
     //PROSJEKT CUSTOM AREA -> Foreløpig placeholder for opprettelse av variabel for når

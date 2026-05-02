@@ -122,9 +122,9 @@ fun MapBottomScaffold(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(300.dp)
+                        .heightIn(300.dp)
                         .padding(2.dp)
-                        .verticalScroll(rememberScrollState())
+                        //.verticalScroll(rememberScrollState())
                         .heightIn(max = 200.dp),
                 ) {
                     Spacer(
