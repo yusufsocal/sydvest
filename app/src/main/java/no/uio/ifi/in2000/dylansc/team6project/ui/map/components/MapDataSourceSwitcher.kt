@@ -3,6 +3,7 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,12 +74,17 @@ fun MapDataSourceSwitcher(
 
             )
 
+            Spacer(Modifier.height(16.dp))
+
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Max), // TODO: Sjekk at denne funker. Skal sørge for at alle kortene har samme høyde som den "høyeste"
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+
             ) {
                 MapAreaDataCard(
-                    label = "Nåværende",
+                    label = "Norden",
                     metadata = "MET Norden - 1km - 1t",
                     bulletList = listOf(
                         "Høy oppløsning",
@@ -89,22 +94,24 @@ fun MapDataSourceSwitcher(
                     onCardClick = { /* TODO: logikk */ },
                     modifier = Modifier.weight(1f),
                 )
-                MapAreaDataCard(
-                    label = "Arktis",
-                    metadata = "AROME Arctic - 2.5km - 1t",
-                    bulletList = listOf(
-                        "Polare områder",
-                        "Ingen farevarsler",
-                    ),
-                    onCardClick = { /* TODO: logikk */ },
-                    modifier = Modifier.weight(1f),
-                )
+
                 MapAreaDataCard(
                     label = "Global",
                     metadata = "ECMWF - 25km - 3t",
                     bulletList = listOf(
                         "Verdensdekkende",
                         "Litt dårligere oppløsning",
+                        "Ingen farevarsler",
+                    ),
+                    onCardClick = { /* TODO: logikk */ },
+                    modifier = Modifier.weight(1f),
+                )
+
+                MapAreaDataCard(
+                    label = "Arktis",
+                    metadata = "AROME Arctic - 2.5km - 1t",
+                    bulletList = listOf(
+                        "Polare områder",
                         "Ingen farevarsler",
                     ),
                     onCardClick = { /* TODO: logikk */ },
