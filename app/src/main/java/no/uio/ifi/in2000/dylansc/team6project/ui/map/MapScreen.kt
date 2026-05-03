@@ -142,6 +142,9 @@ fun MapScreen(
         locationServicesEnabled = locationServicesEnabled,
         geoLocation = geoLocation,
         onMapReady = { mapViewRef = it },
+        onLocationSelected = { geoPoint ->
+            mapViewModel.onLocationSelected(geoPoint.latitude, geoPoint.longitude)
+        },
         modifier = Modifier.fillMaxSize()
     )
 

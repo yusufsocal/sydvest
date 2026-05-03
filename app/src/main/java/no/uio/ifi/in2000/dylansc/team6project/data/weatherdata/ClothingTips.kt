@@ -8,7 +8,7 @@ fun getClothingTips(weather: CurrentWeather): String? {
         // Dises må være i riktig rekkefølge -- de sjekkes ovenfra og ned
         // Regn, kulde og vind trumfer varmere temperaturer
         weather.temperature < 0 -> "Vinterjakke"
-        weather.precipitationMM > 0.1 -> "Regnjakke"
+        weather.rainfall > 0.1 -> "Regnjakke"
         weather.windSpeed > 8 -> "Vindjakke"
         weather.temperature >= 25 -> "Badetøy"
         weather.temperature >= 18 -> "Shorts"

@@ -12,7 +12,7 @@ class WeatherRepository(
         return CurrentWeather(
             temperature = now.data.instant.details.airTemperature,
             windSpeed = now.data.instant.details.windSpeed,
-            precipitationMM = now.data.nextOneHours?.details?.precipitationAmount ?: 0.0
+            rainfall = now.data.nextOneHours?.details?.precipitationAmount ?: 0.0
         )
     }
 }
