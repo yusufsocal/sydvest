@@ -40,6 +40,7 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDangerWarning
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapOsmView
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSearchField
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSideControls
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapWeatherInfoDialog
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
@@ -240,6 +241,13 @@ fun MapScreen(
                 changeArea = {mapViewModel.updateArea(it)},
                 mapViewRef,
             )
+
+            mapScreenUiState.currentWeather?.let { weather ->
+                MapWeatherInfoDialog(
+                    weather = weather,
+                    onDismiss = { mapViewModel.dismissCurrentWeather() }
+                )
+            }
         }
     }
 }

@@ -376,6 +376,10 @@ class MapViewModel(
         }
     }
 
+    fun dismissCurrentWeather() {
+        _uiState.update { it.copy(currentWeather = null) }
+    }
+
     companion object {
         fun provideFactory(
             locationRepo: LocationRepository,

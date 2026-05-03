@@ -57,8 +57,7 @@ fun MapBottomScaffold(
     //Variabler for MapChangeArea
     area: AreaData?,
     changeArea : (String) -> Unit,
-    mapViewRef: MapView?
-
+    mapViewRef: MapView?,
 ) {
     var peekVal = 0
     var maxHeightVal = 0
@@ -125,7 +124,7 @@ fun MapBottomScaffold(
                         .heightIn(300.dp)
                         .padding(2.dp)
                         //.verticalScroll(rememberScrollState())
-                        .heightIn(max = 200.dp),
+                        .heightIn(max = 400.dp),
                 ) {
                     Spacer(
                         modifier = Modifier
