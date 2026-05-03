@@ -10,9 +10,11 @@ class WeatherRepository(
         val response = weatherDataSource.getForecast(lat, lon) ?: return null
         val now = response.properties.timeseries.firstOrNull() ?: return null
         return CurrentWeather(
+            latitude = lat,
+            longitude = lon,
             temperature = now.data.instant.details.airTemperature,
             windSpeed = now.data.instant.details.windSpeed,
-            precipitationMM = now.data.nextOneHours?.details?.precipitationAmount ?: 0.0
+            rainfall = now.data.nextOneHours?.details?.precipitationAmount ?: 0.0
         )
     }
 }

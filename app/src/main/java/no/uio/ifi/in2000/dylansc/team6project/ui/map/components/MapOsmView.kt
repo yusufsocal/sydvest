@@ -35,6 +35,7 @@ fun MapOsmView(
     locationServicesEnabled: Boolean,
     geoLocation: GeoPoint?,
     onMapReady: (MapView) -> Unit,
+    onLocationSelected: (GeoPoint) -> Unit,
     modifier: Modifier = Modifier
 ) {
     AndroidView(
@@ -64,7 +65,9 @@ fun MapOsmView(
                 val mapEventsReceiver = object : org.osmdroid.events.MapEventsReceiver {
                     override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean = false
                     override fun longPressHelper(p: GeoPoint?): Boolean {
-                        p?.let { updateSelectedMarker(this@apply, it) }
+                        p?.let {
+                            updateSelectedMarker(this@apply, it)
+                        onLocationSelected(it)}
                         return true
                     }
                 }

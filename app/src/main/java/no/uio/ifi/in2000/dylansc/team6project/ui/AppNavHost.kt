@@ -14,9 +14,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import no.uio.ifi.in2000.dylansc.team6project.App
+import no.uio.ifi.in2000.dylansc.team6project.data.locationforecastdata.LocationforecastDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.SearchRepository
+import no.uio.ifi.in2000.dylansc.team6project.data.repository.WeatherRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
@@ -36,6 +38,10 @@ fun AppNavHost(
     val wmsDataSource = remember { WMSDataSourceImpl(app.httpClient) }
     val locationRepo = remember { LocationRepository(wmsDataSource) }
 
+    //LoationforecastDataSource og Repository for værdata initialiseres her!
+    val weatherDataSource = remember { LocationforecastDataSourceImpl(app.jsonHttpClient) }
+    val weatherRepo = remember { WeatherRepository(weatherDataSource) }
+
     //DataSource og Repository for Alerts initialiseres her!
     val alertDataSource = remember { AlertDataSourceImpl(app.jsonHttpClient) }
     val alertRepo = remember { AlertRepository(alertDataSource) }
@@ -50,7 +56,7 @@ fun AppNavHost(
 
     //Hoister ViewModel opp til NavHost
     val mapViewModel: MapViewModel = viewModel(
-        factory = MapViewModel.provideFactory(locationRepo, alertRepo, searchRepo, area)
+        factory = MapViewModel.provideFactory(locationRepo, alertRepo, searchRepo, area, weatherRepo)
     )
     val uiState by mapViewModel.uiState.collectAsState()
 

@@ -25,10 +25,12 @@ import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.SearchRepository
+import no.uio.ifi.in2000.dylansc.team6project.data.repository.WeatherRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
+import no.uio.ifi.in2000.dylansc.team6project.model.domene.CurrentWeather
 import no.uio.ifi.in2000.dylansc.team6project.model.domene.WMSDomain
 import org.osmdroid.util.GeoPoint
 import java.time.Duration
@@ -41,6 +43,7 @@ data class MapScreenUiState(
     val isLoading: Boolean = true,
     val hasError: Boolean = false,
 
+    val currentWeather: CurrentWeather? = null,
     val layerList: List<WMSLayer> = emptyList(),
     val selectedLayer: WMSLayer? = null,
     val selectedTime: String? = "",
@@ -61,8 +64,10 @@ data class MapScreenUiState(
     val isAnimating: Boolean = false,
     val sliderPosition: Float = 0f,
 
+    // TODO lag forklaring på hva dette er
     val displayLayers: List<Pair<WMSLayer, String>> = emptyList(),
     val selectedLayerDisplayName: String = "Velg værlag...",
+
 
 
 )
@@ -72,7 +77,8 @@ class MapViewModel(
     private val locationRepo: LocationRepository,
     private val alertRepo: AlertRepository,
     private val searchRepo: SearchRepository,
-    private val newArea: AreaData
+    private val newArea: AreaData,
+    val weatherRepo: WeatherRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapScreenUiState())
@@ -362,16 +368,29 @@ class MapViewModel(
         }
     }
 
+    // Funksjon for punktmarkering og henting av data
+    fun onLocationSelected (lat: Double, lon: Double) {
+        viewModelScope.launch {
+            val weather = weatherRepo.getCurrentWeather(lat, lon)
+            _uiState.update { it.copy(currentWeather = weather) }
+        }
+    }
+
+    fun dismissCurrentWeather() {
+        _uiState.update { it.copy(currentWeather = null) }
+    }
+
     companion object {
         fun provideFactory(
             locationRepo: LocationRepository,
             alertRepo: AlertRepository,
             searchRepo: SearchRepository,
-            area: AreaData
+            area: AreaData,
+            weatherRepo: WeatherRepository,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
-                return MapViewModel(locationRepo, alertRepo, searchRepo, area) as T
+                return MapViewModel(locationRepo, alertRepo, searchRepo, area, weatherRepo) as T
             }
         }
     }
