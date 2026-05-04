@@ -71,6 +71,10 @@ fun MapWeatherInfoDialog(
                     )
                 }
             }
+
+            Card () {
+                InfoClothingTips(weather)
+            }
         }
     }
 }
