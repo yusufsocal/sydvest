@@ -260,6 +260,7 @@ fun MapScreen(
             mapScreenUiState.currentWeather?.let { weather ->
                 MapWeatherInfoDialog(
                     weather = weather,
+                    placeNameFromCoordinates = mapScreenUiState.placeNameFromCoordinates,
                     onDismiss = { mapViewModel.dismissCurrentWeather() }
                 )
             }

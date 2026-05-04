@@ -13,6 +13,8 @@ import no.uio.ifi.in2000.dylansc.team6project.data.ApiConstants
 
 interface SearchDataSource {
     suspend fun fetchSearchSuggestions(query: String): List<SearchResult>
+
+    suspend fun findplaceNameFromCoordinates(lat: Double, lon: Double): String?
 }
 
 class SearchDataSourceImpl(
@@ -45,6 +47,28 @@ class SearchDataSourceImpl(
         } catch (e: Exception) {
             Log.e("SearchDataSource", "Feil ved søk: ${e.message}")
             emptyList()
+        }
+    }
+
+    override suspend fun findplaceNameFromCoordinates(lat: Double, lon: Double): String? {
+        return try {
+            val url = "${ApiConstants.PHOTON_REVERSECOORDINATES_URL}?lon=${lon}&lat=${lat}&lang=en"
+            val response = client.get(url).bodyAsText()
+            val jsonElement = json.parseToJsonElement(response)
+            val features = jsonElement.jsonObject["features"]?.jsonArray ?: return null
+            val first = features.firstOrNull() ?: return null
+            val prop = first.jsonObject["properties"]?.jsonObject
+
+            val name = listOfNotNull(
+                prop?.get("name")?.jsonPrimitive?.content,
+                prop?.get("city")?.jsonPrimitive?.content,
+                prop?.get("country")?.jsonPrimitive?.content
+            ).joinToString(", ")
+
+            name.ifBlank { null }
+        } catch (e: Exception) {
+            Log.e("SearchDataSource", "Feil ved reverse geocoding: ${e.message}")
+            null
         }
     }
 }
