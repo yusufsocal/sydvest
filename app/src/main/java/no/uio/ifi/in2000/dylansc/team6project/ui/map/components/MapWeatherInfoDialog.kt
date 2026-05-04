@@ -68,22 +68,3 @@ fun MapWeatherInfoDialog(
         }
     }
 }
-
-@Preview(name = "Light")
-@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview(name = "Large font", fontScale = 1.5f)
-@Composable
-private fun MapWeatherInfoDialogPreview() {
-    Team6ProjectTheme {
-        MapWeatherInfoDialog(
-            weather = CurrentWeather(
-                latitude = 59.9139,
-                longitude = 10.7522,
-                temperature = 12.3,
-                windSpeed = 4.1,
-                rainfall = 0.5
-            ),
-            onDismiss = {}
-        )
-    }
-}

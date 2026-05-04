@@ -99,6 +99,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.play.services.maps)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.compose.ui.text.google.fonts)
 
     testImplementation(libs.junit)
     testImplementation("com.google.truth:truth:1.4.5")

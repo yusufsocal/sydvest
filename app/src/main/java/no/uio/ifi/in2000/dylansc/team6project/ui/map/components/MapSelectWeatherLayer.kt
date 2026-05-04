@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
@@ -13,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,13 +53,13 @@ fun MapSelectWeatherLayer(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             displayLayers.forEach { (layer, displayName) ->
                 val isSelected = selectedLayer?.name == layer.name
-                Button(
+                OutlinedButton(
                     onClick = {
                         if (isSelected) onLayerSelected(null) else onLayerSelected(layer)
                     },
@@ -65,10 +67,13 @@ fun MapSelectWeatherLayer(
                     contentPadding = PaddingValues(0.dp),
                     colors = if (isSelected)
                         ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = Color.Black
+                            contentColor = Color.White
                         )
-                    else ButtonDefaults.buttonColors()
+                    else ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.Black
+
+                    )
                 ) {
                     Text(
                         text = displayName,
@@ -77,17 +82,19 @@ fun MapSelectWeatherLayer(
                     )
                 }
             }
-            Button(
+            OutlinedButton(
                 onClick = onFareVarselToggle,
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(0.dp),
                 colors = if (isFareVarselActive)
                     ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = Color.Black
+                        contentColor = Color.White
                     )
-                else
-                    ButtonDefaults.buttonColors(),
+                else ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.Black
+
+                )
             ) {
                 Text(
                     text = "Farevarsler",
