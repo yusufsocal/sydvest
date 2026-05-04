@@ -25,7 +25,7 @@ fun MapSideControls(
             .size(55.dp),
         onClick = onCenterClick,
         colors = if (isCenterActive)
-            IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
+            IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
         else
             IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
     ) {

@@ -261,10 +261,12 @@ fun Team6ProjectTheme(
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            //Change back to dynamicDarkColorScheme
+            if (darkTheme) dynamicLightColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> darkScheme
+        //Change back to darkScheme
+        darkTheme -> lightScheme
         else -> lightScheme
     }
 
