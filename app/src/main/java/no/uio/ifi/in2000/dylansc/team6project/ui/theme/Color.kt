@@ -1,4 +1,5 @@
-package com.example.compose
+package no.uio.ifi.in2000.dylansc.team6project.ui.theme
+
 import androidx.compose.ui.graphics.Color
 
 val primaryLight = Color(0xFF006591)

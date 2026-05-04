@@ -1,4 +1,4 @@
-package com.example.ui.theme
+package no.uio.ifi.in2000.dylansc.team6project.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontFamily
