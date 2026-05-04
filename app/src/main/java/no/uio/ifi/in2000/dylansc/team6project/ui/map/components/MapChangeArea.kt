@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,7 +29,6 @@ import org.osmdroid.views.MapView
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapChangeArea (
-    area: AreaData?,
     changeArea: (String) -> Unit,
     mapView: MapView?
 
@@ -74,23 +74,6 @@ fun MapChangeArea (
         }
     }
 
-    // ENDRE OMRÅDE BASERT PÅ ZOOM OG LOKASJON -> FUNKER IKKE ENDA
-    mapView?.setMapListener(object : MapListener {
-
-        override fun onZoom(event: ZoomEvent?): Boolean {
-            // Retrieve the new zoom level from the event or the MapView directly
-            val zoomLevel = event?.zoomLevel ?: mapView.zoomLevelDouble
-            println("Current Zoom Level: $zoomLevel")
-
-            // Return true if you have consumed the event
-            return true
-        }
-
-        override fun onScroll(event: ScrollEvent?): Boolean {
-            // This is called when the map is panned
-            return false
-        }
-    })
 
     mapView?.getZoomLevelDouble()?.let {
         if (it < 6) {

@@ -35,11 +35,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapBottomScaffold
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDangerWarningHint
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDataSourceSwitcher
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapOsmView
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSearchField
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSideControls
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapWeatherBottomScaffold
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapWeatherInfoDialog
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
@@ -213,7 +214,7 @@ fun MapScreen(
                 )
             }
 
-            MapBottomScaffold(
+            MapWeatherBottomScaffold(
                 //MapTimeSliderSection
                 sliderPosition = mapScreenUiState.sliderPosition,
                 isAnimating = mapScreenUiState.isAnimating,
@@ -240,6 +241,12 @@ fun MapScreen(
                 area = mapScreenUiState.area,
                 changeArea = {mapViewModel.updateArea(it)},
                 mapViewRef,
+            )
+
+            MapDataSourceSwitcher(
+                changeArea = {mapViewModel.updateArea(it)},
+                mapViewRef,
+                wmsLayer = {mapScreenUiState.selectedLayer}
             )
 
             mapScreenUiState.currentWeather?.let { weather ->
