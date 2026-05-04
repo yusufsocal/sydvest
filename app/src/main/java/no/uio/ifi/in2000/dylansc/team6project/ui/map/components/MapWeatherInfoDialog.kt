@@ -43,21 +43,21 @@ fun MapWeatherInfoDialog(
 
                 Card(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Temperatur: ${weather.temperature}°C",
+                        text = "🌡️ Temperatur: ${weather.temperature}°C",
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
 
                 Card(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Nedbør: ${weather.rainfall} mm",
+                        text = "☔️ Nedbør: ${weather.rainfall} mm",
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
 
                 Card(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Vind: ${weather.windSpeed} m/s",
+                        text = "🍃 Vind: ${weather.windSpeed} m/s",
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
