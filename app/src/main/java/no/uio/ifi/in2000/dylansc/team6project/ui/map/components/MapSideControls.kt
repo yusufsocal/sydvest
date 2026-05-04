@@ -1,17 +1,15 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.dylansc.team6project.R
@@ -22,20 +20,21 @@ fun MapSideControls(
     onCenterClick: () -> Unit,
     isCenterActive: Boolean
 ){
-    Button(
+    FilledIconButton(
+        modifier = Modifier
+            .size(55.dp),
         onClick = onCenterClick,
         colors = if (isCenterActive)
-            ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
         else
-            ButtonDefaults.buttonColors(containerColor = Color.White),
+            IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
     ) {
-        Image (
-            painter =  painterResource(id = R.drawable.compass_blue),
+        Image(
+            painter = painterResource(id = R.drawable.compass_blue),
             contentDescription = null,
             modifier = Modifier
                 .size(30.dp)
                 .clip(CircleShape)
-                .clickable {onCenterClick()}
         )
     }
 }
