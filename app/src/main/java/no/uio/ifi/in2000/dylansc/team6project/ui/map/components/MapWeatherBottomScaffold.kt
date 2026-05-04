@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,13 +29,12 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
 import org.osmdroid.views.MapView
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapBottomScaffold(
+fun MapWeatherBottomScaffold(
     //Variabler for slider
     sliderPosition: Float,
     isAnimating: Boolean,
@@ -154,7 +151,6 @@ fun MapBottomScaffold(
                         )
                     }
                     MapChangeArea(
-                        area,
                         changeArea,
                         mapViewRef
                     )
