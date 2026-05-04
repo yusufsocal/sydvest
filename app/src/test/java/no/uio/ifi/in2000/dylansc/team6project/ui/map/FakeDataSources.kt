@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map
 
+import no.uio.ifi.in2000.dylansc.team6project.data.locationforecastdata.LocationforecastDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSource
@@ -24,4 +25,8 @@ class FakeSearchDataSource(
     private val result: List<SearchResult> = emptyList()
 ) : SearchDataSource {
     override suspend fun fetchSearchSuggestions(query: String): List<SearchResult> = result
+}
+
+class FakeLocationforecastDataSource : LocationforecastDataSource {
+    override suspend fun getForecast(lat: Double, lon: Double) = null
 }
