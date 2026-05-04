@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,19 +23,25 @@ fun MapAreaDataCard(
     metadata: String,
     bulletList: List<String>,
     onCardClick: () -> Unit,
+    selectedArea: String,
     modifier: Modifier = Modifier,
-    selected: Boolean = false,
 ) {
+    val selected = (selectedArea == label)
+
     Card(
-        onClick = onCardClick,
+        onClick = {
+            onCardClick()
+                  },
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
         border = if (selected) {
             BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
         } else null,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        ),
+        colors = if (selected) CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer)
+            else CardDefaults.cardColors()
+        ,
+
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
