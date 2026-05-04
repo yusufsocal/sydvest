@@ -90,7 +90,6 @@ dependencies {
     // Fused Location Provider (for å få geolocation)
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
-    // AndroidX / Compose (behold dine eksisterende libs.androidx her)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -104,11 +103,12 @@ dependencies {
     testImplementation("com.google.truth:truth:1.4.5")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
 
-    androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")
+
 
     // Utvidet ikonbibliotek:
     implementation("androidx.compose.material:material-icons-extended")

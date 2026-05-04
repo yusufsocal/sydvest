@@ -7,7 +7,7 @@ import kotlinx.coroutines.test.runTest
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.SearchRepository
-import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
+import no.uio.ifi.in2000.dylansc.team6project.data.repository.WeatherRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertProperties
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
@@ -30,14 +30,15 @@ class MapViewModelTest {
     @Test
     fun `init loads layers and alerts and stops loading`() = runTest {
         // lage fake layers og alerts og repos og viewmodel
-        val fakeLayers = listOf(layer(title = "Temperature"))
+        val fakeLayers = listOf(layer(title = "Air temperature 2m in MEPS VDIV"))
         val fakeAlerts = listOf(alert("Oslo"))
 
         val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(fakeLayers)))
         val alertRepo = AlertRepository(FakeAlertDataSource(fakeAlerts))
         val searchRepo = SearchRepository(FakeSearchDataSource())
+        val weatherRepo = WeatherRepository(FakeLocationforecastDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDIC)
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDIC, weatherRepo)
 
         // vent til alle coroutine-ne er ferdig i viewmodel
         advanceUntilIdle()
@@ -62,8 +63,10 @@ class MapViewModelTest {
         val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(fakeLayers)))
         val alertRepo = AlertRepository(FakeAlertDataSource(fakeAlerts))
         val searchRepo = SearchRepository(FakeSearchDataSource())
+        val weatherRepo = WeatherRepository(FakeLocationforecastDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDIC)
+
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDIC, weatherRepo)
 
         advanceUntilIdle()
 
@@ -88,8 +91,10 @@ class MapViewModelTest {
         val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(fakeLayers)))
         val alertRepo = AlertRepository(FakeAlertDataSource(fakeAlerts))
         val searchRepo = SearchRepository(FakeSearchDataSource())
+        val weatherRepo = WeatherRepository(FakeLocationforecastDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDIC)
+
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo,AreaData.NORDIC, weatherRepo)
 
         advanceUntilIdle()
 
@@ -112,8 +117,10 @@ class MapViewModelTest {
         val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(listOf(layer(title = "Temperature")))))
         val alertRepo = AlertRepository(FakeAlertDataSource(listOf(alert("Bergen"))))
         val searchRepo = SearchRepository(FakeSearchDataSource())
+        val weatherRepo = WeatherRepository(FakeLocationforecastDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo, AreaData.NORDIC)
+
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo, AreaData.NORDIC, weatherRepo)
         advanceUntilIdle()
         viewModel.setSelectedLayer(fakeLayer)
 
@@ -141,8 +148,10 @@ class MapViewModelTest {
         val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(listOf(layer(title = "Temperature")))))
         val alertRepo = AlertRepository(FakeAlertDataSource(listOf(alert("Bergen"))))
         val searchRepo = SearchRepository(FakeSearchDataSource())
+        val weatherRepo = WeatherRepository(FakeLocationforecastDataSource())
 
-        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo, AreaData.NORDIC)
+
+        val viewModel = MapViewModel(locationRepo, alertRepo, searchRepo, AreaData.NORDIC, weatherRepo)
         advanceUntilIdle()
         viewModel.setSelectedLayer(fakeLayer)
 
@@ -181,7 +190,7 @@ private fun layer(
     dimension = dimension
 )
 
-private fun capabilities(layers: List<WMSLayer>) = WMSCapabilities(
+fun capabilities(layers: List<WMSLayer>) = WMSCapabilities(
     version = "1.3.0",
     capability = Capability(
         rootLayer = ParentLayer(
