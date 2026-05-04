@@ -179,7 +179,8 @@ class MapViewModel(
             _uiState.update { it.copy(isAnimating = true) }
             animationJob = viewModelScope.launch {
                 while (isActive && _uiState.value.sliderPosition < 240f) {
-                    val step = if (_uiState.value.area == AreaData.WORLD) 3f else 1f
+                    var step = if (_uiState.value.area == AreaData.WORLD) 3f else 1f
+                    if (_uiState.value.sliderPosition >= 48) step = 24f
                     val newPos = (_uiState.value.sliderPosition + step).coerceAtMost(240f)
                     updateSliderPosition(newPos)
                     delay(1000)

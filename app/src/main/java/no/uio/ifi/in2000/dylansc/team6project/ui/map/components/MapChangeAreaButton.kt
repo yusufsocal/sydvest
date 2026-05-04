@@ -1,6 +1,5 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,15 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
-import org.osmdroid.events.MapListener
-import org.osmdroid.events.ScrollEvent
-import org.osmdroid.events.ZoomEvent
 import org.osmdroid.views.MapView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapChangeArea (
+fun MapChangeAreaButton (
     changeArea: (String) -> Unit,
     mapView: MapView?
 
@@ -73,18 +68,4 @@ fun MapChangeArea (
             }
         }
     }
-
-
-    mapView?.getZoomLevelDouble()?.let {
-        if (it < 6) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(White)
-            ) {
-
-            }
-        }
-    }
-
 }

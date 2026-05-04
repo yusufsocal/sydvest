@@ -30,7 +30,7 @@ fun MapSideControls(
             ButtonDefaults.buttonColors(containerColor = Color.White),
     ) {
         Image (
-            painter =  painterResource(id = R.drawable.center_location),
+            painter =  painterResource(id = R.drawable.compass_blue),
             contentDescription = null,
             modifier = Modifier
                 .size(30.dp)

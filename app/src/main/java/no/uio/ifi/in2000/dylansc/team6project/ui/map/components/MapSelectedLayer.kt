@@ -1,14 +1,27 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
+import android.R.attr.text
 import androidx.compose.foundation.layout.Row
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
-fun MapSelectedLayer (
+fun MapSelectedLayer(
     selectedLayerDisplayName: String,
     selectedLayer: WMSLayer?,
 ) {
-    if (selectedLayer != null) Text("Nå vises: ${selectedLayerDisplayName}") else Text("")
+    if (selectedLayer != null) {
+        Row() {
+            Text("Nå vises: ")
+            Text(
+                text = "$selectedLayerDisplayName",
+                fontWeight = FontWeight.Bold,
+            )
+        }
+
+    } else {
+        Text("")
+    }
 }
