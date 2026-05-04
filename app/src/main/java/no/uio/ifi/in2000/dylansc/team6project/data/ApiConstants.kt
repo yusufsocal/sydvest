@@ -9,4 +9,6 @@ object ApiConstants {
     const val SEARCH_BASE_URL = "https://photon.komoot.io/api/"
 
     const val LOCATIONFORECAST_BASE_URL = "https://api.met.no/weatherapi/locationforecast/2.0/compact"
+
+    const val PHOTON_REVERSECOORDINATES_URL = "https://photon.komoot.io/reverse"
 }

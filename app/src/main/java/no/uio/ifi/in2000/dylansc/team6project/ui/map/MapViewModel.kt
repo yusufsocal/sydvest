@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -51,6 +52,9 @@ data class MapScreenUiState(
 
     val selectedArea: AreaData? = null,
 
+    // stedsnavn for å reverse koordinater til stedsnavn
+    val placeNameFromCoordinates: String? = null,
+
     //Søkefelt
     val searchSuggestions: List<SearchResult> = emptyList(),
     val searchQuery: String = "",
@@ -69,8 +73,7 @@ data class MapScreenUiState(
     val selectedLayerDisplayName: String = "Velg værlag...",
 
 
-
-)
+    )
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class MapViewModel(
@@ -155,7 +158,9 @@ class MapViewModel(
         }
     }
 
-    fun retry() { loadData() }
+    fun retry() {
+        loadData()
+    }
 
     fun toggleFareVarsel() {
         _uiState.update { it.copy(fareVarsel = !it.fareVarsel) }
@@ -222,8 +227,10 @@ class MapViewModel(
                 val newLayerList = locationRepo.getArea(resolvedArea) ?: emptyList()
 
                 // Finn igjen det valgte værlaget (f.eks. Temperatur) i den nye listen
-                val oldNormalizedTitle = _uiState.value.selectedLayer?.title?.let { normalizeLayerTitle(it) }
-                val matchedLayer = newLayerList.find { normalizeLayerTitle(it.title) == oldNormalizedTitle }
+                val oldNormalizedTitle =
+                    _uiState.value.selectedLayer?.title?.let { normalizeLayerTitle(it) }
+                val matchedLayer =
+                    newLayerList.find { normalizeLayerTitle(it.title) == oldNormalizedTitle }
 
                 _uiState.update { state ->
                     state.copy(
@@ -374,16 +381,20 @@ class MapViewModel(
         }
     }
 
-    // Funksjon for punktmarkering og henting av data
-    fun onLocationSelected (lat: Double, lon: Double) {
+    // Funksjon for punktmarkering og henting av data fra API.
+    // Den henter også stedsnavn basert på koordinatene.
+    fun onLocationSelected(lat: Double, lon: Double) {
         viewModelScope.launch {
-            val weather = weatherRepo.getCurrentWeather(lat, lon)
-            _uiState.update { it.copy(currentWeather = weather) }
+            val weather = async { weatherRepo.getCurrentWeather(lat, lon) }
+            val placeNameFromCoordinates = async { searchRepo.reverseGeocode(lat, lon) }
+            _uiState.update {
+                it.copy(currentWeather = weather.await(), placeNameFromCoordinates = placeNameFromCoordinates.await())
+            }
         }
     }
 
     fun dismissCurrentWeather() {
-        _uiState.update { it.copy(currentWeather = null) }
+        _uiState.update { it.copy(currentWeather = null, placeNameFromCoordinates = null) }
     }
 
     companion object {

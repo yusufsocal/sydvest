@@ -8,4 +8,8 @@ class SearchRepository(private val dataSource: SearchDataSource) {
         if (query.isEmpty()) return emptyList()
         return dataSource.fetchSearchSuggestions(query)
     }
+
+    suspend fun reverseGeocode(lat: Double, lon: Double): String? {
+        return dataSource.findplaceNameFromCoordinates(lat, lon)
+    }
 }

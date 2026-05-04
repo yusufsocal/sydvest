@@ -21,6 +21,7 @@ import no.uio.ifi.in2000.dylansc.team6project.model.domene.CurrentWeather
 @Composable
 fun MapWeatherInfoDialog(
     weather: CurrentWeather,
+    placeNameFromCoordinates: String? = null,
     onDismiss: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
@@ -36,8 +37,7 @@ fun MapWeatherInfoDialog(
                 }
 
                 Text(
-                    //TODO: viser koordinater nå, men det er mulig å få stedsnavn det bare er litt knotDoes
-                    text = "Lat: %.4f, Lon: %.4f".format(weather.latitude, weather.longitude),
+                    text = placeNameFromCoordinates ?: "Lat: %.4f, Lon: %.4f".format(weather.latitude, weather.longitude),
                     modifier = Modifier.padding(8.dp)
                 )
 
