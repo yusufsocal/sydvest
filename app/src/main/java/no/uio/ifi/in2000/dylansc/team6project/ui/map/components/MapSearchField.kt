@@ -87,9 +87,6 @@ fun MapSearchField(
         ) {
             //Selve søkefelt
             SearchBar(
-                colors = SearchBarDefaults.colors(
-                    containerColor = MaterialTheme.colorScheme.tertiary
-                ),
                 inputField = {
                     TextField(
                         value = query,

@@ -67,7 +67,7 @@ fun MapSelectWeatherLayer(
                     contentPadding = PaddingValues(0.dp),
                     colors = if (isSelected)
                         ButtonDefaults.outlinedButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         )
                     else ButtonDefaults.outlinedButtonColors(
@@ -89,12 +89,12 @@ fun MapSelectWeatherLayer(
                 contentPadding = PaddingValues(0.dp),
                 colors = if (isFareVarselActive)
                     ButtonDefaults.outlinedButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 else ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = MaterialTheme.colorScheme.onSecondary
+                    containerColor = Color.Transparent,
+                    contentColor = Color.Black
 
                 )
             ) {

@@ -1,16 +1,12 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
-import android.R.attr.onClick
-import android.R.attr.translationY
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,12 +14,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -101,21 +96,22 @@ fun MapWeatherBottomScaffold(
     Box(modifier = Modifier.fillMaxSize()) {
 
         if (selectedLayer != null) {
-            // 2. Flytende knapp "WAOW"
             Button(
                 onClick = { /* TODO */ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 modifier = Modifier
                     .padding(16.dp)
                     .align(Alignment.TopStart)
                     .graphicsLayer {
-                        // Sjekk om offset er tilgjengelig for å unngå krasj
                         val offset = try {
                             scaffoldState.bottomSheetState.requireOffset()
                         } catch (e: Exception) {
                             0f // Fallback hvis den ikke er klar
                         }
 
-                        // Bruk verdien kun hvis den er gyldig
                         if (offset > 0f) {
                             translationY = offset - 65.dp.toPx()
                         }
@@ -128,7 +124,6 @@ fun MapWeatherBottomScaffold(
             sheetPeekHeight = peekVal.dp,
             scaffoldState = scaffoldState,
             containerColor = Color.Transparent,
-            sheetContainerColor = MaterialTheme.colorScheme.tertiary,
             sheetDragHandle = {
                 Box(
                     modifier = Modifier
