@@ -55,6 +55,7 @@ fun MapWeatherBottomScaffold(
     isAnimating: Boolean,
     onSliderChange: (Float) -> Unit,
     onAnimateToggle: () -> Unit,
+    stepHours: Int,
 
     //Variabler for WMSLayers
     selectedLayerDisplayName: String,
@@ -229,6 +230,7 @@ fun MapWeatherBottomScaffold(
                                     isAnimating,
                                     onSliderChange,
                                     onAnimateToggle,
+                                    stepHours,
                                 )
                             }
                             Spacer(
