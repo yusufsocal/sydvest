@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
+import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDangerWarningHint
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDangerWarningInfo
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDataSourceSwitcher
@@ -169,7 +170,7 @@ fun MapScreen(
         onLocationSelected = { geoPoint ->
             mapViewModel.onLocationSelected(geoPoint.latitude, geoPoint.longitude)
         },
-        onAlertClick = { properties -> mapViewModel.onAlertClick(properties) },
+        onAlertClick = { mapViewModel.onAlertClick(it) },
         modifier = Modifier.fillMaxSize()
     )
 
@@ -285,7 +286,7 @@ fun MapScreen(
 
             mapScreenUiState.selectedAlert?.let { alert ->
                 MapDangerWarningInfo(
-                    properties = alert,
+                    feature = alert,
                     onDismiss = { mapViewModel.dismissAlert() }
                 )
         }

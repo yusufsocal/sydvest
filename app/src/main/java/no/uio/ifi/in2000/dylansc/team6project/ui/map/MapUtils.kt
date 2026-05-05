@@ -8,7 +8,6 @@ import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.location.LocationManager
 import android.os.Looper
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.location.LocationManagerCompat
 import com.google.android.gms.location.LocationCallback
@@ -22,7 +21,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.ApiConstants
-import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertProperties
+import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
 import org.osmdroid.tileprovider.MapTileProviderBasic
 import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.tileprovider.util.SimpleInvalidationHandler
@@ -123,7 +122,7 @@ private fun addWmsTilesOverlay(
     mapView.overlays.add(overlay)
 }
 
-fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, fareVarsel: Boolean, onAlertClick: (AlertProperties?) -> Unit) {
+fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, fareVarsel: Boolean, onAlertClick: (AlertFeature?) -> Unit) {
     mapView.overlays.removeAll { it is FolderOverlay && it.name == "Farevarsler" }
 
     if (!fareVarsel) {
@@ -149,7 +148,7 @@ fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, fareVarsel: Boolean,
                 val polygon = Polygon(mapView).apply {
                     this.points = safePoints.toMutableList()
                     setOnClickListener { _, _, _ ->
-                        onAlertClick(features.properties)
+                        onAlertClick(features)
                         true
                     }
                     val hex = when (features.properties?.riskMatrixColor) {
