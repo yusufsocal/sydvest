@@ -187,7 +187,9 @@ private fun layer(
 ) = WMSLayer(
     name = name,
     title = title,
-    dimension = dimension
+    dimensions = if (dimension != null)
+        listOf(no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDimension(name = "time", value = dimension))
+    else emptyList()
 )
 
 fun capabilities(layers: List<WMSLayer>) = WMSCapabilities(

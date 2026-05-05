@@ -4,6 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlValue
 
 
 
@@ -40,5 +41,18 @@ data class ParentLayer(
 data class WMSLayer(
     @XmlElement(true) @SerialName("Name") val name: String = "",
     @XmlElement(true) @SerialName("Title") val title: String = "",
-    @XmlElement(true) @SerialName("Dimension") val dimension: String? = null
+    val dimensions: List<WMSDimension> = emptyList()
+) {
+    // Velg "time"-dimensjonen, ikke "reference_time" — ellers får vi PT12H i stedet for
+    // PT3H for ECMWF/Verden, og slider/animasjon hopper feil intervall.
+    val dimension: String?
+        get() = dimensions.firstOrNull { it.name == "time" }?.value
+            ?: dimensions.firstOrNull()?.value
+}
+
+@Serializable
+@XmlSerialName("Dimension", namespace = "http://www.opengis.net/wms", prefix = "")
+data class WMSDimension(
+    @SerialName("name") val name: String = "",
+    @XmlValue(true) val value: String = ""
 )

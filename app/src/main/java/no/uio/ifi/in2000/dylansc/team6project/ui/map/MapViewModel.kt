@@ -146,8 +146,9 @@ class MapViewModel(
     @RequiresApi(Build.VERSION_CODES.O)
     fun setSelectedLayer(layer: WMSLayer?) {
         _uiState.update { state ->
-            val newTime = if (layer?.dimension != null)
-                coerceTimeToDimension(getNowTimestamp(), layer.dimension)
+            val layerDimension = layer?.dimension
+            val newTime = if (layerDimension != null)
+                coerceTimeToDimension(getNowTimestamp(), layerDimension)
             else ""
             val displayName = state.displayLayers
                 .find { it.first.name == layer?.name }
@@ -156,7 +157,7 @@ class MapViewModel(
                 selectedLayer = layer,
                 selectedTime = newTime,
                 selectedLayerDisplayName = displayName,
-                stepHours = parseStepHours(layer?.dimension)
+                stepHours = parseStepHours(layerDimension)
             )
         }
     }
@@ -273,8 +274,9 @@ class MapViewModel(
                         _uiState.value.selectedLayer?.title?.let { normalizeLayerTitle(it) }
                     val matchedLayer =
                         newLayerList.find { normalizeLayerTitle(it.title) == oldNormalizedTitle }
-                    val validTime = if (matchedLayer?.dimension != null)
-                        coerceTimeToDimension(time, matchedLayer.dimension)
+                    val matchedDimension = matchedLayer?.dimension
+                    val validTime = if (matchedDimension != null)
+                        coerceTimeToDimension(time, matchedDimension)
                     else time
 
                     _uiState.update { state ->
@@ -290,8 +292,9 @@ class MapViewModel(
                     }
                 } else {
                     val selectedLayer = _uiState.value.selectedLayer
-                    val coercedTime = if (selectedLayer?.dimension != null)
-                        coerceTimeToDimension(time, selectedLayer.dimension)
+                    val selectedDimension = selectedLayer?.dimension
+                    val coercedTime = if (selectedDimension != null)
+                        coerceTimeToDimension(time, selectedDimension)
                     else time
                     Log.d("ViewModel", "Slider tid: $time -> Blir til: $coercedTime")
                     _uiState.update { it.copy(selectedTime = coercedTime) }
@@ -365,14 +368,16 @@ class MapViewModel(
         return Duration.between(now, selected).toHours()
     }
 
-    // Henter ut steget (i timer) fra et WMS Dimension-felt på formen "start/end/PTxH".
-    // Brukes til å la slider og animasjon følge faktisk tilgjengelig data-cadence.
+    // Henter ut steget (i timer) fra et WMS Dimension-felt.
+    // Formen er "start/end/PTxH" eller "start/end/PTxH/PTyH" når cadence
+    // bytter midt i prognosen (f.eks. ECMWF: PT3H først, så PT6H lenger frem).
+    // Vi velger første step (parts[2]) — den fineste cadencen.
     @RequiresApi(Build.VERSION_CODES.O)
     private fun parseStepHours(dimension: String?): Int {
         if (dimension == null) return 1
         return try {
             val parts = dimension.split("/")
-            if (parts.size != 3) 1
+            if (parts.size < 3) 1
             else Duration.parse(parts[2]).toHours().toInt().coerceAtLeast(1)
         } catch (e: Exception) {
             1
@@ -384,7 +389,7 @@ class MapViewModel(
     private fun coerceTimeToDimension(requestedTime: String, dimension: String): String {
         return try {
             val parts = dimension.split("/")
-            if (parts.size != 3) return requestedTime
+            if (parts.size < 3) return requestedTime
 
             val fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmZ")
             val start = OffsetDateTime.parse(parts[0], fmt)
