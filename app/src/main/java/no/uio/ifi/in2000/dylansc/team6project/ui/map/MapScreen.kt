@@ -205,7 +205,7 @@ fun MapScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
@@ -219,6 +219,8 @@ fun MapScreen(
                         )
                     }
                     MapSideControls(
+                        onZoomIn = {mapViewRef?.controller?.zoomIn()},
+                        onZoomOut = {mapViewRef?.controller?.zoomOut()},
                         onCenterClick = {
                             isCenterActive = true
                             locationServicesEnabled = checkLocationEnabled(context)
