@@ -181,43 +181,45 @@ fun MapScreen(
                         }
                 )
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Box(modifier = Modifier.weight(1f)) {
-                    MapSearchField(
-                        suggestions = mapScreenUiState.searchSuggestions,
-                        onQueryChange = { mapViewModel.onSearchQueryChanged(it) },
-                        onSuggestionSelected = { suggestion ->
-                            mapViewModel.onSuggestionSelected(suggestion)
+            Column() {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        MapSearchField(
+                            suggestions = mapScreenUiState.searchSuggestions,
+                            onQueryChange = { mapViewModel.onSearchQueryChanged(it) },
+                            onSuggestionSelected = { suggestion ->
+                                mapViewModel.onSuggestionSelected(suggestion)
+                            },
+                            onSearchActiveChange = { searchActive = it }
+                        )
+                    }
+                    MapSideControls(
+                        onCenterClick = {
+                            isCenterActive = !isCenterActive
+                            locationServicesEnabled = checkLocationEnabled(context)
+                            if (locationServicesEnabled) {
+                                mapViewRef?.let { centerMapOnUserLocation(context, it) }
+                                mapViewRef?.let {
+                                    if (it.zoomLevelDouble < 12.0) it.controller.zoomTo(12.0)
+                                }
+                            }
                         },
-                        onSearchActiveChange = { searchActive = it }
+                        isCenterActive = isCenterActive,
                     )
                 }
-                MapSideControls(
-                    onCenterClick = {
-                        isCenterActive = !isCenterActive
-                        locationServicesEnabled = checkLocationEnabled(context)
-                        if (locationServicesEnabled) {
-                            mapViewRef?.let { centerMapOnUserLocation(context, it) }
-                            mapViewRef?.let {
-                                if (it.zoomLevelDouble < 12.0) it.controller.zoomTo(12.0)
-                            }
-                        }
-                    },
-                    isCenterActive = isCenterActive,
-                )
-            }
 
                 MapDangerWarningHint(
                     show = showHint,
                     onDismiss = { showHint = false }
                 )
             }
+        }
 
             MapWeatherBottomScaffold(
                 //MapTimeSliderSection
