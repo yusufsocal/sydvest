@@ -134,7 +134,7 @@ fun MapWeatherBottomScaffold(
         if (selectedLayer != null) {
             Button(
                 onClick = {
-                    areaChange = true
+                    areaChange = !areaChange
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
