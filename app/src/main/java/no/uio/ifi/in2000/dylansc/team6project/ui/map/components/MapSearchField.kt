@@ -81,8 +81,7 @@ fun MapSearchField(
         }
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(25.dp),
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             //Selve søkefelt

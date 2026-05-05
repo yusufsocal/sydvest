@@ -1,6 +1,7 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +23,7 @@ fun MapSideControls(
 ){
     FilledIconButton(
         modifier = Modifier
+            .padding(top = 34.dp)
             .size(55.dp),
         onClick = onCenterClick,
         colors = if (isCenterActive)

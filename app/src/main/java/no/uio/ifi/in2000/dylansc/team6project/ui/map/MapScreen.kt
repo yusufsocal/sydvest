@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDangerWarningHint
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDangerWarningInfo
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDataSourceSwitcher
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapOsmView
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSearchField
@@ -168,6 +169,7 @@ fun MapScreen(
         onLocationSelected = { geoPoint ->
             mapViewModel.onLocationSelected(geoPoint.latitude, geoPoint.longitude)
         },
+        onAlertClick = { properties -> mapViewModel.onAlertClick(properties) },
         modifier = Modifier.fillMaxSize()
     )
 
@@ -197,25 +199,24 @@ fun MapScreen(
                         }
                 )
             }
-            Column(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .zIndex(1f)
-            ) {
-                MapSearchField(
-                    suggestions = mapScreenUiState.searchSuggestions,
-                    onQueryChange = { mapViewModel.onSearchQueryChanged(it) },
-                    onSuggestionSelected = { suggestion ->
-                        mapViewModel.onSuggestionSelected(suggestion) // Lagrer punktet i staten
-                    },
-                    onSearchActiveChange = { searchActive = it }
-                )
+            Column() {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 25.dp, vertical = 0.dp),
-                    horizontalArrangement = Arrangement.End
-                ){
+                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        MapSearchField(
+                            suggestions = mapScreenUiState.searchSuggestions,
+                            onQueryChange = { mapViewModel.onSearchQueryChanged(it) },
+                            onSuggestionSelected = { suggestion ->
+                                mapViewModel.onSuggestionSelected(suggestion)
+                            },
+                            onSearchActiveChange = { searchActive = it }
+                        )
+                    }
                     MapSideControls(
                         onCenterClick = {
                             isCenterActive = true
@@ -223,9 +224,8 @@ fun MapScreen(
                             if (locationServicesEnabled) {
                                 mapViewRef?.let { centerMapOnUserLocation(context, it) }
                                 mapViewRef?.let {
-                                    if (it.zoomLevelDouble < 12.0) it.controller.zoomTo(
-                                        12.0
-                                    )
+                                    if (it.zoomLevelDouble < 12.0) it.controller.zoomTo(12.0)
+
                                 }
                             }
                         },
@@ -233,12 +233,12 @@ fun MapScreen(
                     )
                 }
 
-
                 MapDangerWarningHint(
-                        show = showHint,
-                onDismiss = { showHint = false }
+                    show = showHint,
+                    onDismiss = { showHint = false }
                 )
             }
+        }
 
             MapWeatherBottomScaffold(
                 //MapTimeSliderSection
@@ -282,7 +282,14 @@ fun MapScreen(
                     onDismiss = { mapViewModel.dismissCurrentWeather() }
                 )
             }
+
+            mapScreenUiState.selectedAlert?.let { alert ->
+                MapDangerWarningInfo(
+                    properties = alert,
+                    onDismiss = { mapViewModel.dismissAlert() }
+                )
         }
     }
 }
+
 

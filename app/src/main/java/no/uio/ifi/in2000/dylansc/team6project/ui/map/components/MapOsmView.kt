@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertProperties
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapScreenUiState
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.centerMapOnUserLocation
@@ -36,6 +37,7 @@ fun MapOsmView(
     geoLocation: GeoPoint?,
     onMapReady: (MapView) -> Unit,
     onLocationSelected: (GeoPoint) -> Unit,
+    onAlertClick: (AlertProperties?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     AndroidView(
@@ -107,7 +109,7 @@ fun MapOsmView(
                 // Oppdater farevarsler kun hvis fareVarsel eller antall varsler har endret seg
                 if (newState.fareVarsel != lastState.fareVarsel ||
                     newState.alertCount != lastState.alertCount) {
-                    drawAlerts(view, uiState, uiState.fareVarsel)
+                    drawAlerts(view, uiState, uiState.fareVarsel, onAlertClick)
                 }
 
                 view.tag = newState
