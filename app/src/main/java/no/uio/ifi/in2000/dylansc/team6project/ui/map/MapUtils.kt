@@ -22,6 +22,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.ApiConstants
+import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertProperties
 import org.osmdroid.tileprovider.MapTileProviderBasic
 import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.tileprovider.util.SimpleInvalidationHandler
@@ -122,7 +123,7 @@ private fun addWmsTilesOverlay(
     mapView.overlays.add(overlay)
 }
 
-fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, fareVarsel: Boolean) {
+fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, fareVarsel: Boolean, onAlertClick: (AlertProperties?) -> Unit) {
     mapView.overlays.removeAll { it is FolderOverlay && it.name == "Farevarsler" }
 
     if (!fareVarsel) {
@@ -147,8 +148,10 @@ fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, fareVarsel: Boolean)
 
                 val polygon = Polygon(mapView).apply {
                     this.points = safePoints.toMutableList()
-                    title = features.properties?.title
-                    snippet = features.properties?.description
+                    setOnClickListener { _, _, _ ->
+                        onAlertClick(features.properties)
+                        true
+                    }
                     val hex = when (features.properties?.riskMatrixColor) {
                         "Yellow" -> "FFFF00"
                         "Orange" -> "FFA500"
