@@ -29,7 +29,6 @@ import no.uio.ifi.in2000.dylansc.team6project.data.repository.SearchRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.WeatherRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
-import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertProperties
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 import no.uio.ifi.in2000.dylansc.team6project.model.domene.CurrentWeather
@@ -74,7 +73,7 @@ data class MapScreenUiState(
     val selectedLayerDisplayName: String = "Velg værlag...",
 
     //Farevarsel info
-    val selectedAlert: AlertProperties? = null
+    val selectedAlert: AlertFeature? = null
 )
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
@@ -399,8 +398,8 @@ class MapViewModel(
         _uiState.update { it.copy(currentWeather = null, placeNameFromCoordinates = null) }
     }
 
-    fun onAlertClick(properties: AlertProperties?) {
-        _uiState.update { it.copy(selectedAlert = properties) }
+    fun onAlertClick(feature: AlertFeature?) {
+        _uiState.update { it.copy(selectedAlert = feature) }
     }
 
     fun dismissAlert() {

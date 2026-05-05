@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertProperties
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapScreenUiState
@@ -37,7 +38,7 @@ fun MapOsmView(
     geoLocation: GeoPoint?,
     onMapReady: (MapView) -> Unit,
     onLocationSelected: (GeoPoint) -> Unit,
-    onAlertClick: (AlertProperties?) -> Unit,
+    onAlertClick: (AlertFeature?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     AndroidView(

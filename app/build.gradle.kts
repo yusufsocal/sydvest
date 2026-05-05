@@ -101,6 +101,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.ui.text.google.fonts)
+    implementation(libs.androidx.compose.foundation.layout)
 
     testImplementation(libs.junit)
     testImplementation("com.google.truth:truth:1.4.5")
