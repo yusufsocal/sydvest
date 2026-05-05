@@ -263,10 +263,10 @@ fun MapScreen(
                 },
                 isFareVarselActive = mapScreenUiState.fareVarsel,
 
-                //MapChangeArea
+                //MapChangeAreaButton
                 area = mapScreenUiState.area,
                 changeArea = {mapViewModel.updateArea(it)},
-                mapViewRef,
+
             )
 
             MapDataSourceSwitcher(

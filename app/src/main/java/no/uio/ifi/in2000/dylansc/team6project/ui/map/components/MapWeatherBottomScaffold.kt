@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
+import android.R.attr.text
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
@@ -67,7 +69,7 @@ fun MapWeatherBottomScaffold(
     //Variabler for MapChangeArea
     area: AreaData?,
     changeArea: (String) -> Unit,
-    mapViewRef: MapView?,
+
 ) {
     var peekVal = 0
     var maxHeightVal = 0
@@ -85,6 +87,10 @@ fun MapWeatherBottomScaffold(
 
     var isObjectVisible by remember { mutableStateOf(true) }
 
+
+    var areaChange by remember { mutableStateOf(false) }
+    var areaButtonText by remember {mutableStateOf("Norden")}
+
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
             isObjectVisible = true
@@ -93,11 +99,42 @@ fun MapWeatherBottomScaffold(
         }
     }
 
+    when (area) {
+        AreaData.NORDIC -> areaButtonText = "Norden"
+        AreaData.ARCTIC -> areaButtonText = "Arktis"
+        AreaData.WORLD -> areaButtonText = "Verden"
+        else -> areaButtonText
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
+        if (areaChange) {
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.TopStart)
+                    .graphicsLayer {
+                        val offset = try {
+                            scaffoldState.bottomSheetState.requireOffset()
+                        } catch (e: Exception) {
+                            0f // Fallback hvis den ikke er klar
+                        }
+
+                        if (offset > 0f) {
+                            translationY = offset - 300.dp.toPx()
+                        }
+                    }){
+                MapChangeAreaButton(
+                    changeArea,
+                    changed = { areaChange = false }
+                )
+            }
+        }
 
         if (selectedLayer != null) {
             Button(
-                onClick = { /* TODO */ },
+                onClick = {
+                    areaChange = true
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimary
@@ -117,7 +154,7 @@ fun MapWeatherBottomScaffold(
                         }
                     }
             ) {
-                Text("Placeholder")
+                Text(areaButtonText)
             }
         }
         BottomSheetScaffold(
@@ -214,13 +251,6 @@ fun MapWeatherBottomScaffold(
                                 onFareVarselToggle,
                                 isFareVarselActive
                             )
-                            /* SKAL FLYTTES OPP TIL PLACEHOLDER KNAPPEN
-                            if (selectedLayer != null) {
-                                MapChangeAreaButton(
-                                    changeArea,
-                                    mapViewRef
-                                )
-                            }*/
 
                             Spacer(modifier = Modifier.padding(16.dp))
 
