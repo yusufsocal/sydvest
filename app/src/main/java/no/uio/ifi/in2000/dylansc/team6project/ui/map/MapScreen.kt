@@ -36,9 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
-import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDangerWarningHint
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDangerWarningInfo
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDataSourceSwitcher
@@ -46,7 +44,7 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapOsmView
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSearchField
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSideControls
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapWeatherBottomScaffold
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapWeatherInfoDialog
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info.MapWeatherInfoDialog
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
