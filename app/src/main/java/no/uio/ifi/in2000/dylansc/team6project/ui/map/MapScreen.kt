@@ -47,6 +47,9 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSideControls
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapWeatherBottomScaffold
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapWeatherInfoDialog
 import org.osmdroid.config.Configuration
+import org.osmdroid.events.MapListener
+import org.osmdroid.events.ScrollEvent
+import org.osmdroid.events.ZoomEvent
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 
@@ -142,6 +145,21 @@ fun MapScreen(
         }
     }
 
+    DisposableEffect(mapViewRef) {
+        val listener = object : MapListener {
+            override fun onScroll(event: ScrollEvent?): Boolean {
+                isCenterActive = false
+                return false
+            }
+            override fun onZoom(event: ZoomEvent?): Boolean {
+                isCenterActive = false
+                return false
+            }
+        }
+        mapViewRef?.addMapListener(listener)
+        onDispose { mapViewRef?.removeMapListener(listener) }
+    }
+
     MapOsmView(
         uiState = mapScreenUiState,
         granted = granted,
@@ -201,12 +219,13 @@ fun MapScreen(
                     }
                     MapSideControls(
                         onCenterClick = {
-                            isCenterActive = !isCenterActive
+                            isCenterActive = true
                             locationServicesEnabled = checkLocationEnabled(context)
                             if (locationServicesEnabled) {
                                 mapViewRef?.let { centerMapOnUserLocation(context, it) }
                                 mapViewRef?.let {
                                     if (it.zoomLevelDouble < 12.0) it.controller.zoomTo(12.0)
+
                                 }
                             }
                         },
@@ -244,10 +263,10 @@ fun MapScreen(
                 },
                 isFareVarselActive = mapScreenUiState.fareVarsel,
 
-                //MapChangeArea
+                //MapChangeAreaButton
                 area = mapScreenUiState.area,
                 changeArea = {mapViewModel.updateArea(it)},
-                mapViewRef,
+
             )
 
             MapDataSourceSwitcher(
