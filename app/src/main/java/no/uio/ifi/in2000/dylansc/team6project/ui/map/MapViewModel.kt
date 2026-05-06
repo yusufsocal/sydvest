@@ -68,6 +68,7 @@ data class MapScreenUiState(
     val isAnimating: Boolean = false,
     val sliderPosition: Float = 0f,
     val stepHours: Int = 1,
+    val sliderState: String = "timer",
 
     // TODO lag forklaring på hva dette er
     val displayLayers: List<Pair<WMSLayer, String>> = emptyList(),
@@ -199,6 +200,10 @@ class MapViewModel(
                 _uiState.update { it.copy(isAnimating = false) }
             }
         }
+    }
+
+    fun updateSliderState(state: String){
+        _uiState.update { it.copy(sliderState = state) }
     }
 
     fun onSearchQueryChanged(query: String) {
