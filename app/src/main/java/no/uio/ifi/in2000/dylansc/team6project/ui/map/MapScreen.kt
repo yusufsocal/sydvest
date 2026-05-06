@@ -247,6 +247,7 @@ fun MapScreen(
                 isAnimating = mapScreenUiState.isAnimating,
                 onSliderChange = { mapViewModel.updateSliderPosition(it) },
                 onAnimateToggle = { mapViewModel.toggleAnimate() },
+                stepHours = mapScreenUiState.stepHours,
 
                 //MapLayerDropdown
                 selectedLayerDisplayName = mapScreenUiState.selectedLayerDisplayName,

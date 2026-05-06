@@ -67,6 +67,7 @@ data class MapScreenUiState(
     //Slider
     val isAnimating: Boolean = false,
     val sliderPosition: Float = 0f,
+    val stepHours: Int = 1,
 
     // TODO lag forklaring på hva dette er
     val displayLayers: List<Pair<WMSLayer, String>> = emptyList(),
@@ -145,8 +146,9 @@ class MapViewModel(
     @RequiresApi(Build.VERSION_CODES.O)
     fun setSelectedLayer(layer: WMSLayer?) {
         _uiState.update { state ->
-            val newTime = if (layer?.dimension != null)
-                coerceTimeToDimension(getNowTimestamp(), layer.dimension)
+            val layerDimension = layer?.dimension
+            val newTime = if (layerDimension != null)
+                coerceTimeToDimension(getNowTimestamp(), layerDimension)
             else ""
             val displayName = state.displayLayers
                 .find { it.first.name == layer?.name }
@@ -154,7 +156,8 @@ class MapViewModel(
             state.copy(
                 selectedLayer = layer,
                 selectedTime = newTime,
-                selectedLayerDisplayName = displayName
+                selectedLayerDisplayName = displayName,
+                stepHours = parseStepHours(layerDimension)
             )
         }
     }
@@ -169,7 +172,8 @@ class MapViewModel(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateSliderPosition(position: Float) {
-        val snapped = position.roundToInt().toFloat()
+        val step = _uiState.value.stepHours.coerceAtLeast(1)
+        val snapped = ((position / step).roundToInt() * step).toFloat()
         _uiState.update { it.copy(sliderPosition = snapped) }
         val now = OffsetDateTime.now(ZoneOffset.UTC)
             .withMinute(0).withSecond(0).withNano(0)
@@ -186,7 +190,7 @@ class MapViewModel(
             _uiState.update { it.copy(isAnimating = true) }
             animationJob = viewModelScope.launch {
                 while (isActive && _uiState.value.sliderPosition < 240f) {
-                    var step = if (_uiState.value.area == AreaData.WORLD) 3f else 1f
+                    var step = _uiState.value.stepHours.toFloat()
                     if (_uiState.value.sliderPosition >= 24) step = 24f
                     val newPos = (_uiState.value.sliderPosition + step).coerceAtMost(240f)
                     updateSliderPosition(newPos)
@@ -214,6 +218,7 @@ class MapViewModel(
         _uiState.update { it.copy(pendingCenterLocation = null) }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun updateArea(areaName: String) {
         viewModelScope.launch {
             try {
@@ -240,7 +245,8 @@ class MapViewModel(
                         layerList = newLayerList,
                         selectedLayer = matchedLayer,
                         displayLayers = computeDisplayLayers(newLayerList, resolvedArea),
-                        selectedLayerDisplayName = computeSelectedLayerDisplayName(matchedLayer)
+                        selectedLayerDisplayName = computeSelectedLayerDisplayName(matchedLayer),
+                        stepHours = parseStepHours(matchedLayer?.dimension)
                     )
                 }
             } catch (e: Exception) {
@@ -268,8 +274,9 @@ class MapViewModel(
                         _uiState.value.selectedLayer?.title?.let { normalizeLayerTitle(it) }
                     val matchedLayer =
                         newLayerList.find { normalizeLayerTitle(it.title) == oldNormalizedTitle }
-                    val validTime = if (matchedLayer?.dimension != null)
-                        coerceTimeToDimension(time, matchedLayer.dimension)
+                    val matchedDimension = matchedLayer?.dimension
+                    val validTime = if (matchedDimension != null)
+                        coerceTimeToDimension(time, matchedDimension)
                     else time
 
                     _uiState.update { state ->
@@ -279,13 +286,15 @@ class MapViewModel(
                             layerList = newLayerList,
                             selectedLayer = matchedLayer,
                             displayLayers = computeDisplayLayers(newLayerList, resolvedArea),
-                            selectedLayerDisplayName = computeSelectedLayerDisplayName(matchedLayer)
+                            selectedLayerDisplayName = computeSelectedLayerDisplayName(matchedLayer),
+                            stepHours = parseStepHours(matchedLayer?.dimension)
                         )
                     }
                 } else {
                     val selectedLayer = _uiState.value.selectedLayer
-                    val coercedTime = if (selectedLayer?.dimension != null)
-                        coerceTimeToDimension(time, selectedLayer.dimension)
+                    val selectedDimension = selectedLayer?.dimension
+                    val coercedTime = if (selectedDimension != null)
+                        coerceTimeToDimension(time, selectedDimension)
                     else time
                     Log.d("ViewModel", "Slider tid: $time -> Blir til: $coercedTime")
                     _uiState.update { it.copy(selectedTime = coercedTime) }
@@ -359,12 +368,28 @@ class MapViewModel(
         return Duration.between(now, selected).toHours()
     }
 
+    // Henter ut steget (i timer) fra et WMS Dimension-felt.
+    // Formen er "start/end/PTxH" eller "start/end/PTxH/PTyH" når cadence
+    // bytter midt i prognosen (f.eks. ECMWF: PT3H først, så PT6H lenger frem).
+    // Vi velger første step (parts[2]) — den fineste cadencen.
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun parseStepHours(dimension: String?): Int {
+        if (dimension == null) return 1
+        return try {
+            val parts = dimension.split("/")
+            if (parts.size < 3) 1
+            else Duration.parse(parts[2]).toHours().toInt().coerceAtLeast(1)
+        } catch (e: Exception) {
+            1
+        }
+    }
+
     // Sjekker at tidspunktet er i riktig intervall
     @RequiresApi(Build.VERSION_CODES.O)
     private fun coerceTimeToDimension(requestedTime: String, dimension: String): String {
         return try {
             val parts = dimension.split("/")
-            if (parts.size != 3) return requestedTime
+            if (parts.size < 3) return requestedTime
 
             val fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmZ")
             val start = OffsetDateTime.parse(parts[0], fmt)

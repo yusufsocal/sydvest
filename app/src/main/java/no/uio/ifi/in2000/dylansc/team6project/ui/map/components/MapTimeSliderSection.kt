@@ -55,7 +55,9 @@ fun MapTimeSliderSection(
     isAnimating: Boolean,
     onSliderChange: (Float) -> Unit,
     onAnimateToggle: () -> Unit,
+    stepHours: Int,
 ) {
+    val hourStep = stepHours.coerceAtLeast(1)
     val current = LocalDateTime.now()
     val hoursAhead = current.plusHours(sliderPosition.toInt().toLong())
     val formatterTime = DateTimeFormatter.ofPattern("HH:mm")
@@ -151,7 +153,9 @@ fun MapTimeSliderSection(
 
             if (changeSlider == "timer") {
                 val range: ClosedRange<Float> = 0f..24f
-                val highlightStep: Int = 1
+                val highlightStep: Int = hourStep
+                // Antall diskrete posisjoner mellom endepunktene = (24 / step) - 1
+                val sliderSteps = ((24 / hourStep) - 1).coerceAtLeast(0)
 
                 Slider(
                     value = sliderPosition,
@@ -160,7 +164,7 @@ fun MapTimeSliderSection(
                         activeTrackColor = MaterialTheme.colorScheme.secondary,
                         inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
                     ),
-                    steps = 239,
+                    steps = sliderSteps,
                     valueRange = range as ClosedFloatingPointRange<Float>,
                     track = { sliderState ->
                         SliderDefaults.Track(

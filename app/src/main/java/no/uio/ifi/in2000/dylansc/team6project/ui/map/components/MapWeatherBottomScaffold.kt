@@ -55,6 +55,7 @@ fun MapWeatherBottomScaffold(
     isAnimating: Boolean,
     onSliderChange: (Float) -> Unit,
     onAnimateToggle: () -> Unit,
+    stepHours: Int,
 
     //Variabler for WMSLayers
     selectedLayerDisplayName: String,
@@ -133,7 +134,7 @@ fun MapWeatherBottomScaffold(
         if (selectedLayer != null) {
             Button(
                 onClick = {
-                    areaChange = true
+                    areaChange = !areaChange
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -229,6 +230,7 @@ fun MapWeatherBottomScaffold(
                                     isAnimating,
                                     onSliderChange,
                                     onAnimateToggle,
+                                    stepHours,
                                 )
                             }
                             Spacer(
