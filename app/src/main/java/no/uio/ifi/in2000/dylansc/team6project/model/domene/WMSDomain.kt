@@ -1,7 +1,7 @@
-//Domenelag
-//Logikk: Dersom man velger en datatype innenfor NORDIC eller ARCTIC på et tidsintervall
-//over 60 timer, skal appen automatisk endre karttype til EC (hele WORLD)
-//Årsak: Kart over NORDIC og ARCTIC har kun data for opp til 60 timer.
+//Domain layer
+//Logic: If one chooses a datatype within NORDIC or ARCTIC in a time interval
+//over 60 hours, the app should then automatically change the map-type to EC (whole of WORLD)
+//Cause: Map over NORDIC and ARCTIC have only data for up to 60 hours.
 
 package no.uio.ifi.in2000.dylansc.team6project.model.domene
 
@@ -18,7 +18,7 @@ class WMSDomain {
         }
     }
 
-    // Funksjon for å endre område manuelt
+    // Function for changing the area manually.
     fun changeArea(area: String, originalArea: AreaData): AreaData {
         when (area) {
             "Norden" -> return AreaData.NORDIC

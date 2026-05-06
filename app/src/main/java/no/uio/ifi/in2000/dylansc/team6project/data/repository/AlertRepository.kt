@@ -1,4 +1,4 @@
-//Henter JSON/GeoJSON fra MeteoGate eller MetAlerts.
+//Gets JSON/GeoJSON from MeteoGate or MetAlerts.
 package no.uio.ifi.in2000.dylansc.team6project.data.repository
 
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
@@ -11,7 +11,7 @@ class AlertRepository (
     suspend fun getAlertList(): List<AlertFeature> {
         val list = warningDataSource.alertDataSource() ?: emptyList()
 
-        // Sorterer alfabetisk etter område (Area)
+        // Sorts alphabetically by area
         return list.sortedBy { it.properties?.area ?: "Ååå" }
     }
 }

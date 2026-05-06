@@ -149,8 +149,8 @@ fun MapTimeSliderSection(
                     SliderDefaults.Track(
                         sliderState = sliderState,
                         modifier = Modifier.height(8.dp),
-                        // Vi overstyrer hvordan tracken tegnes
-                        drawStopIndicator = null, // Fjerner standard stopp-indikator
+                        // We are overriding how the track is drawn
+                        drawStopIndicator = null, // Removes standard stop indicator
                         thumbTrackGapSize = 0.dp,
                         colors = SliderDefaults.colors(
                             activeTrackColor = MaterialTheme.colorScheme.primary,
@@ -160,7 +160,7 @@ fun MapTimeSliderSection(
                         )
                     )
 
-                    // Her tegner vi våre egne markeringer oppå tracken
+                    // Here we are drawing our own markings on top of the track
                     Canvas(
                         modifier = Modifier
                             .fillMaxWidth()

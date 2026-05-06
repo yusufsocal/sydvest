@@ -84,9 +84,9 @@ fun MapScreen(
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
     }
 
-    //Venter til kartet er ferdig initialisert før lokasjon sjekkes og kjøres
+    //Waits until the map is done initialising before the location is checked and is run
     LaunchedEffect(mapViewRef) {
-        val mapView = mapViewRef ?: return@LaunchedEffect // venter til kartet er klart
+        val mapView = mapViewRef ?: return@LaunchedEffect // waits until the map is ready
 
         val fineGranted = ContextCompat.checkSelfPermission(
             context,
@@ -98,12 +98,12 @@ fun MapScreen(
         ) == PackageManager.PERMISSION_GRANTED
 
         if (fineGranted || coarseGranted) {
-            // Tillatelse er allerede gitt — sentrer kartet på brukerens posisjon
+            // Permission is already given — center the map on the users phone position
             centerMapOnUserLocation(context, mapView)
             granted = true
         } else {
             locationPermissionLauncher.launch(
-                // Tillatelse er ikke gitt — spør brukeren om tillatelse
+                // Permission is not given — ask the user for permission
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION
@@ -133,14 +133,14 @@ fun MapScreen(
         onDispose { context.unregisterReceiver(receiver) }
     }
 
-    //Lager en lytter for kartsøk: PendingLocation oppdaterer seg om man velger et område
+    //Creates a listener for map search: PendingLocation updates if you choose a location
     LaunchedEffect(mapScreenUiState.pendingCenterLocation) {
         if (mapScreenUiState.pendingCenterLocation != null && mapViewRef != null) {
             mapViewRef?.controller?.animateTo(mapScreenUiState.pendingCenterLocation)
             mapViewRef?.controller?.setZoom(14.0)
 
-            // Gi beskjed til ViewModel at vi har flyttet oss,
-            // slik at den ikke flytter kartet igjen ved neste rekomposisjon
+            // Gives a message to ViewModel that we have moved,
+            // so it does not move the map again the next recomposition
             mapViewModel.onMapCentered()
         }
     }

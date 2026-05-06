@@ -1,4 +1,4 @@
-// Samler alle API base-URL-er på ett sted for enkel vedlikehold og miljøbytte i appen
+// Collects all API base-URL-er in one place for easy maintainability and change of environment in the app.
 
 package no.uio.ifi.in2000.dylansc.team6project.data
 

@@ -54,7 +54,7 @@ import org.osmdroid.views.MapView
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapWeatherBottomScaffold(
-    //Variabler for slider
+    //Variables for the slider
     sliderPosition: Float,
     isAnimating: Boolean,
     onSliderChange: (Float) -> Unit,
@@ -62,17 +62,17 @@ fun MapWeatherBottomScaffold(
     stepHours: Int,
     sliderState: String,
 
-    //Variabler for WMSLayers
+    //Variables for WMSLayers
     selectedLayerDisplayName: String,
     selectedLayer: WMSLayer?,
     displayLayers: List<Pair<WMSLayer, String>>,
     onLayerSelected: (WMSLayer?) -> Unit,
 
-    //Variabler for "Farevarsel"
+    //Variables for "Farevarsel"
     onFareVarselToggle: () -> Unit,
     isFareVarselActive: Boolean,
 
-    //Variabler for MapChangeArea
+    //Variables for MapChangeArea
     area: AreaData?,
     changeArea: (String) -> Unit,
 
@@ -90,13 +90,13 @@ fun MapWeatherBottomScaffold(
 
     var localSliderPosition by remember(sliderPosition) { mutableStateOf(sliderPosition) }
     LaunchedEffect(localSliderPosition) {
-        // Hvis posisjonen er den samme som allerede er lagret i ViewModel, gjør vi ingenting
+        // If the position is the same as the one already saved in ViewModel, we do nothing
         if (localSliderPosition == sliderPosition) return@LaunchedEffect
 
-        // Vent i 150 millisekunder før vi sender verdien videre
+        // Wait 150 milliseconds before we pass the value on
         delay(150)
 
-        // Sender den endelige posisjonen til ViewModel etter at brukeren har stoppet å dra
+        // Sends the final position to ViewModel after the user has stopped moving the slider
         onSliderChange(localSliderPosition)
     }
 
@@ -135,7 +135,7 @@ fun MapWeatherBottomScaffold(
                         val offset = try {
                             scaffoldState.bottomSheetState.requireOffset()
                         } catch (e: Exception) {
-                            0f // Fallback hvis den ikke er klar
+                            0f // Fallback if it is not ready
                         }
 
                         if (offset > 0f) {
@@ -168,7 +168,7 @@ fun MapWeatherBottomScaffold(
                         val offset = try {
                             scaffoldState.bottomSheetState.requireOffset()
                         } catch (e: Exception) {
-                            0f // Fallback hvis den ikke er klar
+                            0f // Fallback if it is not ready
                         }
 
                         if (offset > 0f) {
@@ -249,10 +249,10 @@ fun MapWeatherBottomScaffold(
                             if (selectedLayer != null) {
                                 //Slider
                                 MapTimeSliderSection(
-                                    sliderPosition = localSliderPosition, // BRUK DEN LOKALE VERDIEN HER
+                                    sliderPosition = localSliderPosition, // Use the local value here
                                     isAnimating,
                                     onSliderChange = { newValue ->
-                                        localSliderPosition = newValue // OPPDATER KUN LOKALT MENS MAN DRAR
+                                        localSliderPosition = newValue // Update only locally while sliding
                                     },
                                     onAnimateToggle,
                                     stepHours,
@@ -264,7 +264,7 @@ fun MapWeatherBottomScaffold(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                             )
-                            //WMSLayer og Farevarsel
+                            //WMSLayer and weather Warning
                             MapSelectWeatherLayer(
                                 selectedLayerDisplayName,
                                 selectedLayer,

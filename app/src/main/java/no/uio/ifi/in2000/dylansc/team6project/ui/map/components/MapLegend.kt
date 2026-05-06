@@ -59,7 +59,7 @@ fun MapLegend(
             "Nedbør" to precipitationLegend
         layerDisplayName.contains("Vind", ignoreCase = true) ->
             "Vind" to windLegend
-        else -> return // Ingen legende hvis lagene ikke gjenkjennes
+        else -> return // No legend if the layers are not recognised
     }
 
     Log.d("LEGEND", "layerDisplayName: $layerDisplayName")

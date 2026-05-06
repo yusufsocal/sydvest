@@ -106,7 +106,7 @@ fun MapSelectWeatherLayer(
             }
 
         }
-        // (i) knappen vises bare hvis et værlag er valgt
+        // (i) the button is only visible if a weather layer is chosen
         if (selectedLayerDisplayName != "Velg værlag...") {
             IconButton(onClick = { showLegend = true }) {
                 Icon(

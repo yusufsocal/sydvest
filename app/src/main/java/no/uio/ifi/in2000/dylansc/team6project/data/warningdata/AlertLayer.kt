@@ -18,8 +18,8 @@ data class AlertFeature(
 
 @Serializable
 data class AlertGeometry(
-    val type: String, // Enten "Polygon" eller "MultiPolygon"
-    var coordinates: JsonElement // GeoJSON-format for polygoner
+    val type: String, // Either "Polygons" or "MultiPolygons"
+    var coordinates: JsonElement // GeoJSON-format for polygons
 )
 
 @Serializable
