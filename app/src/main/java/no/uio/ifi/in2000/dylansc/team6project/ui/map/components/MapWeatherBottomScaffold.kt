@@ -225,29 +225,19 @@ fun MapWeatherBottomScaffold(
                             )
                         }
                     }
-                    if (selectedLayer != null) {
-                        MapTimeSliderSection(
-                            sliderPosition = localSliderPosition, // BRUK DEN LOKALE VERDIEN HER
-                            isAnimating,
-                            onSliderChange = { newValue ->
-                                localSliderPosition = newValue // OPPDATER KUN LOKALT MENS MAN DRAR
-                            },
-                            onAnimateToggle,
-                            stepHours,
-                            sliderState,
-                        )
-                    }
                     if (isObjectVisible && selectedLayer == null) {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(
-                                text = "VELG VÆRLAG",
-                                fontWeight = FontWeight.Bold,
-                            )
+                            Column{
+                                Text(
+                                    text = "VELG VÆRLAG",
+                                    fontWeight = FontWeight.Bold,
+                                )
+                                Spacer(modifier = Modifier.padding(16.dp))
+                            }
                         }
-
                     }
                     if (!isObjectVisible) {
                         Column(
@@ -256,25 +246,25 @@ fun MapWeatherBottomScaffold(
                                 .fillMaxWidth()
                                 .heightIn(max = maxHeightVal.dp),
                         ) {
-                            Spacer(
-                                modifier = Modifier
-                                    .height(8.dp)
-                            )
                             if (selectedLayer != null) {
                                 //Slider
-
+                                MapTimeSliderSection(
+                                    sliderPosition = localSliderPosition, // BRUK DEN LOKALE VERDIEN HER
+                                    isAnimating,
+                                    onSliderChange = { newValue ->
+                                        localSliderPosition = newValue // OPPDATER KUN LOKALT MENS MAN DRAR
+                                    },
+                                    onAnimateToggle,
+                                    stepHours,
+                                    sliderState,
+                                )
                             }
-                            Spacer(
-                                modifier = Modifier
-                                    .height(8.dp)
-                            )
                             Text(
                                 text = "VELG VÆRLAG",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                             )
                             //WMSLayer og Farevarsel
-
                             MapSelectWeatherLayer(
                                 selectedLayerDisplayName,
                                 selectedLayer,
