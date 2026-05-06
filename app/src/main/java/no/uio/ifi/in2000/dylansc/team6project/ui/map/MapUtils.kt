@@ -62,8 +62,8 @@ private fun addWmsTilesOverlay(
     style: String = "",
     useEPSG3857: Boolean = false
 ) {
-    // Tile-source-navnet er cache-nøkkelen. Må inkludere område og tid slik at
-    // tiles ikke serveres feil når brukeren bytter område eller tid.
+    // Tile-source-name is the cache key. Must include area and time so
+    // tiles are not served wrong when the user changes area or time.
     val sourceName = "${layerName}_${areaName}_${timeIso.replace(":", "")}"
     val source = object : XYTileSource(
         sourceName,
@@ -110,8 +110,8 @@ private fun addWmsTilesOverlay(
         }
     }
     val provider = MapTileProviderBasic(mapView.context, source)
-    // Uten denne får ikke MapView beskjed når en tile er ferdig nedlastet,
-    // og overlayet rendres først ved neste brukergeste (drag/zoom).
+    // Without this the MapView will not be notified when a tile is fully downloaded,
+    // and the overlay renders first again by the next user gesture (drag/zoom).
     provider.setTileRequestCompleteHandler(SimpleInvalidationHandler(mapView))
     val overlay = TilesOverlay(provider, mapView.context).apply {
         loadingBackgroundColor = AndroidColor.TRANSPARENT

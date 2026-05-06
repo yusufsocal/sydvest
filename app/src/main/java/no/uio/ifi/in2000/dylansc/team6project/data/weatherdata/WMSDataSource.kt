@@ -28,9 +28,9 @@ class WMSDataSourceImpl(
 
         return try {
             val response = client.get(url)
-            val xmlString = response.bodyAsText() // Rå XML
+            val xmlString = response.bodyAsText() // Raw XML
 
-            // Parser teksten manuelt til objektet
+            // Parse the text manually to the object
             xmlParser.decodeFromString(WMSCapabilities.serializer(), xmlString)
         } catch (e: Exception) {
             Log.e("WMSDataSource", "Feil ved henting av WMS capabilities: ${e.message}")

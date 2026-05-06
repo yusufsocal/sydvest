@@ -94,7 +94,7 @@ fun MapOsmView(
             )
 
             if (newState != lastState) {
-                // Oppdater værlaget hvis lag, tid eller område har endret seg
+                // Update the weather layer if layer, time or area has been changed
                 if (newState.layerName != lastState.layerName ||
                     newState.time != lastState.time ||
                     newState.area != lastState.area) {
@@ -107,7 +107,7 @@ fun MapOsmView(
                     }
                 }
 
-                // Oppdater farevarsler kun hvis fareVarsel eller antall varsler har endret seg
+                // Update weather warning only if weatherWarning or the number of warnings have changed
                 if (newState.fareVarsel != lastState.fareVarsel ||
                     newState.alertCount != lastState.alertCount) {
                     drawAlerts(view, uiState, uiState.fareVarsel, onAlertClick)
@@ -116,7 +116,7 @@ fun MapOsmView(
                 view.tag = newState
             }
 
-            // Brukermarkør oppdateres alltid
+            // The users marker is always updated
             val prefs = view.context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
             val center = view.mapCenter
             prefs.edit()

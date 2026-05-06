@@ -89,7 +89,7 @@ fun MapDataSourceSwitcher(
     var changeRequest by remember { mutableStateOf(false) }
     var changed by remember { mutableStateOf(true) }
 
-    // ENDRE OMRÅDE BASERT PÅ ZOOM OG LOKASJON -> FUNKER IKKE ENDA
+    // Change area based on zoom and location -> does not work yet
     mapView?.setMapListener(object : MapListener {
 
         override fun onZoom(event: ZoomEvent?): Boolean {
