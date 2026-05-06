@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -49,16 +50,19 @@ fun MapLegend(
     layerDisplayName: String,
     onDismiss: () -> Unit
 ) {
+    Log.d("LEGEND", "layerDisplayName: $layerDisplayName")
     val (title, entries) = when {
-        layerDisplayName.contains("Temperature", ignoreCase = true) ->
+        layerDisplayName.contains("Temperatur", ignoreCase = true) ->
             "Temperatur" to temperatureLegend
-        layerDisplayName.contains("Rainfall", ignoreCase = true) ||
+        layerDisplayName.contains("Nedbør", ignoreCase = true) ||
                 layerDisplayName.contains("Precipitation", ignoreCase = true) ->
             "Nedbør" to precipitationLegend
-        layerDisplayName.contains("Wind", ignoreCase = true) ->
+        layerDisplayName.contains("Vind", ignoreCase = true) ->
             "Vind" to windLegend
         else -> return // Ingen legende hvis lagene ikke gjenkjennes
     }
+
+    Log.d("LEGEND", "layerDisplayName: $layerDisplayName")
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
