@@ -40,8 +40,8 @@ class SearchDataSourceImpl(
                         prop?.get("city")?.jsonPrimitive?.content,
                         prop?.get("country")?.jsonPrimitive?.content
                     ).joinToString(", "),
-                    lon = coords?.get(0)?.jsonPrimitive?.double ?: 0.0,
-                    lat = coords?.get(1)?.jsonPrimitive?.double ?: 0.0
+                    lon = coords?.getOrNull(0)?.jsonPrimitive?.double ?: 0.0,
+                    lat = coords?.getOrNull(1)?.jsonPrimitive?.double ?: 0.0
                 )
             }.distinctBy { it.name }
         } catch (e: Exception) {
