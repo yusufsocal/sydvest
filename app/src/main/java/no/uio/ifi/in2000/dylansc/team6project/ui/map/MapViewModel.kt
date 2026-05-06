@@ -197,19 +197,13 @@ class MapViewModel(
                     updateSliderPosition(newPos)
                     delay(1500)
                 }
-
                 _uiState.update { it.copy(isAnimating = false) }
             }
         }
     }
 
-    fun updateSliderState(){
-        if (_uiState.value.sliderPosition >= 23) {
-            if (_uiState.value.sliderState != "døgn") _uiState.update { it.copy(sliderState = "døgn") }
-        } else {
-            if (_uiState.value.sliderState != "timer") _uiState.update { it.copy(sliderState = "timer") }
-        }
-
+    fun updateSliderState(state: String){
+        _uiState.update { it.copy(sliderState = state) }
     }
 
     fun onSearchQueryChanged(query: String) {

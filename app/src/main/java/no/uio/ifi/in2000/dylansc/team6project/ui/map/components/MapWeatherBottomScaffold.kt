@@ -60,6 +60,7 @@ fun MapWeatherBottomScaffold(
     onAnimateToggle: () -> Unit,
     stepHours: Int,
     sliderState: String,
+    changeSliderState: (String) -> Unit,
 
     //Variabler for WMSLayers
     selectedLayerDisplayName: String,
@@ -126,7 +127,7 @@ fun MapWeatherBottomScaffold(
                         }
 
                         if (offset > 0f) {
-                            translationY = offset - 295.dp.toPx()
+                            translationY = offset - 420.dp.toPx()
                         }
                     }) {
                 MapChangeAreaButton(
@@ -142,7 +143,29 @@ fun MapWeatherBottomScaffold(
                     .align(Alignment.TopStart)
                     .padding(16.dp)
             ) {
+                Card(
+                    modifier = Modifier.graphicsLayer {
+                        val offset = try {
+                            scaffoldState.bottomSheetState.requireOffset()
+                        } catch (e: Exception) {
+                            0f // Fallback hvis den ikke er klar
+                        }
 
+                        if (offset > 0f) {
+                            translationY = offset - 140.dp.toPx()
+                        }
+                    }
+                ) {
+                    MapTimeSliderSection(
+                        sliderPosition,
+                        isAnimating,
+                        onSliderChange,
+                        onAnimateToggle,
+                        stepHours,
+                        sliderState,
+                        changeSliderState
+                    )
+                }
                 Button(
                     onClick = {
                         areaChange = !areaChange
@@ -159,7 +182,7 @@ fun MapWeatherBottomScaffold(
                         }
 
                         if (offset > 0f) {
-                            translationY = offset - 65.dp.toPx()
+                            translationY = offset - 310.dp.toPx()
                         }
                     }
                 ) {
@@ -211,16 +234,6 @@ fun MapWeatherBottomScaffold(
                                 selectedLayer,
                             )
                         }
-                    }
-                    if (selectedLayer != null) {
-                        MapTimeSliderSection(
-                            sliderPosition,
-                            isAnimating,
-                            onSliderChange,
-                            onAnimateToggle,
-                            stepHours,
-                            sliderState,
-                        )
                     }
                     if (isObjectVisible && selectedLayer == null) {
                         Box(
