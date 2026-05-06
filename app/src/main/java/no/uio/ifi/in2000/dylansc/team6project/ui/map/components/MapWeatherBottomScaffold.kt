@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
@@ -85,6 +86,18 @@ fun MapWeatherBottomScaffold(
     } else {
         peekVal = 85
         maxHeightVal = 150
+    }
+
+    var localSliderPosition by remember(sliderPosition) { mutableStateOf(sliderPosition) }
+    LaunchedEffect(localSliderPosition) {
+        // Hvis posisjonen er den samme som allerede er lagret i ViewModel, gjør vi ingenting
+        if (localSliderPosition == sliderPosition) return@LaunchedEffect
+
+        // Vent i 150 millisekunder før vi sender verdien videre
+        delay(150)
+
+        // Sender den endelige posisjonen til ViewModel etter at brukeren har stoppet å dra
+        onSliderChange(localSliderPosition)
     }
 
     val scaffoldState = rememberBottomSheetScaffoldState()
@@ -214,9 +227,11 @@ fun MapWeatherBottomScaffold(
                     }
                     if (selectedLayer != null) {
                         MapTimeSliderSection(
-                            sliderPosition,
+                            sliderPosition = localSliderPosition, // BRUK DEN LOKALE VERDIEN HER
                             isAnimating,
-                            onSliderChange,
+                            onSliderChange = { newValue ->
+                                localSliderPosition = newValue // OPPDATER KUN LOKALT MENS MAN DRAR
+                            },
                             onAnimateToggle,
                             stepHours,
                             sliderState,
