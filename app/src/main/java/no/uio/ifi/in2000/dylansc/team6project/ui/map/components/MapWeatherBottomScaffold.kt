@@ -1,12 +1,14 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
 import android.R.attr.text
+import android.R.attr.translationY
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
@@ -56,6 +59,8 @@ fun MapWeatherBottomScaffold(
     onSliderChange: (Float) -> Unit,
     onAnimateToggle: () -> Unit,
     stepHours: Int,
+    sliderState: String,
+    changeSliderState: (String) -> Unit,
 
     //Variabler for WMSLayers
     selectedLayerDisplayName: String,
@@ -71,15 +76,15 @@ fun MapWeatherBottomScaffold(
     area: AreaData?,
     changeArea: (String) -> Unit,
 
-) {
+    ) {
     var peekVal = 0
     var maxHeightVal = 0
 
     if (selectedLayer != null) {
-        peekVal = 100
+        peekVal = 80
         maxHeightVal = 400
     } else {
-        peekVal = 100
+        peekVal = 85
         maxHeightVal = 150
     }
 
@@ -90,7 +95,7 @@ fun MapWeatherBottomScaffold(
 
 
     var areaChange by remember { mutableStateOf(false) }
-    var areaButtonText by remember {mutableStateOf("Norden")}
+    var areaButtonText by remember { mutableStateOf("Norden") }
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
         if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
@@ -113,6 +118,7 @@ fun MapWeatherBottomScaffold(
                 modifier = Modifier
                     .padding(16.dp)
                     .align(Alignment.TopStart)
+                    .zIndex(1f)
                     .graphicsLayer {
                         val offset = try {
                             scaffoldState.bottomSheetState.requireOffset()
@@ -121,9 +127,9 @@ fun MapWeatherBottomScaffold(
                         }
 
                         if (offset > 0f) {
-                            translationY = offset - 300.dp.toPx()
+                            translationY = offset - 420.dp.toPx()
                         }
-                    }){
+                    }) {
                 MapChangeAreaButton(
                     changeArea,
                     changed = { areaChange = false }
@@ -132,18 +138,13 @@ fun MapWeatherBottomScaffold(
         }
 
         if (selectedLayer != null) {
-            Button(
-                onClick = {
-                    areaChange = !areaChange
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
+            Column(
                 modifier = Modifier
-                    .padding(16.dp)
                     .align(Alignment.TopStart)
-                    .graphicsLayer {
+                    .padding(16.dp)
+            ) {
+                Card(
+                    modifier = Modifier.graphicsLayer {
                         val offset = try {
                             scaffoldState.bottomSheetState.requireOffset()
                         } catch (e: Exception) {
@@ -151,12 +152,46 @@ fun MapWeatherBottomScaffold(
                         }
 
                         if (offset > 0f) {
-                            translationY = offset - 65.dp.toPx()
+                            translationY = offset - 140.dp.toPx()
                         }
                     }
-            ) {
-                Text(areaButtonText)
+                ) {
+                    MapTimeSliderSection(
+                        sliderPosition,
+                        isAnimating,
+                        onSliderChange,
+                        onAnimateToggle,
+                        stepHours,
+                        sliderState,
+                        changeSliderState
+                    )
+                }
+                Button(
+                    onClick = {
+                        areaChange = !areaChange
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    modifier = Modifier.graphicsLayer {
+                        val offset = try {
+                            scaffoldState.bottomSheetState.requireOffset()
+                        } catch (e: Exception) {
+                            0f // Fallback hvis den ikke er klar
+                        }
+
+                        if (offset > 0f) {
+                            translationY = offset - 310.dp.toPx()
+                        }
+                    }
+                ) {
+                    Text(areaButtonText)
+                }
+
+
             }
+
         }
         BottomSheetScaffold(
             sheetPeekHeight = peekVal.dp,
@@ -225,13 +260,7 @@ fun MapWeatherBottomScaffold(
                             )
                             if (selectedLayer != null) {
                                 //Slider
-                                MapTimeSliderSection(
-                                    sliderPosition,
-                                    isAnimating,
-                                    onSliderChange,
-                                    onAnimateToggle,
-                                    stepHours,
-                                )
+
                             }
                             Spacer(
                                 modifier = Modifier

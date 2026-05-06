@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
+import android.R.attr.font
 import android.R.attr.text
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -21,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -56,6 +58,8 @@ fun MapTimeSliderSection(
     onSliderChange: (Float) -> Unit,
     onAnimateToggle: () -> Unit,
     stepHours: Int,
+    sliderState: String,
+    changeSliderState: (String) -> Unit
 ) {
     val hourStep = stepHours.coerceAtLeast(1)
     val current = LocalDateTime.now()
@@ -73,66 +77,95 @@ fun MapTimeSliderSection(
     val month =
         monthOfYear.getDisplayName(TextStyle.FULL_STANDALONE, LocalLocale.current.platformLocale)
 
+    val width = 70
+    val height = 40
+    val font_size = 12
 
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        if (current.format(formatterCompare) == hoursAhead.format(formatterCompare)) {
+
+    Column {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            if (current.format(formatterCompare) == hoursAhead.format(formatterCompare)) {
+                Text(
+                    text = "I DAG · $timeOfDay",
+                    fontSize = font_size.sp
+                )
+            } else {
+                Text(
+                    text = "${weekday.uppercase()} ${hoursAhead.format(formatterDate)}$month · $timeOfDay",
+                    fontSize = font_size.sp
+                )
+            }
+
+            Row {
+                OutlinedButton(
+                    onClick = {
+                        changeSliderState("timer")
+                    },
+                    shape = RoundedCornerShape(5.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = if (sliderState == "timer")
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    else
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = Color.Black
+                        ),
+                    modifier = Modifier
+                        .width(width.dp)
+                        .height(height.dp)
+                ) {
+                    Text(
+                        text = "24 timer",
+                        fontSize = font_size.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.zIndex(1f)
+                    )
+                }
+
+                Spacer(Modifier.width(16.dp))
+
+                OutlinedButton(
+                    onClick = { changeSliderState("døgn") },
+                    shape = RoundedCornerShape(5.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = if (sliderState == "døgn")
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    else
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = Color.Black
+                        ),
+                    modifier = Modifier
+                        .width(width.dp)
+                        .height(height.dp)
+                ) {
+                    Text(
+                        text = "10 døgn",
+                        fontSize = font_size.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.zIndex(1f)
+                    )
+                }
+            }
+
             Text(
-                text = "I DAG · $timeOfDay",
-                fontSize = 15.sp
-            )
-        } else {
-            Text(
-                text = "${weekday.uppercase()} ${hoursAhead.format(formatterDate)}$month · $timeOfDay",
-                fontSize = 15.sp
+                text = "+${sliderPosition.toInt()}T",
+                fontSize = font_size.sp
             )
         }
 
-        Text(text = "+${sliderPosition.toInt()}T")
-    }
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        var changeSlider by remember { mutableStateOf("timer") }
-        val width = 70
-        val height = 40
-        val font_size = 15
 
-        Row {
-            Button(
-                onClick = { changeSlider = "timer" },
-                shape = RoundedCornerShape(5.dp),
-                contentPadding = PaddingValues(0.dp),
-                modifier = Modifier
-                    .width(width.dp)
-                    .height(height.dp)
-            ) {
-                Text(
-                    text = "24 timer",
-                    fontSize = font_size.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.zIndex(1f))
-            }
-
-            Spacer (Modifier.width(16.dp))
-
-            Button(
-                onClick = { changeSlider = "døgn" },
-                shape = RoundedCornerShape(5.dp),
-                contentPadding = PaddingValues(0.dp),
-                modifier = Modifier
-                    .width(width.dp)
-                    .height(height.dp)
-            ) {
-                Text(
-                    text = "10 døgn",
-                    fontSize = font_size.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.zIndex(1f))
-            }
-        }
 
         Row(modifier = Modifier.padding(horizontal = 16.dp)) {
             Button(
@@ -143,7 +176,9 @@ fun MapTimeSliderSection(
                 modifier = Modifier.clip(CircleShape)
             ) {
                 Image(
-                    painter = if (isAnimating) painterResource(id = R.drawable.pause_blue) else painterResource(id = R.drawable.play_blue),
+                    painter = if (isAnimating) painterResource(id = R.drawable.pause_blue) else painterResource(
+                        id = R.drawable.play_blue
+                    ),
                     contentDescription = null,
                     modifier = Modifier
                         .size(30.dp)
@@ -151,7 +186,7 @@ fun MapTimeSliderSection(
                 )
             }
 
-            if (changeSlider == "timer") {
+            if (sliderState == "timer") {
                 val range: ClosedRange<Float> = 0f..24f
                 val highlightStep: Int = hourStep
                 // Antall diskrete posisjoner mellom endepunktene = (24 / step) - 1
@@ -174,9 +209,12 @@ fun MapTimeSliderSection(
                             drawStopIndicator = null, // Fjerner standard stopp-indikator
                             thumbTrackGapSize = 0.dp,
                             colors = SliderDefaults.colors(
+                                activeTickColor = Color.Transparent,
+                                inactiveTickColor = Color.Transparent,
                                 activeTrackColor = MaterialTheme.colorScheme.primary,
                                 inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
                             )
+
                         )
 
                         // Her tegner vi våre egne markeringer oppå tracken
@@ -192,14 +230,14 @@ fun MapTimeSliderSection(
 
                                 drawCircle(
                                     color = if (sliderPosition >= i) Color.White else Color.Gray,
-                                    radius = if (i % highlightStep == 0) 4.dp.toPx() else 2.dp.toPx(),
+                                    radius = if (i % highlightStep == 0) 2.dp.toPx() else 2.dp.toPx(),
                                     center = Offset(xPos, size.height / 2)
                                 )
                             }
                         }
                     }
                 )
-            } else if (changeSlider == "døgn") {
+            } else if (sliderState == "døgn") {
                 val range: ClosedRange<Float> = 0f..240f
                 val highlightStep: Int = 24
 
@@ -221,7 +259,9 @@ fun MapTimeSliderSection(
                             thumbTrackGapSize = 0.dp,
                             colors = SliderDefaults.colors(
                                 activeTrackColor = MaterialTheme.colorScheme.primary,
-                                inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                                inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                activeTickColor = Color.Transparent,
+                                inactiveTickColor = Color.Transparent,
                             )
                         )
 
@@ -238,7 +278,7 @@ fun MapTimeSliderSection(
 
                                 drawCircle(
                                     color = if (sliderPosition >= i) Color.White else Color.Gray,
-                                    radius = if (i % highlightStep == 0) 4.dp.toPx() else 2.dp.toPx(),
+                                    radius = if (i % highlightStep == 0) 2.dp.toPx() else 2.dp.toPx(),
                                     center = Offset(xPos, size.height / 2)
                                 )
                             }
@@ -247,6 +287,7 @@ fun MapTimeSliderSection(
                 )
             }
         }
+        Spacer(modifier = Modifier.padding(8.dp))
 
     }
 }
