@@ -30,4 +30,30 @@
     <string name = "confirm_choice">Bekreft valg</string>
     <string name = "cancel_keep_nordic">Avbryt - behold</string>
 
+    <!-- MapChangeAreaButton -->
+    <string name = "choose_data_source_area">Velg mellom områder"</string>
+
+    <!-- MapDangerWarningHint -->
+    <string name ="press_dangerbutton_for_information">Trykk på et farevarsel for mer informasjon</string>
+
+    <!-- MapDangerWarningInfo -->
+    <string name="blowing_snow">Snøfokk</string>
+    <string name="wildfire">Skogbrann</string>
+    <string name="gale">Kuling</string>
+    <string name="ice">Is</string>
+    <string name= "icing">Ising</string>
+    <string name ="lightning">Lyn</string>
+    <string name = "polar_low">Polare lavtrykk</string>
+    <string name ="rain">Regn</string>
+    <string name ="rainflood">Styrtflom</string>
+    <string name ="snow">Snø</string>
+    <string name ="storm_surge">Stormflo</string>
+    <string name ="wind">Vind</string>
+
+    <string name="extreme">🔴 Ekstrem</string>
+    <string name= "severe">🟠 Alvorlig</string>
+    <string name="moderate">🟡 Moderat</string>
+    <string name ="minor">🟢 Liten</string>
+
+
 </resources>

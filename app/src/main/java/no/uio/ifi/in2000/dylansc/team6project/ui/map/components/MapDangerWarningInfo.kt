@@ -26,6 +26,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.views.MapView
@@ -35,6 +36,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.double
 import org.osmdroid.util.GeoPoint
 import android.graphics.Color as AndroidColor
+import no.uio.ifi.in2000.dylansc.team6project.R
 
 @Composable
 fun MapDangerWarningInfo(
@@ -42,27 +44,28 @@ fun MapDangerWarningInfo(
 ) {
     val properties = feature?.properties
 
+
     val (emoji, norsk) = when (properties?.event?.lowercase()) {
-        "blowingsnow" -> "🌨️" to "Snøfokk"
-        "forestfire" -> "🔥" to "Skogbrann"
-        "gale" -> "💨" to "Kuling"
-        "ice" -> "🧊" to "Is"
-        "icing" -> "🧊" to "Ising"
-        "lightning" -> "⚡" to "Lyn"
-        "polarlow" -> "🌀" to "Polare lavtrykk"
-        "rain" -> "🌧️" to "Regn"
-        "rainflood" -> "🌊" to "Styrtflom"
-        "snow" -> "❄️" to "Snø"
-        "stormsurge" -> "🌊" to "Stormflo"
-        "wind" -> "💨" to "Vind"
+        "blowingsnow" -> "🌨️" to stringResource(R.string.blowing_snow)
+        "forestfire" -> "🔥" to stringResource(R.string.wildfire)
+        "gale" -> "💨" to stringResource(R.string.gale)
+        "ice" -> "🧊" to stringResource(R.string.ice)
+        "icing" -> "🧊" to stringResource(R.string.icing)
+        "lightning" -> "⚡" to stringResource(R.string.lightning)
+        "polarlow" -> "🌀" to stringResource(R.string.polar_low)
+        "rain" -> "🌧️" to stringResource(R.string.rain)
+        "rainflood" -> "🌊" to stringResource(R.string.rainflood)
+        "snow" -> "❄️" to stringResource(R.string.snow)
+        "stormsurge" -> "🌊" to stringResource(R.string.storm_surge)
+        "wind" -> "💨" to stringResource(R.string.wind)
         else -> "⚠️" to (properties?.event?.replaceFirstChar { it.uppercase() } ?: "")
     }
 
     val severity = when (properties?.severity?.lowercase()) {
-        "extreme" -> "🔴 Ekstrem"
-        "severe" -> "🟠 Alvorlig"
-        "moderate" -> "🟡 Moderat"
-        "minor" -> "🟢 Liten"
+        "extreme" -> stringResource(R.string.extreme)
+        "severe" -> stringResource(R.string.severe)
+        "moderate" -> stringResource(R.string.moderate)
+        "minor" -> stringResource(R.string.minor)
         else -> "⚠️ " + (properties?.severity?.replaceFirstChar { it.uppercase() } ?: "")
     }
     Dialog(onDismissRequest = onDismiss) {
