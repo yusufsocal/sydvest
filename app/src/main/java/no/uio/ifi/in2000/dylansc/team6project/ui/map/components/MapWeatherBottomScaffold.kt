@@ -1,27 +1,27 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
-import android.R.attr.text
-import android.R.attr.translationY
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
@@ -48,13 +48,16 @@ import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
-import org.osmdroid.views.MapView
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapWeatherBottomScaffold(
-    //Variables for the slider
+
+    areaChange: Boolean,
+    changed: () -> Unit,
+    //Variabler for slider
+
     sliderPosition: Float,
     isAnimating: Boolean,
     onSliderChange: (Float) -> Unit,
@@ -75,6 +78,7 @@ fun MapWeatherBottomScaffold(
     //Variables for MapChangeArea
     area: AreaData?,
     changeArea: (String) -> Unit,
+    onShowAreaChange: () -> Unit
 
     ) {
     var peekVal = 0
@@ -90,11 +94,13 @@ fun MapWeatherBottomScaffold(
 
     var localSliderPosition by remember(sliderPosition) { mutableStateOf(sliderPosition) }
     LaunchedEffect(localSliderPosition) {
-        // If the position is the same as the one already saved in ViewModel, we do nothing
-        if (localSliderPosition == sliderPosition) return@LaunchedEffect
 
-        // Wait 150 milliseconds before we pass the value on
-        delay(150)
+        // Hvis posisjonen er den samme som allerede er lagret i ViewModel, gjør vi ingenting
+        if (localSliderPosition == sliderPosition && !isAnimating) return@LaunchedEffect
+
+        // Vent i 150 millisekunder før vi sender verdien videre
+        delay(300)
+
 
         // Sends the final position to ViewModel after the user has stopped moving the slider
         onSliderChange(localSliderPosition)
@@ -104,9 +110,6 @@ fun MapWeatherBottomScaffold(
     val scope = rememberCoroutineScope()
 
     var isObjectVisible by remember { mutableStateOf(true) }
-
-
-    var areaChange by remember { mutableStateOf(false) }
     var areaButtonText by remember { mutableStateOf("Norden") }
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
@@ -124,7 +127,7 @@ fun MapWeatherBottomScaffold(
         else -> areaButtonText
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box() {
         if (areaChange) {
             Box(
                 modifier = Modifier
@@ -144,7 +147,8 @@ fun MapWeatherBottomScaffold(
                     }) {
                 MapChangeAreaButton(
                     changeArea,
-                    changed = { areaChange = false }
+                    changed,
+                    onShowAreaChange
                 )
             }
         }
@@ -158,13 +162,17 @@ fun MapWeatherBottomScaffold(
 
                 Button(
                     onClick = {
-                        areaChange = !areaChange
+                        changed()
                     },
+                    shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
-                    modifier = Modifier.graphicsLayer {
+                    contentPadding = PaddingValues(0.dp),
+                    modifier = Modifier
+                        .size(42.dp)
+                        .graphicsLayer {
                         val offset = try {
                             scaffoldState.bottomSheetState.requireOffset()
                         } catch (e: Exception) {
@@ -176,17 +184,23 @@ fun MapWeatherBottomScaffold(
                         }
                     }
                 ) {
-                    Text(areaButtonText)
+                    Icon(
+                        imageVector = Icons.Default.Public,
+                        modifier = Modifier.size(32.dp),
+                        contentDescription = null
+                    )
                 }
 
 
             }
 
         }
+
         BottomSheetScaffold(
             sheetPeekHeight = peekVal.dp,
             scaffoldState = scaffoldState,
             containerColor = Color.Transparent,
+            modifier = Modifier.wrapContentHeight().fillMaxWidth(),
             sheetDragHandle = {
                 Box(
                     modifier = Modifier
@@ -243,7 +257,6 @@ fun MapWeatherBottomScaffold(
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
-                                .fillMaxWidth()
                                 .heightIn(max = maxHeightVal.dp),
                         ) {
                             if (selectedLayer != null) {

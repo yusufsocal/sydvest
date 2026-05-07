@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
+import android.R.attr.onClick
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
@@ -31,12 +33,13 @@ fun MapSideControls(
     onZoomOut: () -> Unit,
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // compass / center button (unchanged)
         FilledIconButton(
             modifier = Modifier
-                .padding(top = 34.dp)
+                .padding(top = 16.dp)
                 .size(55.dp),
             onClick = onCenterClick,
             colors = if (isCenterActive)
@@ -53,7 +56,7 @@ fun MapSideControls(
 
         // zoom in
         FilledIconButton(
-            modifier = Modifier.size(55.dp),
+            modifier = Modifier.size(32.dp),
             onClick = onZoomIn,
             colors = IconButtonDefaults.filledIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
@@ -68,7 +71,7 @@ fun MapSideControls(
 
         // zoom out
         FilledIconButton(
-            modifier = Modifier.size(55.dp),
+            modifier = Modifier.size(32.dp),
             onClick = onZoomOut,
             colors = IconButtonDefaults.filledIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh

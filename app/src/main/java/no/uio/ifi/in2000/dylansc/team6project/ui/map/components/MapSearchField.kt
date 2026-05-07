@@ -52,7 +52,6 @@ fun MapSearchField(
     onSearchActiveChange: (Boolean) -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
-    var isFocused by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
@@ -63,7 +62,6 @@ fun MapSearchField(
             .focusRequester(focusRequester)
             .focusable()
             .then(if (expanded) Modifier.fillMaxSize() else Modifier.fillMaxWidth())
-            .zIndex(2f)
     ) {
         if (expanded) {
             //Background behind the search bar
@@ -80,8 +78,6 @@ fun MapSearchField(
             )
         }
         Column(
-            modifier = Modifier
-                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             //The search bar itself
@@ -148,7 +144,8 @@ fun MapSearchField(
                                    },
                 shape =  RoundedCornerShape(16f.dp),
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 content = {
                     LazyColumn(
                         modifier = Modifier
