@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -19,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
@@ -40,11 +42,12 @@ import org.osmdroid.views.MapView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapChangeAreaButton (
+fun MapChangeAreaButton(
     changeArea: (String) -> Unit,
     changed: () -> Unit,
+    onShowAreaChange: () -> Unit
 
-) {
+    ) {
 
     //ENDRE OMRÅDE FRA KNAPP
     val areaOptions = listOf("Norden", "Arktis", "Verden")
@@ -55,18 +58,13 @@ fun MapChangeAreaButton (
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Public,
-                modifier = Modifier.size(16.dp),
-                contentDescription = null
-            )
-            Text(
-                text = "VELG OMRÅDE",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.headlineSmall,
-                fontSize = 13.sp,
-                textAlign = TextAlign.Center
-            )
+            IconButton(onClick = { onShowAreaChange() }) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Velg mellom områder",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
             areaOptions.forEach { option ->
                 Button(
                     onClick = {

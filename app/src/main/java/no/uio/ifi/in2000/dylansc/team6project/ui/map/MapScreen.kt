@@ -11,6 +11,7 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,8 +21,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -32,11 +35,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info.MapWeatherInfoDialog
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDangerWarningHint
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDangerWarningInfo
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDataSourceSwitcher
@@ -44,8 +50,6 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapOsmView
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSearchField
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSideControls
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapWeatherBottomScaffold
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info.MapWeatherInfoDialog
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapLegend
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
@@ -70,6 +74,10 @@ fun MapScreen(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     var searchActive by remember { mutableStateOf(false) }
+
+    var showAreaChange by remember { mutableStateOf(false) }
+    var areaChange by remember { mutableStateOf(false) }
+
 
 
     Configuration.getInstance().load(
@@ -151,6 +159,7 @@ fun MapScreen(
                 isCenterActive = false
                 return false
             }
+
             override fun onZoom(event: ZoomEvent?): Boolean {
                 isCenterActive = false
                 return false
@@ -181,10 +190,13 @@ fun MapScreen(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Kunne ikke laste værdata")
-                Button(onClick = { mapViewModel.retry() }) {
-                    Text("Prøv igjen")
+                Card {
+                    Text("Kunne ikke laste værdata")
+                    Button(onClick = { mapViewModel.retry() }) {
+                        Text("Prøv igjen")
+                    }
                 }
+
             }
         } else {
 
@@ -199,27 +211,37 @@ fun MapScreen(
                         }
                 )
             }
-            Column() {
+            Column(
+                verticalArrangement = Arrangement.Top,
+                modifier = Modifier
+                    .align(Alignment.TopCenter) // Dette tvinger Column til bunnen av Box-en
+                    .zIndex(1f)
+
+            ) {
+                Box(modifier = Modifier.zIndex(1f)) {
+                    MapSearchField(
+                        suggestions = mapScreenUiState.searchSuggestions,
+                        onQueryChange = { mapViewModel.onSearchQueryChanged(it) },
+                        onSuggestionSelected = { suggestion ->
+                            mapViewModel.onSuggestionSelected(suggestion)
+                        },
+                        onSearchActiveChange = {
+                            searchActive = it
+                        }
+                    )
+                }
                 Row(
                     modifier = Modifier
+                        .zIndex(2f)
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                        .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        MapSearchField(
-                            suggestions = mapScreenUiState.searchSuggestions,
-                            onQueryChange = { mapViewModel.onSearchQueryChanged(it) },
-                            onSuggestionSelected = { suggestion ->
-                                mapViewModel.onSuggestionSelected(suggestion)
-                            },
-                            onSearchActiveChange = { searchActive = it }
-                        )
-                    }
+
                     MapSideControls(
-                        onZoomIn = {mapViewRef?.controller?.zoomIn()},
-                        onZoomOut = {mapViewRef?.controller?.zoomOut()},
+                        onZoomIn = { mapViewRef?.controller?.zoomIn() },
+                        onZoomOut = { mapViewRef?.controller?.zoomOut() },
                         onCenterClick = {
                             isCenterActive = true
                             locationServicesEnabled = checkLocationEnabled(context)
@@ -240,61 +262,82 @@ fun MapScreen(
                     onDismiss = { showHint = false }
                 )
             }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+
+                MapWeatherBottomScaffold(
+                    areaChange,
+                    changed = { areaChange = !areaChange },
+                    //MapTimeSliderSection
+                    sliderPosition = mapScreenUiState.sliderPosition,
+                    isAnimating = mapScreenUiState.isAnimating,
+                    onSliderChange = {
+                        mapViewModel.updateSliderPosition(it)
+                        mapViewModel.updateSliderState()
+                    },
+                    onAnimateToggle = { mapViewModel.toggleAnimate() },
+                    stepHours = mapScreenUiState.stepHours,
+                    sliderState = mapScreenUiState.sliderState,
+
+                    //MapLayerDropdown
+                    selectedLayerDisplayName = mapScreenUiState.selectedLayerDisplayName,
+                    selectedLayer = mapScreenUiState.selectedLayer,         // NY: Send med selve objektet fra uiState,
+                    displayLayers = mapScreenUiState.displayLayers,
+                    onLayerSelected = { mapViewModel.setSelectedLayer(it) },
+
+                    //Farevarsel
+                    onFareVarselToggle = {
+                        mapViewModel.toggleFareVarsel()
+                        if (!mapScreenUiState.fareVarsel) { // if it's currently off, it's about to turn on
+                            showHint = true
+                        }
+
+                    },
+                    isFareVarselActive = mapScreenUiState.fareVarsel,
+
+                    //MapChangeAreaButton
+                    area = mapScreenUiState.area,
+                    changeArea = { mapViewModel.updateArea(it) },
+                    onShowAreaChange = { showAreaChange = true }
+
+                )
+                mapScreenUiState.currentWeather?.let { weather ->
+                    MapWeatherInfoDialog(
+                        weather = weather,
+                        placeNameFromCoordinates = mapScreenUiState.placeNameFromCoordinates,
+                        onDismiss = { mapViewModel.dismissCurrentWeather() }
+                    )
+                }
+
+                mapScreenUiState.selectedAlert?.let { alert ->
+                    MapDangerWarningInfo(
+                        feature = alert,
+                        onDismiss = { mapViewModel.dismissAlert() }
+                    )
+                }
+            }
+            if (showAreaChange) {
+                Box(modifier = Modifier.zIndex(1f)) {
+                    Box(
+                        modifier = Modifier
+                            .alpha(0.5f)
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.surface)
+                            .clickable {
+                                keyboardController?.hide()
+                            }
+                    )
+                    MapDataSourceSwitcher(
+                        changeArea = { mapViewModel.updateArea(it) },
+                        changed = { areaChange = false },
+                        onShowAreaChange = { showAreaChange = false }
+                    )
+                }
+            }
         }
 
-            MapWeatherBottomScaffold(
-                //MapTimeSliderSection
-                sliderPosition = mapScreenUiState.sliderPosition,
-                isAnimating = mapScreenUiState.isAnimating,
-                onSliderChange = {
-                    mapViewModel.updateSliderPosition(it)
-                    mapViewModel.updateSliderState() },
-                onAnimateToggle = { mapViewModel.toggleAnimate() },
-                stepHours = mapScreenUiState.stepHours,
-                sliderState = mapScreenUiState.sliderState,
-
-                //MapLayerDropdown
-                selectedLayerDisplayName = mapScreenUiState.selectedLayerDisplayName,
-                selectedLayer = mapScreenUiState.selectedLayer,         // NY: Send med selve objektet fra uiState,
-                displayLayers = mapScreenUiState.displayLayers,
-                onLayerSelected = { mapViewModel.setSelectedLayer(it) },
-
-                //Farevarsel
-                onFareVarselToggle = {
-                    mapViewModel.toggleFareVarsel()
-                    if (!mapScreenUiState.fareVarsel) { // if it's currently off, it's about to turn on
-                        showHint = true
-                    }
-
-                },
-                isFareVarselActive = mapScreenUiState.fareVarsel,
-
-                //MapChangeAreaButton
-                area = mapScreenUiState.area,
-                changeArea = {mapViewModel.updateArea(it)},
-
-            )
-
-            MapDataSourceSwitcher(
-                changeArea = {mapViewModel.updateArea(it)},
-                mapViewRef,
-                wmsLayer = {mapScreenUiState.selectedLayer}
-            )
-
-            mapScreenUiState.currentWeather?.let { weather ->
-                MapWeatherInfoDialog(
-                    weather = weather,
-                    placeNameFromCoordinates = mapScreenUiState.placeNameFromCoordinates,
-                    onDismiss = { mapViewModel.dismissCurrentWeather() }
-                )
-            }
-
-            mapScreenUiState.selectedAlert?.let { alert ->
-                MapDangerWarningInfo(
-                    feature = alert,
-                    onDismiss = { mapViewModel.dismissAlert() }
-                )
-            }
     }
 }
 

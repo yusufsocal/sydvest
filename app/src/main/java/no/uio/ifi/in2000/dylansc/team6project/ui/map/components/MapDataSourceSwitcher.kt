@@ -39,9 +39,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
-import org.osmdroid.events.MapListener
-import org.osmdroid.events.ScrollEvent
-import org.osmdroid.events.ZoomEvent
 import org.osmdroid.views.MapView
 
 
@@ -84,152 +81,130 @@ private val areaCardList = listOf(
 
 @Composable
 fun MapDataSourceSwitcher(
-    changeArea: (String) -> Unit, mapView: MapView?, wmsLayer: () -> WMSLayer?
+    changeArea: (String) -> Unit,
+    changed: () -> Unit,
+    onShowAreaChange: () -> Unit
 ) {
-    var changeRequest by remember { mutableStateOf(false) }
-    var changed by remember { mutableStateOf(true) }
-
-    // ENDRE OMRÅDE BASERT PÅ ZOOM OG LOKASJON -> FUNKER IKKE ENDA
-    mapView?.setMapListener(object : MapListener {
-
-        override fun onZoom(event: ZoomEvent?): Boolean {
-            // Retrieve the new zoom level from the event or the MapView directly
-            val zoomLevel = event?.zoomLevel ?: mapView.zoomLevelDouble
-            if (zoomLevel < 5) {
-                changeRequest = true
-            } else {
-                changeRequest = false
-                changed = true
-            }
-
-            // Return true if you have consumed the event
-            return true
-        }
-
-        override fun onScroll(event: ScrollEvent?): Boolean {
-            // This is called when the map is panned
-            return false
-        }
-    })
 
     var area by remember { mutableStateOf("") }
 
-    if (changeRequest && changed && wmsLayer() != null) {
-        Box(
-            contentAlignment = Alignment.BottomCenter,
-            modifier = Modifier
-                .fillMaxSize()
-                .zIndex(1f)
-                .background(Color.White.copy(alpha = 0.5f))
-        ) {
-            Card(
-                content = {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .zIndex(1f)
+            .background(Color.White.copy(alpha = 0.5f))
+            .padding(16.dp)
+    ) {
+        Card(
+            content = {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Public,
+                        modifier = Modifier.size(56.dp),
+                        contentDescription = null
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        text = "GLOBALE DATA TILGJENGELIG",
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontSize = 13.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Du har zoomet ut av Norden",
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.headlineSmall,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+
+                    Text(
+                        text = "Detaljert værvarsel for resten av verden er ikke tilgjengelig her. Du kan bytte til globalt værvarsel, men her er oppløsningen lavere, og det vises ingen farevarsler.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center
+
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    Text(
+                        text = "Du kan også manuelt bytte mellom globalt og nåværende værvarsel manuelt i innstillinger",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Max),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+
+                        ) {
+                        areaCardList.forEach { card ->
+                            MapAreaDataCard(
+                                label = card.label,
+                                metadata = card.metadata,
+                                bulletList = card.bullet,
+                                onCardClick = {
+                                    area = card.label
+                                },
+                                selectedArea = area,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(20.dp))
+
+
+                    Button(
+                        onClick = {
+                            changeArea(area)
+                            onShowAreaChange()
+                            changed()
+                        },
                     ) {
                         Icon(
                             imageVector = Icons.Default.Public,
-                            modifier = Modifier.size(56.dp),
-                            contentDescription = null
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
                         )
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = "GLOBALE DATA TILGJENGELIG",
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontSize = 13.sp,
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = "Du har zoomet ut av Norden",
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.headlineSmall,
-                            textAlign = TextAlign.Center
-                        )
-
-                        Spacer(Modifier.height(16.dp))
-
-
-                        Text(
-                            text = "Detaljert værvarsel for resten av verden er ikke tilgjengelig her. Du kan bytte til globalt værvarsel, men her er oppløsningen lavere, og det vises ingen farevarsler.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center
-
-                        )
-
-                        Spacer(Modifier.height(8.dp))
-
-                        Text(
-                            text = "Du kan også manuelt bytte mellom globalt og nåværende værvarsel manuelt i innstillinger",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontSize = 12.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-
-                        )
-
-                        Spacer(Modifier.height(16.dp))
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(IntrinsicSize.Max),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-
-                            ) {
-                            areaCardList.forEach { card ->
-                                MapAreaDataCard(
-                                    label = card.label,
-                                    metadata = card.metadata,
-                                    bulletList = card.bullet,
-                                    onCardClick = {
-                                        area = card.label
-                                    },
-                                    selectedArea = area,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight()
-                                )
-                            }
-                        }
-                        Spacer(Modifier.height(20.dp))
-
-
-                        Button(
-                            onClick = {
-                                changeArea(area)
-                                changeRequest = false
-                                changed = false
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Public,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp),
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text("Bekreft valg")
-                        }
-
-                        Spacer(Modifier.height(4.dp))
-
-                        TextButton(onClick = {
-                            changeArea("Norden")
-                            changeRequest = false
-                            changed = false
-                        }) {
-                            Text("Avbryt - behold Norden")
-                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text("Bekreft valg")
                     }
-                },
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
-                ),
-            )
 
-        }
+                    Spacer(Modifier.height(4.dp))
+
+                    TextButton(onClick = {
+                        changeArea("Norden")
+                        onShowAreaChange()
+                        changed()
+                    }) {
+                        Text("Avbryt - behold Norden")
+                    }
+                }
+            },
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            ),
+        )
 
     }
+
 }
+
