@@ -13,8 +13,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import no.uio.ifi.in2000.dylansc.team6project.R
 
 @Composable
 fun MapAreaDataCard(
@@ -66,7 +68,7 @@ fun MapAreaDataCard(
                 bulletList.forEach { bullet ->
                     Row {
                         Text(
-                            text = "• ",
+                            text = stringResource(R.string.bullet_point),
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Bold,
                         )
