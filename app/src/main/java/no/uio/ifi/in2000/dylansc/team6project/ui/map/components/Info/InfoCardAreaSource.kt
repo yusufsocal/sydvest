@@ -1,6 +1,5 @@
-package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
+package no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
