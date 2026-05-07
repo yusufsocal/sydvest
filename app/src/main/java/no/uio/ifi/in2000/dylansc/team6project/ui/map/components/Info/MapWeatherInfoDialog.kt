@@ -41,14 +41,14 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info
             Card(
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 ),
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
 
                     Surface(
                         shape = RoundedCornerShape(16.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer,
+                        color = MaterialTheme.colorScheme.secondaryContainer,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -102,9 +102,8 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info
 
                             Text(
                                 text = "akkurat nå",
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                                    .copy(alpha = 0.7f),
-                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                style = MaterialTheme.typography.bodyLarge,
                             )
                         }
                     }
@@ -125,17 +124,13 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info
                             value = "${"%.1f".format(weather.windSpeed)} m/s",
                             modifier = Modifier.weight(1f),
                         )
+
+
                     }
 
                     Spacer(Modifier.height(10.dp))
 
-                    Surface(
-                        shape = RoundedCornerShape(14.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        InfoClothingTips(weather)
-                    }
+                    InfoClothingTips(weather)
                 }
             }
         }
