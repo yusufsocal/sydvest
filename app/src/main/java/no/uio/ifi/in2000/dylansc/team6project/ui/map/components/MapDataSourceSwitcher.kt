@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
+import android.R.attr.label
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,7 +44,7 @@ import androidx.compose.ui.zIndex
 import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info.MapAreaDataCard
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info.InfoCardAreaSource
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent
@@ -48,7 +52,11 @@ import org.osmdroid.views.MapView
 
 
 private data class AreaCardContent(
-    val area: AreaData, val label: String, val metadata: String, val bullet: List<String>
+    val area: AreaData,
+    val label: String,
+    val metadataArea: String,
+    val metadataRange: String,
+    val bullet: List<String>
 )
 
 
@@ -65,7 +73,8 @@ fun MapDataSourceSwitcher(
         AreaCardContent(
             area = AreaData.NORDIC,
             label = stringResource(R.string.nordic),
-            metadata = stringResource(R.string.nordic_datasource_metadata),
+            metadataArea = stringResource(R.string.nordic_datasource_metadataArea),
+            metadataRange = stringResource(R.string.nordic_datasource_metadataRange),
             bullet = listOf(
                 stringResource(R.string.bullet_high_resolution),
                 stringResource(R.string.bullet_warnings),
@@ -75,8 +84,9 @@ fun MapDataSourceSwitcher(
 
         AreaCardContent(
             area = AreaData.WORLD,
-            label = stringResource(R.string.worldvide),
-            metadata = stringResource(R.string.worldwide_datasource_metadata), //TODO: Sjekk at dette er riktig. Eventuelt forenkle
+            label = stringResource(R.string.worldwide),
+            metadataArea = stringResource(R.string.worldwide_datasource_metadataArea),
+            metadataRange = stringResource(R.string.worldwide_datasource_metadataRange),
             bullet = listOf(
                 stringResource(R.string.bullet_worldwide),
                 stringResource(R.string.bullet_lower_resolution),
@@ -87,7 +97,8 @@ fun MapDataSourceSwitcher(
         AreaCardContent(
             area = AreaData.ARCTIC,
             label = stringResource(R.string.arctic),
-            metadata = stringResource(R.string.arctic_datasource_metadata),
+            metadataArea = stringResource(R.string.arctic_datasource_metadataArea),
+            metadataRange = stringResource(R.string.arctic_datasource_metadataRange),
             bullet = listOf(
                 stringResource(R.string.bullet_polar_regions),
                 stringResource(R.string.bullet_no_warnings)
@@ -112,21 +123,8 @@ fun MapDataSourceSwitcher(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Public,
-                        modifier = Modifier.size(56.dp),
-                        contentDescription = null
-                    )
-                    Spacer(Modifier.height(16.dp))
                     Text(
-                        text = stringResource(R.string.more_data_available),
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontSize = 13.sp,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = stringResource(R.string.zoomed_out_of_nordic),
+                        text = stringResource(R.string.change_area_question),
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.headlineSmall,
                         textAlign = TextAlign.Center
@@ -136,47 +134,43 @@ fun MapDataSourceSwitcher(
 
 
                     Text(
-                        text = stringResource(R.string.global_data_explanation),
+                        text = stringResource(R.string.change_data_explanation),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center
 
                     )
 
-                    Spacer(Modifier.height(8.dp))
-
-                    Text(
-                        text = stringResource(R.string.manual_switch_in_settings),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-
-                    )
-
                     Spacer(Modifier.height(16.dp))
+                    var selectedIndex by remember { mutableStateOf(0) }
+                    val options = listOf(stringResource(R.string.nordic), stringResource(R.string.arctic), stringResource(R.string.worldwide))
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(IntrinsicSize.Max),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-
-                        ) {
-                        areaCardList.forEach { card ->
-                            MapAreaDataCard(
-                                label = card.label,
-                                metadata = card.metadata,
-                                bulletList = card.bullet,
-                                onCardClick = {
-                                    area = card.label
-                                },
-                                selectedArea = area,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxHeight()
-                            )
+                    SingleChoiceSegmentedButtonRow() {
+                        options.forEachIndexed { index, label ->
+                            SegmentedButton(
+                                shape = SegmentedButtonDefaults.itemShape(
+                                    index = index,
+                                    count = options.size
+                                ),
+                                onClick = { selectedIndex = index
+                                    area = label },
+                                selected = index == selectedIndex,
+                            ) {
+                                Text(label)
+                            }
                         }
                     }
+
+                    var areaCard = areaCardList[selectedIndex]
+
+                    InfoCardAreaSource(
+                        label = areaCard.label,
+                        metadataArea = areaCard.metadataArea,
+                        metadataRange = areaCard.metadataRange,
+                        bulletList = areaCard.bullet,
+                        onCardClick = {},
+                        selectedArea = area,
+
+                    )
                     Spacer(Modifier.height(20.dp))
 
 
@@ -198,16 +192,6 @@ fun MapDataSourceSwitcher(
                     }
 
                     Spacer(Modifier.height(4.dp))
-
-                    TextButton(onClick = {
-                        changeArea("Norden")
-                        changed()
-                        onShowAreaChange()
-
-
-                    }) {
-                        Text(stringResource(R.string.cancel_keep_nordic))
-                    }
                 }
             },
             colors = CardDefaults.cardColors(
