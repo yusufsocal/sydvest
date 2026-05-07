@@ -215,6 +215,8 @@ fun MapWeatherBottomScaffold(
                         }
                         .height(25.dp)
                 ) {
+
+                    // TODO: endre denne til standard
                     Image(
                         painter = if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) painterResource(
                             id = R.drawable.arrowup_blue

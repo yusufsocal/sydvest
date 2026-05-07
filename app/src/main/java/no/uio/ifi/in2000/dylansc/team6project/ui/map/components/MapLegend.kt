@@ -36,7 +36,7 @@ val precipitationLegend = listOf(
     LegendEntry(Color(0xFF1565C0), "Svært kraftig (10–20 mm)"),
     LegendEntry(Color(0xFF4A148C), "Ekstrem (20+ mm)"),
 )
-
+// TODO: sjekke om disse fargene stemmer?
 val windLegend = listOf(
     LegendEntry(Color(0xFFB2EBF2), "Stille (0–5 m/s)"),
     LegendEntry(Color(0xFFFDD835), "Moderat (5–10 m/s)"),
