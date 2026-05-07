@@ -1,6 +1,5 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,13 +31,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info.MapAreaDataCard
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent
@@ -49,43 +51,46 @@ private data class AreaCardContent(
     val area: AreaData, val label: String, val metadata: String, val bullet: List<String>
 )
 
-private val areaCardList = listOf(
-    AreaCardContent(
-        area = AreaData.NORDIC,
-        label = "Norden",
-        metadata = "MET Norden - 1km - 1t",
-        bullet = listOf(
-            "Høy oppløsning",
-            "Farevarsler",
-            "60 timer kvalitetsvarsel",
-        )
-    ),
 
-    AreaCardContent(
-        area = AreaData.WORLD,
-        label = "Verden",
-        metadata = "ECMWF - 25km - 3t", //TODO: Sjekk at dette er riktig. Eventuelt forenkle
-        bullet = listOf(
-            "Verdensdekkende",
-            "Litt dårligere oppløsning",
-            "Ingen farevarsler",
-        )
-    ),
-
-    AreaCardContent(
-        area = AreaData.ARCTIC,
-        label = "Arktis",
-        metadata = "AROME Arctic - 2.5km - 1t",
-        bullet = listOf(
-            "Polare områder", "Ingen farevarsler"
-        )
-    )
-)
 
 @Composable
 fun MapDataSourceSwitcher(
     changeArea: (String) -> Unit, mapView: MapView?, wmsLayer: () -> WMSLayer?
 ) {
+
+    val areaCardList = listOf(
+        AreaCardContent(
+            area = AreaData.NORDIC,
+            label = stringResource(R.string.nordic),
+            metadata = stringResource(R.string.nordic_datasource_metadata),
+            bullet = listOf(
+                stringResource(R.string.bullet_high_resolution),
+                stringResource(R.string.bullet_warnings),
+                stringResource(R.string.bullet_60_hour_forecast),
+            )
+        ),
+
+        AreaCardContent(
+            area = AreaData.WORLD,
+            label = stringResource(R.string.worldvide),
+            metadata = stringResource(R.string.worldwide_datasource_metadata), //TODO: Sjekk at dette er riktig. Eventuelt forenkle
+            bullet = listOf(
+                stringResource(R.string.bullet_worldwide),
+                stringResource(R.string.bullet_lower_resolution),
+                stringResource(R.string.bullet_no_warnings),
+            )
+        ),
+
+        AreaCardContent(
+            area = AreaData.ARCTIC,
+            label = stringResource(R.string.arctic),
+            metadata = stringResource(R.string.arctic_datasource_metadata),
+            bullet = listOf(
+                stringResource(R.string.bullet_polar_regions),
+                stringResource(R.string.bullet_no_warnings)
+            )
+        )
+    )
     var changeRequest by remember { mutableStateOf(false) }
     var changed by remember { mutableStateOf(true) }
 
@@ -136,14 +141,14 @@ fun MapDataSourceSwitcher(
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            text = "GLOBALE DATA TILGJENGELIG",
+                            text = stringResource(R.string.more_data_available),
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.headlineSmall,
                             fontSize = 13.sp,
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            text = "Du har zoomet ut av Norden",
+                            text = stringResource(R.string.zoomed_out_of_nordic),
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.headlineSmall,
                             textAlign = TextAlign.Center
@@ -153,7 +158,7 @@ fun MapDataSourceSwitcher(
 
 
                         Text(
-                            text = "Detaljert værvarsel for resten av verden er ikke tilgjengelig her. Du kan bytte til globalt værvarsel, men her er oppløsningen lavere, og det vises ingen farevarsler.",
+                            text = stringResource(R.string.global_data_explanation),
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center
 
@@ -162,7 +167,7 @@ fun MapDataSourceSwitcher(
                         Spacer(Modifier.height(8.dp))
 
                         Text(
-                            text = "Du kan også manuelt bytte mellom globalt og nåværende værvarsel manuelt i innstillinger",
+                            text = stringResource(R.string.manual_switch_in_settings),
                             style = MaterialTheme.typography.bodyMedium,
                             fontSize = 12.sp,
                             textAlign = TextAlign.Center,
@@ -210,7 +215,7 @@ fun MapDataSourceSwitcher(
                                 modifier = Modifier.size(18.dp),
                             )
                             Spacer(Modifier.width(8.dp))
-                            Text("Bekreft valg")
+                            Text(stringResource(R.string.confirm_choice))
                         }
 
                         Spacer(Modifier.height(4.dp))
@@ -220,7 +225,7 @@ fun MapDataSourceSwitcher(
                             changeRequest = false
                             changed = false
                         }) {
-                            Text("Avbryt - behold Norden")
+                            Text(stringResource(R.string.cancel_keep_nordic))
                         }
                     }
                 },

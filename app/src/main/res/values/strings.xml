@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">SydVest</string>
+
+    <!-- InfoCardAreaSource -->
+    <string name = "bullet_point">• </string>
+    <string name = "nordic">Norden</string>
+    <string name = "worldvide">Verden</string>
+    <string name = "arctic">Arktis</string>
+
+    <!-- MapDataSourceSwitcher -->
+    <string name = "nordic_datasource_metadata">MET Norden - 1km - 1t</string>
+    <string name = "worldwide_datasource_metadata">ECMWF - 25km - 3t</string>
+    <string name = "arctic_datasource_metadata">AROME Arctic - 2.5km - 1t</string>
+
+    <string name = "bullet_high_resolution">Høy oppløsning</string>
+    <string name = "bullet_warnings">Detaljerte farevarsler</string>
+    <string name = "bullet_60_hour_forecast">60 timer med værdata</string>
+    <string name = "bullet_worldwide">Værdata for hele verden</string>
+    <string name = "bullet_lower_resolution">Litt dårligere oppløsning</string>
+    <string name = "bullet_no_warnings">Ingen farevarsler utenfor Norge</string>
+    <string name = "bullet_polar_regions">Polare områder</string>
+
+    <string name = "more_data_available">VÆRDATA TILGJENGELIG</string>
+    <string name = "zoomed_out_of_nordic">Du har zoomet ut av Norden</string>
+    <string name = "global_data_explanation">Detaljert værvarsel for resten av verden er kun tilgjengeligi Norden. Du kan bytte til globalt eller arktis værvarsel. Farevarsler vises kun for Norge, og den globale dataen har litt lavere kvalitet..</string>
+    <string name = "manual_switch_in_settings">Du kan også manuelt bytte mellom globalt og nåværende værvarsel manuelt i innstillinger</string>
+    <string name = "confirm_choice">Bekreft valg</string>
+    <string name = "cancel_keep_nordic">Avbryt - behold</string>
+
 </resources>

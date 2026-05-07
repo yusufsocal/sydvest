@@ -45,7 +45,6 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSearchField
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSideControls
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapWeatherBottomScaffold
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info.MapWeatherInfoDialog
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapLegend
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
