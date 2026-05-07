@@ -52,12 +52,13 @@ private data class AreaCardContent(
 )
 
 
-
 @Composable
 fun MapDataSourceSwitcher(
     changeArea: (String) -> Unit,
     changed: () -> Unit,
-    onShowAreaChange: () -> Unit
+    onShowAreaChange: () -> Unit,
+    mapView: MapView?,
+    wmsLayer: () -> WMSLayer?
 ) {
 
     val areaCardList = listOf(
@@ -93,123 +94,16 @@ fun MapDataSourceSwitcher(
             )
         )
     )
-    var changeRequest by remember { mutableStateOf(false) }
-    var changed by remember { mutableStateOf(true) }
 
-    // Change area based on zoom and location -> does not work yet
-    mapView?.setMapListener(object : MapListener {
-
-        override fun onZoom(event: ZoomEvent?): Boolean {
-            // Retrieve the new zoom level from the event or the MapView directly
-            val zoomLevel = event?.zoomLevel ?: mapView.zoomLevelDouble
-            if (zoomLevel < 5) {
-                changeRequest = true
-            } else {
-                changeRequest = false
-                changed = true
-            }
-
-            // Return true if you have consumed the event
-            return true
-        }
-
-        override fun onScroll(event: ScrollEvent?): Boolean {
-            // This is called when the map is panned
-            return false
-        }
-    })
 
     var area by remember { mutableStateOf("") }
 
-    if (changeRequest && changed && wmsLayer() != null) {
-        Box(
-            contentAlignment = Alignment.BottomCenter,
-            modifier = Modifier
-                .fillMaxSize()
-                .zIndex(1f)
-                .background(Color.White.copy(alpha = 0.5f))
-        ) {
-            Card(
-                content = {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Public,
-                            modifier = Modifier.size(56.dp),
-                            contentDescription = null
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = stringResource(R.string.more_data_available),
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontSize = 13.sp,
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = stringResource(R.string.zoomed_out_of_nordic),
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.headlineSmall,
-                            textAlign = TextAlign.Center
-                        )
-
-                        Spacer(Modifier.height(16.dp))
-
-
-                        Text(
-                            text = stringResource(R.string.global_data_explanation),
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center
-
-                        )
-
-                        Spacer(Modifier.height(8.dp))
-
-                        Text(
-                            text = stringResource(R.string.manual_switch_in_settings),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontSize = 12.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-
-                        )
-
-                        Spacer(Modifier.height(16.dp))
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(IntrinsicSize.Max),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-
-                            ) {
-                            areaCardList.forEach { card ->
-                                MapAreaDataCard(
-                                    label = card.label,
-                                    metadata = card.metadata,
-                                    bulletList = card.bullet,
-                                    onCardClick = {
-                                        area = card.label
-                                    },
-                                    selectedArea = area,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight()
-                                )
-                            }
-                        }
-                        Spacer(Modifier.height(20.dp))
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .fillMaxSize()
-            .zIndex(1f)
-            .background(Color.White.copy(alpha = 0.5f))
             .padding(16.dp)
+            .fillMaxSize()
     ) {
         Card(
             content = {
@@ -225,14 +119,14 @@ fun MapDataSourceSwitcher(
                     )
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        text = "GLOBALE DATA TILGJENGELIG",
+                        text = stringResource(R.string.more_data_available),
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.headlineSmall,
                         fontSize = 13.sp,
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        text = "Du har zoomet ut av Norden",
+                        text = stringResource(R.string.zoomed_out_of_nordic),
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.headlineSmall,
                         textAlign = TextAlign.Center
@@ -242,7 +136,7 @@ fun MapDataSourceSwitcher(
 
 
                     Text(
-                        text = "Detaljert værvarsel for resten av verden er ikke tilgjengelig her. Du kan bytte til globalt værvarsel, men her er oppløsningen lavere, og det vises ingen farevarsler.",
+                        text = stringResource(R.string.global_data_explanation),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center
 
@@ -251,7 +145,7 @@ fun MapDataSourceSwitcher(
                     Spacer(Modifier.height(8.dp))
 
                     Text(
-                        text = "Du kan også manuelt bytte mellom globalt og nåværende værvarsel manuelt i innstillinger",
+                        text = stringResource(R.string.manual_switch_in_settings),
                         style = MaterialTheme.typography.bodyMedium,
                         fontSize = 12.sp,
                         textAlign = TextAlign.Center,
@@ -281,31 +175,38 @@ fun MapDataSourceSwitcher(
                                     .weight(1f)
                                     .fillMaxHeight()
                             )
-
-                            Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.confirm_choice))
                         }
                     }
                     Spacer(Modifier.height(20.dp))
 
 
-                        TextButton(onClick = {
-                            changeArea("Norden")
-                            changeRequest = false
-                            changed = false
-                        }) {
-                            Text(stringResource(R.string.cancel_keep_nordic))
-                        }
+                    Button(
+                        onClick = {
+                            changeArea(area)
+                            changed()
+                            onShowAreaChange()
+
+                        },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Public,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.confirm_choice))
                     }
 
                     Spacer(Modifier.height(4.dp))
 
                     TextButton(onClick = {
                         changeArea("Norden")
-                        onShowAreaChange()
                         changed()
+                        onShowAreaChange()
+
+
                     }) {
-                        Text("Avbryt - behold Norden")
+                        Text(stringResource(R.string.cancel_keep_nordic))
                     }
                 }
             },

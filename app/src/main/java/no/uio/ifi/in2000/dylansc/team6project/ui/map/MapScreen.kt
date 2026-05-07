@@ -335,7 +335,9 @@ fun MapScreen(
                     MapDataSourceSwitcher(
                         changeArea = { mapViewModel.updateArea(it) },
                         changed = { areaChange = false },
-                        onShowAreaChange = { showAreaChange = false }
+                        onShowAreaChange = { showAreaChange = false },
+                        mapView = mapViewRef,
+                        wmsLayer = {mapScreenUiState.selectedLayer}
                     )
                 }
             }
