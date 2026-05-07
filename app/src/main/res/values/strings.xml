@@ -33,4 +33,7 @@
     <!-- MapChangeAreaButton -->
     <string name = "choose_data_source_area">Velg mellom områder"</string>
 
+    <!-- MapDangerWarningHint -->
+    <string name ="press_dangerbutton_for_information">Trykk på et farevarsel for mer informasjon</string>
+
 </resources>
