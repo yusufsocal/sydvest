@@ -72,7 +72,7 @@ fun MapDangerWarningInfo(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Varseltype
+                    // Type of warning
                     Text(
                         text = "$emoji $norsk",
                         style = MaterialTheme.typography.headlineSmall,
@@ -123,7 +123,7 @@ fun MapDangerWarningInfo(
                             }
                         }
                 ) {
-                    // kart med varsel
+                    // Map with warning
                     AndroidView(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -174,7 +174,7 @@ fun MapDangerWarningInfo(
                             mapView.overlays.clear()
                             mapView.overlays.add(polygon)
 
-                            // zoom to fit the polygon
+                            // Zoom to fit the polygon
                             val boundingBox = BoundingBox.fromGeoPoints(points)
                             mapView.post {
                                 mapView.zoomToBoundingBox(boundingBox, true, 32)

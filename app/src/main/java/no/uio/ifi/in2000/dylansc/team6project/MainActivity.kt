@@ -17,7 +17,7 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.theme.Team6ProjectTheme
 
 class MainActivity : ComponentActivity() {
 
-    // Instansiering av datakildene manuelt (Dependency Injection)
+    // Instantiation of the data sources manually (Dependency Injection)
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    //Oppretter en NavHost
+                    //Creates a NavHost
                     val navController = rememberNavController()
                     AppNavHost(navController)
 

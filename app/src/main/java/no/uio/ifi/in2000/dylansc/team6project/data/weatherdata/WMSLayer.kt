@@ -9,8 +9,8 @@ import nl.adaptivity.xmlutil.serialization.XmlValue
 
 
 
-//@SerialName sørger for at man kan hente data fra XML-fil med stor forbokstav, men gjør
-//at dataen initialiseres til en variabel med liten forbokstav, slik at man følger riktig kodepraksis.
+//@SerialName makes sure that one can get data from XML-file with captial letter, but also
+//makes sure that the data initialises to a variable with lowercase initial letter, so it follows correct coding practices.
 
 @Serializable
 @XmlSerialName("WMS_Capabilities", namespace = "http://www.opengis.net/wms", prefix = "")
@@ -43,8 +43,8 @@ data class WMSLayer(
     @XmlElement(true) @SerialName("Title") val title: String = "",
     val dimensions: List<WMSDimension> = emptyList()
 ) {
-    // Velg "time"-dimensjonen, ikke "reference_time" — ellers får vi PT12H i stedet for
-    // PT3H for ECMWF/Verden, og slider/animasjon hopper feil intervall.
+    // Choose "time"-dimension, not "reference_time" — or else we will getPT12H instead of
+    // PT3H for ECMWF/"Verden"/The world, and the slider/animation jumps the wrong interval.
     val dimension: String?
         get() = dimensions.firstOrNull { it.name == "time" }?.value
             ?: dimensions.firstOrNull()?.value

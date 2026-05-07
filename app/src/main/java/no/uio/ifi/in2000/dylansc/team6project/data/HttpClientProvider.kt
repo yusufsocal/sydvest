@@ -1,5 +1,5 @@
-// Bygger HttpClient-instanser med standardkonfigurasjon.
-// Eierskap (livssyklus + close) ligger hos App, ikke her.
+// Builds HttpClient-instances with standard configurations.
+// Ownership (life cycle + close) lays with App, not here.
 
 package no.uio.ifi.in2000.dylansc.team6project.data
 

@@ -64,8 +64,8 @@ fun MapSearchField(
             .then(if (expanded) Modifier.fillMaxSize() else Modifier.fillMaxWidth())
     ) {
         if (expanded) {
-            //Bakgrunn bak søkefeltet
-            //Opprettes kun når man søker etter noe
+            //Background behind the search bar
+            //Is created only when you are searching for something
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -80,7 +80,7 @@ fun MapSearchField(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            //Selve søkefelt
+            //The search bar itself
             SearchBar(
                 inputField = {
                     TextField(
@@ -122,7 +122,7 @@ fun MapSearchField(
                                 expanded = false
                             }
                         ),
-                        //Farger for søkefeltet
+                        //Colours for search bar
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = ComposeColor.Transparent,
                             unfocusedContainerColor = ComposeColor.Transparent,
@@ -183,7 +183,7 @@ fun MapSearchField(
                                         query = suggestion.name
                                         expanded = false
                                         onSearchActiveChange(false)
-                                        onSuggestionSelected(suggestion) // Sender resultatet tilbake
+                                        onSuggestionSelected(suggestion) // Sends the search result back
                                         focusRequester.requestFocus()
                                         keyboardController?.hide()
                                     }

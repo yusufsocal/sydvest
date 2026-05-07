@@ -49,7 +49,7 @@ fun MapChangeAreaButton(
 
     ) {
 
-    //ENDRE OMRÅDE FRA KNAPP
+    //Change area from button
     val areaOptions = listOf("Norden", "Arktis", "Verden")
 
     Card() {

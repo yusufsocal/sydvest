@@ -30,31 +30,31 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    //Alle repositories sendes hit! Husk å oppdatere etter hvert som vi får flere!
+    //All repositories are sent here! Remember to update as we go along!
 ) {
     val app = LocalContext.current.applicationContext as App
 
-    //DataSource og Repository for værdata fra Victoria initialiseres her!
+    //DataSource and Repository for weather data from Victoria are initialised here!
     val wmsDataSource = remember { WMSDataSourceImpl(app.httpClient) }
     val locationRepo = remember { LocationRepository(wmsDataSource) }
 
-    //LoationforecastDataSource og Repository for værdata initialiseres her!
+    //LoationforecastDataSource and Repository for weather data are initialised here!
     val weatherDataSource = remember { LocationforecastDataSourceImpl(app.jsonHttpClient) }
     val weatherRepo = remember { WeatherRepository(weatherDataSource) }
 
-    //DataSource og Repository for Alerts initialiseres her!
+    //DataSource and Repository for Alerts are initialised here!
     val alertDataSource = remember { AlertDataSourceImpl(app.jsonHttpClient) }
     val alertRepo = remember { AlertRepository(alertDataSource) }
 
     val searchDataSource = remember { SearchDataSourceImpl(app.httpClient) }
     val searchRepo = remember { SearchRepository(searchDataSource) }
 
-    //PROSJEKT CUSTOM AREA -> Foreløpig placeholder for opprettelse av variabel for når
-    //hvilken data som skal benyttes velges ->
+    //PROJECT CUSTOM AREA -> Currently a placeholder for when the user has chosen
+    //which data source to use ->
     var area: AreaData = AreaData.NORDIC
     //
 
-    //Hoister ViewModel opp til NavHost
+    //Hoisting ViewModel up to NavHost
     val mapViewModel: MapViewModel = viewModel(
         factory = MapViewModel.provideFactory(locationRepo, alertRepo, searchRepo, area, weatherRepo)
     )
@@ -64,7 +64,7 @@ fun AppNavHost(
         navController = navController,
         startDestination = "map"
     ) {
-        // Rute 1 -> Hjemskjerm
+        // Route 1 -> HomeScreen
         composable("map") {
             MapScreen(
                 uiState,

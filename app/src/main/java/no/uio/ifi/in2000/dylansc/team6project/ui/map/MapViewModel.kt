@@ -52,10 +52,10 @@ data class MapScreenUiState(
 
     val selectedArea: AreaData? = null,
 
-    // stedsnavn for å reverse koordinater til stedsnavn
+    // place name for reversing coordinates to place name
     val placeNameFromCoordinates: String? = null,
 
-    //Søkefelt
+    //Search bar
     val searchSuggestions: List<SearchResult> = emptyList(),
     val searchQuery: String = "",
     val pendingCenterLocation: GeoPoint? = null,
@@ -233,17 +233,17 @@ class MapViewModel(
     fun updateArea(areaName: String) {
         viewModelScope.launch {
             try {
-                // Finn det nye området basert på tekststrengen fra dropdown
+                // Find the new area based on the text string from the dropdown
                 val userPreferredArea = wmsDomain.changeArea(areaName, originalArea)
 
-                // Sjekk om dette området må tvinges til WORLD pga. nåværende slider-posisjon
+                // Check if the area must be forced to WORLD because of current slider-position
                 val hoursAhead = _uiState.value.sliderPosition.toLong()
                 val resolvedArea = wmsDomain.resolveArea(userPreferredArea, hoursAhead)
 
-                // Hent data for det faktiske området som skal vises
+                // Get data for the actual area to be shown
                 val newLayerList = locationRepo.getArea(resolvedArea) ?: emptyList()
 
-                // Finn igjen det valgte værlaget (f.eks. Temperatur) i den nye listen
+                // Find again the chosen weather layer(e.g. Temperatur) in the new list
                 val oldNormalizedTitle =
                     _uiState.value.selectedLayer?.title?.let { normalizeLayerTitle(it) }
                 val matchedLayer =
@@ -251,8 +251,8 @@ class MapViewModel(
 
                 _uiState.update { state ->
                     state.copy(
-                        selectedArea = userPreferredArea, // Lagre brukerens valg
-                        area = resolvedArea,              // Det som faktisk tegnes
+                        selectedArea = userPreferredArea, // Save the users choice
+                        area = resolvedArea,              // What is actually drawn
                         layerList = newLayerList,
                         selectedLayer = matchedLayer,
                         displayLayers = computeDisplayLayers(newLayerList, resolvedArea),
@@ -268,9 +268,9 @@ class MapViewModel(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateTime(time: String) {
-        // Avbryt forrige updateTime-jobb. Ellers kan rask sliderdrag eller
-        // animasjonssteg etterlate flere parallelle jobber som skriver
-        // til _uiState i tilfeldig rekkefølge og ender med stale tid.
+        // Cancel the last updateTime-job. Or else a fast slider drag or
+        // animation step leave behind more parallel jobs which writes
+        // to _uiState in random order and ends with stale time.
         updateTimeJob?.cancel()
         updateTimeJob = viewModelScope.launch {
             try {
@@ -341,7 +341,7 @@ class MapViewModel(
             "Precipitation amount 3h" to "Nedbør",
             "Wind 10m speed" to "Vind"
         )
-        // Beholder originalen for å teste
+        // Keeps the original for testing purposes
         return layerList
             .filter { normalizeLayerTitle(it.title) in allowedLayers }
             .mapNotNull { layer ->
@@ -363,7 +363,7 @@ class MapViewModel(
             .removeSuffix(" in ECMWF SFC")
             .trim()
 
-    // Returnerer nåværende tidspunkt som ISO 8601-formatert streng
+    // Returns the current time as ISO 8601-formatted string
     @RequiresApi(Build.VERSION_CODES.O)
     fun getNowTimestamp(): String {
         val now = OffsetDateTime.now(ZoneOffset.UTC)
@@ -371,7 +371,7 @@ class MapViewModel(
             .format(DateTimeFormatter.ISO_INSTANT)
     }
 
-    // Regner ut timer frem i tid fra nå
+    // Calculates hours ahead from now
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getHoursAhead(time: String): Long {
         val selected = OffsetDateTime.parse(time)
@@ -379,10 +379,10 @@ class MapViewModel(
         return Duration.between(now, selected).toHours()
     }
 
-    // Henter ut steget (i timer) fra et WMS Dimension-felt.
-    // Formen er "start/end/PTxH" eller "start/end/PTxH/PTyH" når cadence
-    // bytter midt i prognosen (f.eks. ECMWF: PT3H først, så PT6H lenger frem).
-    // Vi velger første step (parts[2]) — den fineste cadencen.
+    // Retrieves the step (in hours) from a WMS Dimension-field.
+    // The form is "start/end/PTxH" or "start/end/PTxH/PTyH" when cadence
+    // changes is the middle of the prognosis (e.g. ECMWF: PT3H first, then PT6H further ahead).
+    // We first choose the first step (parts[2]) — the nicest cadence.
     @RequiresApi(Build.VERSION_CODES.O)
     private fun parseStepHours(dimension: String?): Int {
         if (dimension == null) return 1
@@ -395,7 +395,7 @@ class MapViewModel(
         }
     }
 
-    // Sjekker at tidspunktet er i riktig intervall
+    // Checks that the time is in the right interval
     @RequiresApi(Build.VERSION_CODES.O)
     private fun coerceTimeToDimension(requestedTime: String, dimension: String): String {
         return try {
@@ -418,8 +418,8 @@ class MapViewModel(
         }
     }
 
-    // Funksjon for punktmarkering og henting av data fra API.
-    // Den henter også stedsnavn basert på koordinatene.
+    // Function for position marking and getting data from API.
+    // It also retrieves place names based on the coordinates.
     fun onLocationSelected(lat: Double, lon: Double) {
         viewModelScope.launch {
             val weather = async { weatherRepo.getCurrentWeather(lat, lon) }
