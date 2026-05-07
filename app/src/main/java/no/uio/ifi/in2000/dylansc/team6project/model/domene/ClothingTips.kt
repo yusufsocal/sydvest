@@ -6,7 +6,7 @@ fun getClothingTips(weather: CurrentWeather): String? {
         // They have to be in the right order -- they are checked from the top down.
         // Rain, colder temperatures and wind trumps warmer temperatures.
         weather.temperature < 0 -> "🧥 Vinterjakke"
-        weather.rainfall > 0.1 -> "🌂 Paraply eller regnjakke"
+        weather.rainfall > 0.2 -> "🌂 Regnjakke"
         weather.windSpeed > 5.5 -> "🌬️ Vindjakke"
         weather.temperature >= 25 -> "👙 Badetøy"
         weather.temperature >= 18 -> "🩳Shorts"
