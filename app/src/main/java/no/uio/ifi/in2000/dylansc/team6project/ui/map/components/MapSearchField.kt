@@ -138,6 +138,9 @@ fun MapSearchField(
                         )
                 },
                 expanded = expanded,
+                colors = SearchBarDefaults.colors(
+                    MaterialTheme.colorScheme.background
+                ),
                 onExpandedChange = {
                     expanded = it
                     if (!it) keyboardController?.hide()

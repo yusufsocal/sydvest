@@ -301,6 +301,7 @@ fun MapScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .zIndex(1f)
             ) {
 
                 MapWeatherBottomScaffold(
