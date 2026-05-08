@@ -20,11 +20,11 @@ class WMSDomain {
 
     // Function for changing the area manually.
     fun changeArea(area: String, originalArea: AreaData): AreaData {
-        when (area) {
-            "Norden" -> return AreaData.NORDIC
-            "Arktis" -> return AreaData.ARCTIC
-            "Verden" -> return AreaData.WORLD
-            else -> return originalArea
+        return when (area) {
+            "Norden" ->  AreaData.NORDIC
+            "Arktis" ->  AreaData.ARCTIC
+            "Verden" ->  AreaData.WORLD
+            else ->  originalArea
         }
 
 
