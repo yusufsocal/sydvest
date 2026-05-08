@@ -39,7 +39,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
 import androidx.compose.ui.graphics.Color as ComposeColor
 

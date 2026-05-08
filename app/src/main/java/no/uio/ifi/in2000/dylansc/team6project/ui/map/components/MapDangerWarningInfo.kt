@@ -19,24 +19,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.BoundingBox
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Polygon
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.core.graphics.toColorInt
+import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.double
-import org.osmdroid.util.GeoPoint
-import androidx.core.graphics.toColorInt
 import no.uio.ifi.in2000.dylansc.team6project.R
+import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.BoundingBox
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Polygon
 
 @Composable
 fun MapDangerWarningInfo(

@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WeatherDataLegend
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.precipitationLegend
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.temperatureLegend
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.windLegend
