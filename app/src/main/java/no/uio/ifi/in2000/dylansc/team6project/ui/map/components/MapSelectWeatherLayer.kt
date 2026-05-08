@@ -40,7 +40,6 @@ fun MapSelectWeatherLayer(
     onFareVarselToggle: () -> Unit,
     isFareVarselActive: Boolean
 ) {
-    var showLegend by remember { mutableStateOf(false) }
     var textSize by remember { mutableStateOf(12) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -98,16 +97,6 @@ fun MapSelectWeatherLayer(
                 )
             }
 
-        }
-        // (i) the button is only visible if a weather layer is chosen
-        if (selectedLayerDisplayName != "Velg værlag...") {
-            IconButton(onClick = { showLegend = true }) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Vis fargeskala",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
         }
     }
 }
