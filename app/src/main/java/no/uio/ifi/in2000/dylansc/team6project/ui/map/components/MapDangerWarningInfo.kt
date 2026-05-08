@@ -35,7 +35,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.double
 import org.osmdroid.util.GeoPoint
-import android.graphics.Color as AndroidColor
+import androidx.core.graphics.toColorInt
 import no.uio.ifi.in2000.dylansc.team6project.R
 
 @Composable
@@ -151,10 +151,10 @@ fun MapDangerWarningInfo(
                             }
                         },
                         update = { mapView ->
-                            val coords = geometry.coordinates?.jsonArray ?: return@AndroidView
+                            val coords = geometry.coordinates.jsonArray
 
                             val points = when {
-                                geometry.type?.equals("Polygon", true) == true ->
+                                geometry.type.equals("Polygon", true) ->
                                     coords.firstOrNull()?.jsonArray?.mapNotNull {
                                         val pair = it.jsonArray
                                         if (pair.size >= 2) GeoPoint(
@@ -163,7 +163,7 @@ fun MapDangerWarningInfo(
                                         )
                                         else null
                                     }
-                                geometry.type?.equals("MultiPolygon", true) == true ->
+                                geometry.type.equals("MultiPolygon", true) ->
                                     coords.firstOrNull()?.jsonArray?.firstOrNull()?.jsonArray?.mapNotNull {
                                         val pair = it.jsonArray
                                         if (pair.size >= 2) GeoPoint(pair[1].jsonPrimitive.double, pair[0].jsonPrimitive.double)
@@ -180,7 +180,7 @@ fun MapDangerWarningInfo(
                                     "Red" -> "FF0000"
                                     else -> "FFFFFF"
                                 }
-                                fillPaint.color = AndroidColor.parseColor("#80$hex")
+                                fillPaint.color = "#80$hex".toColorInt()
                             }
                             mapView.overlays.clear()
                             mapView.overlays.add(polygon)
