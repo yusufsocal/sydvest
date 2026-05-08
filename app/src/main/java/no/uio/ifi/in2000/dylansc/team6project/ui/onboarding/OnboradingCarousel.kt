@@ -8,6 +8,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,6 +30,7 @@ fun OnboardingCarousel(
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val scope = rememberCoroutineScope()
     val isLastPage = pagerState.currentPage == pages.lastIndex
+    val isFirstPage = pagerState.currentPage == 0
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -74,6 +76,23 @@ fun OnboardingCarousel(
                 count = pages.size,
                 currentIndex = pagerState.currentPage,
             )
+
+            Button(
+                onClick = {
+                    scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
+                },
+                enabled = !isFirstPage,
+                shape = RoundedCornerShape(percent = 50),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 14.dp),
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(text = stringResource(R.string.go_back))
+            }
 
             Button(
                 onClick = {

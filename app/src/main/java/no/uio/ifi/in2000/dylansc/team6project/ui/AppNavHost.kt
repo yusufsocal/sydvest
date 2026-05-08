@@ -2,12 +2,17 @@
 
 package no.uio.ifi.in2000.dylansc.team6project.ui
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -25,6 +30,8 @@ import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapScreen
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
+import no.uio.ifi.in2000.dylansc.team6project.ui.onboarding.OnboardingCarousel
+import no.uio.ifi.in2000.dylansc.team6project.ui.onboarding.onboardingPages
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -60,10 +67,31 @@ fun AppNavHost(
     )
     val uiState by mapViewModel.uiState.collectAsState()
 
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE) }
+    val onboardingCompleted = remember { prefs.getBoolean("onboarding_completed", false) }
+
     NavHost(
         navController = navController,
-        startDestination = "map"
+        startDestination = if (onboardingCompleted) "map" else "onboarding"
     ) {
+        composable("onboarding") {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background,
+            ) {
+                OnboardingCarousel(
+                    pages = onboardingPages,
+                    onFinish = {
+                        prefs.edit().putBoolean("onboarding_completed", true).apply()
+                        navController.navigate("map") {
+                            popUpTo("onboarding") { inclusive = true }
+                        }
+                    },
+                )
+            }
+        }
+
         // Route 1 -> HomeScreen
         composable("map") {
             MapScreen(

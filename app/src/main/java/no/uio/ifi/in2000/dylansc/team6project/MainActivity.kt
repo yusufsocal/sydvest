@@ -17,7 +17,6 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.theme.Team6ProjectTheme
 
 class MainActivity : ComponentActivity() {
 
-    // Instantiation of the data sources manually (Dependency Injection)
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +32,6 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     AppNavHost(navController)
 
-
                 }
             }
         }
@@ -47,4 +45,5 @@ class MainActivity : ComponentActivity() {
             .putFloat("last_lon", prefs.getFloat("current_lon", 10.75f))
             .apply()
     }
+
 }

@@ -5,6 +5,11 @@ import no.uio.ifi.in2000.dylansc.team6project.R
 
 val onboardingPages = listOf(
     OnboardingPage(
+        title = R.string.onboarding_page0_title,
+        description = R.string.onboarding_page0_description,
+        ctaLabel = R.string.onboarding_cta_next,
+    ),
+    OnboardingPage(
         title = R.string.onboarding_page1_title,
         description = R.string.onboarding_page1_description,
         ctaLabel = R.string.onboarding_cta_next,

@@ -67,7 +67,9 @@
     <string name="onboarding_page_counter">%1$02d / %2$02d</string>
 
     <!-- OnboardingPages -->
-    <string name="onboarding_page1_title">Trykk for vær på stedet</string>
+    <string name="onboarding_page0_title">Velkommen til SydVest</string>
+    <string name="onboarding_page0_description">Dette er en værapp som viser været, farevarsler og gir deg klestips etter hvordan været er. Bla videre for mer informasjon om hvordan du kan bruke denne appen.</string>
+    <string name="onboarding_page1_title">Trykk for å få værinformasjon på et gitt punkt</string>
     <string name="onboarding_page1_description">Trykk hvor som helst på kartet for å se temperatur, vind, nedbør og klestips for det stedet akkurat nå.</string>
     <string name="onboarding_page2_title">Søk etter et sted</string>
     <string name="onboarding_page2_description">Finn steder eller adresser du ønsker å se værdata for</string>
@@ -77,5 +79,8 @@
     <string name="onboarding_page4_description">Få oversikt over gjeldende farevarsler fra Meteorologisk institutt. Se hvor de gjelder, og alvorlighetsgrad</string>
     <string name="onboarding_cta_next">Neste</string>
     <string name="onboarding_cta_get_started">Kom i gang</string>
+    <string name="go_back">Gå tilbake</string>
+
+
 
 </resources>

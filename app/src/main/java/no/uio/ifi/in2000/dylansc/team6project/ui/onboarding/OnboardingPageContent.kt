@@ -25,11 +25,11 @@ fun OnboardingPageContent(
             .fillMaxSize()
             .padding(horizontal = 20.dp),
     ) {
-        // Illustration placeholder card
+        //TODO Illustration placeholder card - not sure if this is something we want yet
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                // Se om vi trenger denne: .aspectRatio(0.95f)
+                // For illustrasjoner: .aspectRatio(0.95f)
                 .clip(RoundedCornerShape(24.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         )
@@ -38,7 +38,7 @@ fun OnboardingPageContent(
 
         Text(
             text = stringResource(R.string.onboarding_page_counter, index + 1, total),
-            // Se om vi trenger denne: style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelMedium,
             // Se om vi trenger denne: color = MaterialTheme.colorScheme.onSurfaceVariant,
             letterSpacing = 1.sp,
         )
@@ -48,18 +48,17 @@ fun OnboardingPageContent(
         // Title
         Text(
             text = stringResource(page.title),
-            // Se om vi trenger denne: style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineMedium,
             // Se om vi trenger denne:  color = MaterialTheme.colorScheme.primary,
             lineHeight = 32.sp,
         )
 
         Spacer(Modifier.height(12.dp))
 
-        // Body
+        //Body
         Text(
             text = stringResource(page.description),
-            // Se om vi trenger denne: style = MaterialTheme.typography.bodyMedium,
-           // Se om vi trenger denne:  color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodyLarge,
             lineHeight = 22.sp,
         )
     }
