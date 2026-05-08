@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info.InfoCardAreaSource
+import no.uio.ifi.in2000.dylansc.team6project.ui.Info.InfoCardAreaSource
 import org.osmdroid.views.MapView
 
 
