@@ -81,6 +81,9 @@
     <string name="onboarding_cta_get_started">Kom i gang</string>
     <string name="go_back">Gå tilbake</string>
 
+    <!-- MapWeatherInfoSide.kt -->
+    <string name ="show_colorscale">Show colorscale"</string>
+
 
 
 </resources>

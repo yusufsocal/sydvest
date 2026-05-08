@@ -19,8 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import no.uio.ifi.in2000.dylansc.team6project.R
 
+@Suppress("AssignedValueIsNeverRead") // Added to remove false positive warning known in Andorid studio
 @Composable
 fun MapWeatherInfoSide (
     layerDisplayName: String
@@ -38,7 +41,7 @@ fun MapWeatherInfoSide (
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background)
     ){
 
-        Column() {
+        Column {
         MapWeatherInfoCard(layerDisplayName)
 
         Spacer(modifier = Modifier.padding(8.dp))
@@ -53,7 +56,7 @@ fun MapWeatherInfoSide (
         ) {
             Icon(
                 imageVector = Icons.Default.Info,
-                contentDescription = "Vis fargeskala",
+                contentDescription = stringResource(R.string.show_colorscale),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(24.dp)
             )
