@@ -2,24 +2,24 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,7 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -80,7 +80,7 @@ fun MapWeatherBottomScaffold(
     changeArea: (String) -> Unit,
     onShowAreaChange: () -> Unit
 
-    ) {
+) {
     var peekVal = 0
     var maxHeightVal = 0
 
@@ -165,27 +165,24 @@ fun MapWeatherBottomScaffold(
                         changed()
                     },
                     shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    ),
                     contentPadding = PaddingValues(0.dp),
                     modifier = Modifier
                         .size(42.dp)
                         .graphicsLayer {
-                        val offset = try {
-                            scaffoldState.bottomSheetState.requireOffset()
-                        } catch (e: Exception) {
-                            0f // Fallback if it is not ready
-                        }
+                            val offset = try {
+                                scaffoldState.bottomSheetState.requireOffset()
+                            } catch (e: Exception) {
+                                0f // Fallback if it is not ready
+                            }
 
-                        if (offset > 0f) {
-                            translationY = offset - 65.dp.toPx()
+                            if (offset > 0f) {
+                                translationY = offset - 65.dp.toPx()
+                            }
                         }
-                    }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Public,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(32.dp),
                         contentDescription = null
                     )
@@ -200,10 +197,13 @@ fun MapWeatherBottomScaffold(
             sheetPeekHeight = peekVal.dp,
             scaffoldState = scaffoldState,
             containerColor = Color.Transparent,
-            modifier = Modifier.wrapContentHeight().fillMaxWidth(),
+            modifier = Modifier
+                .wrapContentHeight()
+                .fillMaxWidth(),
             sheetDragHandle = {
                 Box(
                     modifier = Modifier
+                        .size(42.dp)
                         .clickable {
                             scope.launch {
                                 if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
@@ -213,18 +213,14 @@ fun MapWeatherBottomScaffold(
                                 }
                             }
                         }
-                        .height(25.dp)
                 ) {
-
-                    // TODO: endre denne til standard
-                    Image(
-                        painter = if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) painterResource(
-                            id = R.drawable.arrowup_blue
-                        ) else painterResource(id = R.drawable.arrowdown_blue),
+                    Icon(
+                        imageVector = if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                         contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
-                            .size(30.dp)
                             .clip(CircleShape)
+                            .fillMaxSize()
                     )
                 }
             },
@@ -243,15 +239,17 @@ fun MapWeatherBottomScaffold(
                     }
                     if (isObjectVisible && selectedLayer == null) {
                         Box(
-                            contentAlignment = Alignment.Center,
+                            contentAlignment = Alignment.TopCenter,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Column{
+                            Column {
                                 Text(
-                                    text = "VELG VÆRLAG",
+                                    text = stringResource(R.string.velg_værlag),
                                     fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.graphicsLayer {
+                                        translationY = -8.dp.toPx()
+                                    }
                                 )
-                                Spacer(modifier = Modifier.padding(16.dp))
                             }
                         }
                     }
@@ -259,7 +257,10 @@ fun MapWeatherBottomScaffold(
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
-                                .heightIn(max = maxHeightVal.dp),
+                                .heightIn(max = maxHeightVal.dp)
+                                .graphicsLayer {
+                                    translationY = -8.dp.toPx()
+                                },
                         ) {
                             if (selectedLayer != null) {
                                 //Slider
@@ -267,7 +268,8 @@ fun MapWeatherBottomScaffold(
                                     sliderPosition = localSliderPosition, // Use the local value here
                                     isAnimating,
                                     onSliderChange = { newValue ->
-                                        localSliderPosition = newValue // Update only locally while sliding
+                                        localSliderPosition =
+                                            newValue // Update only locally while sliding
                                     },
                                     onAnimateToggle,
                                     stepHours,
@@ -275,7 +277,7 @@ fun MapWeatherBottomScaffold(
                                 )
                             }
                             Text(
-                                text = "VELG VÆRLAG",
+                                text = stringResource(R.string.velg_værlag),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                             )

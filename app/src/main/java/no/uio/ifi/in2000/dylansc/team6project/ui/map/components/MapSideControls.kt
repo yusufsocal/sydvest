@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -40,16 +43,17 @@ fun MapSideControls(
         FilledIconButton(
             modifier = Modifier
                 .padding(top = 16.dp)
-                .size(55.dp),
+                .size(48.dp),
             onClick = onCenterClick,
             colors = if (isCenterActive)
-                IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
             else
-                IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.compass_blue),
+            Icon(
+                imageVector = Icons.Default.LocationOn,
                 contentDescription = null,
+                tint = if (isCenterActive) {MaterialTheme.colorScheme.onPrimary} else {MaterialTheme.colorScheme.primary},
                 modifier = Modifier.size(30.dp).clip(CircleShape)
             )
         }
@@ -59,13 +63,14 @@ fun MapSideControls(
             modifier = Modifier.size(32.dp),
             onClick = onZoomIn,
             colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-            ),
+                MaterialTheme.colorScheme.onPrimary
+            )
         ) {
             Icon(
-                imageVector = Icons.Default.Add,
+                imageVector = Icons.Default.AddCircle,
                 contentDescription = "Zoom inn",
-                modifier = Modifier.size(30.dp)
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
         }
 
@@ -74,13 +79,14 @@ fun MapSideControls(
             modifier = Modifier.size(32.dp),
             onClick = onZoomOut,
             colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-            ),
+                MaterialTheme.colorScheme.onPrimary
+            )
         ) {
             Icon(
-                imageVector = Icons.Default.Remove,
+                imageVector = Icons.Default.RemoveCircle,
                 contentDescription = "Zoom ut",
-                modifier = Modifier.size(30.dp)
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
         }
     }

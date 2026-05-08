@@ -7,6 +7,9 @@
     <string name = "worldwide">Verden</string>
     <string name = "arctic">Arktis</string>
 
+    <!-- MapWeatherBottomScaffold -->
+    <string name = "velg_værlag">VELG VÆRLAG</string>
+
     <!-- MapDataSourceSwitcher -->
     <string name = "nordic_datasource_metadataArea">MET Norden</string>
     <string name = "nordic_datasource_metadataRange">1km - oppdateres hver time</string>
