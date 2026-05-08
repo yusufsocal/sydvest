@@ -60,9 +60,7 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapOsmView
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSearchField
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSideControls
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapWeatherBottomScaffold
-
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info.MapWeatherInfoDialog
-
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapWeatherInfoSide
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
@@ -268,8 +266,14 @@ fun MapScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = if (mapScreenUiState.selectedLayerDisplayName == "Velg værlag...") Arrangement.End else Arrangement.SpaceBetween
                 ) {
+
+                    if (mapScreenUiState.selectedLayerDisplayName != "Velg værlag...") {
+                        MapWeatherInfoSide(
+                            layerDisplayName = mapScreenUiState.selectedLayerDisplayName,
+                        )
+                    }
 
                     MapSideControls(
                         onZoomIn = { mapViewRef?.controller?.zoomIn() },
