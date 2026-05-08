@@ -19,11 +19,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CloudOff
+import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,9 +47,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
+import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.Info.MapWeatherInfoDialog
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDangerWarningHint
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapDangerWarningInfo
@@ -189,14 +199,33 @@ fun MapScreen(
         if (mapScreenUiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else if (mapScreenUiState.hasError) {
-            Column(
-                modifier = Modifier.align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Card(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(24.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface),
+                shape = RoundedCornerShape(16.dp)
             ) {
-                Card {
-                    Text("Kunne ikke laste værdata")
-                    Button(onClick = { mapViewModel.retry() }) {
-                        Text("Prøv igjen")
+                Column (
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .widthIn(240.dp,320.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                )  {
+                    Icon(
+                        imageVector = Icons.Outlined.CloudOff,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
+                    )
+
+                    Text(
+                        stringResource(R.string.error_loading))
+                    Button(
+                        onClick = { mapViewModel.retry() }) {
+                        Text(stringResource(R.string.try_again))
                     }
                 }
 
