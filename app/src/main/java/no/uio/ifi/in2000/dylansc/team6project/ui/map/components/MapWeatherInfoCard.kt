@@ -45,7 +45,7 @@ fun MapWeatherInfoCard(
         layerDisplayName.contains("Vind", ignoreCase = true) ->
             "m/s" to windLegend
 
-        else -> return // No legend if the layers are not recognised
+        else -> return // No legend if the layers are not recognized
     }
 
     Log.d("LEGEND", "layerDisplayName: $layerDisplayName")

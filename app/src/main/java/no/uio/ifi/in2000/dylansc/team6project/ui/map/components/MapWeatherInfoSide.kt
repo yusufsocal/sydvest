@@ -44,8 +44,6 @@ fun MapWeatherInfoSide (
         Column {
         MapWeatherInfoCard(layerDisplayName)
 
-        Spacer(modifier = Modifier.padding(8.dp))
-
         IconButton(
             onClick = { showLegend = true },
             colors = IconButtonDefaults.filledIconButtonColors(
