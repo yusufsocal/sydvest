@@ -42,13 +42,6 @@ fun MapSelectWeatherLayer(
 ) {
     var showLegend by remember { mutableStateOf(false) }
     var textSize by remember { mutableStateOf(12) }
-
-    if (showLegend) {
-        MapLegend(
-            layerDisplayName = selectedLayerDisplayName,
-            onDismiss = { showLegend = false }
-        )
-    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
