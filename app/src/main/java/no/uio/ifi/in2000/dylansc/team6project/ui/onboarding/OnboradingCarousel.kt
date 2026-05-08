@@ -14,10 +14,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import no.uio.ifi.in2000.dylansc.team6project.R
 
 @Composable
 fun OnboardingCarousel(
@@ -82,7 +84,8 @@ fun OnboardingCarousel(
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 14.dp),
             ) {
                 Text(
-                    if (isLastPage) pages.last().ctaLabel else "Neste",
+                    if (isLastPage) stringResource(pages.last().ctaLabel)
+                    else stringResource(R.string.onboarding_cta_next),
                     fontWeight = FontWeight.Medium,
                 )
                 Spacer(Modifier.width(8.dp))

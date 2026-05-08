@@ -8,8 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import no.uio.ifi.in2000.dylansc.team6project.R
 
 // Composable that defines the layout fo the onboarding pages.
 @Composable
@@ -27,16 +29,15 @@ fun OnboardingPageContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(0.95f)
+                // Se om vi trenger denne: .aspectRatio(0.95f)
                 .clip(RoundedCornerShape(24.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         )
 
         Spacer(Modifier.height(28.dp))
 
-        // 01 / 04 counter
         Text(
-            text = "%02d / %02d".format(index + 1, total),
+            text = stringResource(R.string.onboarding_page_counter, index + 1, total),
             // Se om vi trenger denne: style = MaterialTheme.typography.labelMedium,
             // Se om vi trenger denne: color = MaterialTheme.colorScheme.onSurfaceVariant,
             letterSpacing = 1.sp,
@@ -46,7 +47,7 @@ fun OnboardingPageContent(
 
         // Title
         Text(
-            text = page.title,
+            text = stringResource(page.title),
             // Se om vi trenger denne: style = MaterialTheme.typography.headlineSmall,
             // Se om vi trenger denne:  color = MaterialTheme.colorScheme.primary,
             lineHeight = 32.sp,
@@ -56,7 +57,7 @@ fun OnboardingPageContent(
 
         // Body
         Text(
-            text = page.description,
+            text = stringResource(page.description),
             // Se om vi trenger denne: style = MaterialTheme.typography.bodyMedium,
            // Se om vi trenger denne:  color = MaterialTheme.colorScheme.onSurfaceVariant,
             lineHeight = 22.sp,
