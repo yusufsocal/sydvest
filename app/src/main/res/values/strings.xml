@@ -59,4 +59,9 @@
     <string name ="minor">🟢 Liten</string>
 
 
+    <!-- MapScreen -->
+    <string name="error_loading">Kunne ikke laste inn værdata</string>
+    <string name ="try_again">Prøv igjen</string>
+
+
 </resources>
