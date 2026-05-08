@@ -1,11 +1,9 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.onboarding
 
-// onboarding/OnboardingPage.kt
-import androidx.compose.runtime.Composable
+import androidx.annotation.StringRes
 
 data class OnboardingPage(
-    val title: String,
-    val description: String,
-    val ctaLabel: String,
-    val illustration: @Composable () -> Unit,
+    @StringRes val title: Int,
+    @StringRes val description: Int,
+    @StringRes val ctaLabel: Int,
 )
