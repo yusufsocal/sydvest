@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
+import android.R.attr.contentDescription
 import android.R.attr.font
 import android.R.attr.text
 import android.os.Build
@@ -18,9 +19,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
@@ -114,24 +124,21 @@ fun MapTimeSliderSection(
 
 
         Row(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Button(
+            IconButton(
                 onClick = { onAnimateToggle() },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
-                modifier = Modifier.clip(CircleShape)
+                shape = CircleShape,
+
             ) {
-                Image(
-                    painter = if (isAnimating) painterResource(id = R.drawable.pause_blue) else painterResource(
-                        id = R.drawable.play_blue
-                    ),
+                Icon(
+                    imageVector = if (isAnimating) Icons.Default.Pause else Icons.Default.PlayArrow,
                     contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
-                        .size(30.dp)
-                        .clip(CircleShape)
+                        .size(28.dp)
                 )
             }
 
+            Spacer(modifier = Modifier.padding(horizontal = 8.dp))
 
             val range: ClosedRange<Float> = 0f..240f
             val highlightStep: Int = 24

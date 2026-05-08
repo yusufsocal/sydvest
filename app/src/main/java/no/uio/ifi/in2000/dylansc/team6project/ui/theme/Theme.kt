@@ -264,10 +264,10 @@ fun Team6ProjectTheme(
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) dynamicLightColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> darkScheme
+        darkTheme -> lightScheme
         else -> lightScheme
 
         //TODO: Sjekke om vi vil ha høykontrast (UU) aktivert for alle eller gjøre det valgfritt
