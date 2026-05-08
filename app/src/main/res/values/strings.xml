@@ -84,6 +84,7 @@
     <!-- MapWeatherInfoSide.kt -->
     <string name ="show_colorscale">Show colorscale"</string>
 
-
+    <!-- InfoClothingTips.kt -->
+    <string name="clothing_advise">Hva bør du ha på?</string>
 
 </resources>
