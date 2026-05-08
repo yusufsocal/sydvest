@@ -1,17 +1,29 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.Info
 
+
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.CardDefaults
+import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.model.domene.CurrentWeather
 import no.uio.ifi.in2000.dylansc.team6project.model.domene.getClothingTips
 
@@ -27,14 +39,34 @@ fun InfoClothingTips (weather: CurrentWeather) {
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = "Klestips:",
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(8.dp)
-        )
+
+        Row (
+            modifier = Modifier.fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.clothing_advise),
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(8.dp)
+            )
+
+            IconButton(
+                onClick = {TODO()}
+            ) { Icon(
+                modifier = Modifier
+                    .size(24.dp),
+                imageVector = Icons.Default.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            }
+        }
 
         Text (tip,
-            modifier = Modifier.padding (8.dp))
+            modifier = Modifier.padding (16.dp))
     }
 }
 
