@@ -24,9 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-data class LegendEntry(val color: Color, val label: String)
+data class LegendSideEntry(val color: Color, val label: String)
 
-val temperatureLegend = listOf(
+val temperatureLegendSide = listOf(
     LegendEntry(Color(0xFF6A0DAD), "<−20"),
     LegendEntry(Color(0xFF1565C0), "−20-0"),
     LegendEntry(Color(0xFF43A047), "0-10"),
@@ -35,7 +35,7 @@ val temperatureLegend = listOf(
     LegendEntry(Color(0xFFB71C1C), "> 30"),
 )
 
-val precipitationLegend = listOf(
+val precipitationLegendSide = listOf(
     LegendEntry(Color(0x00FFFFFF), "0"),
     LegendEntry(Color(0xFFB2DFDB), "0–1"),
     LegendEntry(Color(0xFF43A047), "1–5"),
@@ -45,7 +45,7 @@ val precipitationLegend = listOf(
 )
 
 // TODO: sjekke om disse fargene stemmer?
-val windLegend = listOf(
+val windLegendSide = listOf(
     LegendEntry(Color(0xFFB2EBF2), "0–5"),
     LegendEntry(Color(0xFFFDD835), "5–10"),
     LegendEntry(Color(0xFFFB8C00), "10–15"),
@@ -60,14 +60,14 @@ fun MapWeatherInfoSide(
     Log.d("LEGEND", "layerDisplayName: $layerDisplayName")
     val (title, entries) = when {
         layerDisplayName.contains("Temperatur", ignoreCase = true) ->
-            "°C" to temperatureLegend
+            "°C" to temperatureLegendSide
 
         layerDisplayName.contains("Nedbør", ignoreCase = true) ||
                 layerDisplayName.contains("Precipitation", ignoreCase = true) ->
-            "mm" to precipitationLegend
+            "mm" to precipitationLegendSide
 
         layerDisplayName.contains("Vind", ignoreCase = true) ->
-            "m/s" to windLegend
+            "m/s" to windLegendSide
 
         else -> return // No legend if the layers are not recognised
     }
