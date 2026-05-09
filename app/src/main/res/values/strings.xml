@@ -67,16 +67,24 @@
     <string name="onboarding_page_counter">%1$02d / %2$02d</string>
 
     <!-- OnboardingPages -->
-    <string name="onboarding_page0_title">Velkommen til SydVest</string>
-    <string name="onboarding_page0_description">Dette er en værapp som viser hvordan været, hvilke farevarsler som gjelder i Norge, og gir deg klestips etter hvordan været er. Bla videre for mer informasjon om hvordan du kan bruke denne appen</string>
-    <string name="onboarding_page1_title">Trykk for å få værinformasjon på et gitt punkt</string>
-    <string name="onboarding_page1_description">Trykk hvor som helst på kartet for å se temperatur, vind, nedbør og klestips for det stedet akkurat nå. Du får opp vær for hele verden</string>
-    <string name="onboarding_page2_title">Søk etter et spesifikt sted</string>
-    <string name="onboarding_page2_description">Finn steder eller adresser du ønsker å se værdata for</string>
-    <string name="onboarding_page3_title">Visuelle værlag</string>
-    <string name="onboarding_page3_description">Slå på temperatur, nedbør og vind som farger og bevegelse over kartet. Du kan også se visuelle værlag fremover i tid. Skru av og på etter behov.</string>
-    <string name="onboarding_page4_title">Farevarsler for Norge</string>
-    <string name="onboarding_page4_description">Få oversikt over gjeldende farevarsler fra Meteorologisk institutt. Se hvor de gjelder, og alvorlighetsgrad</string>
+    <string name="onboarding_page0_welcome_title">Velkommen til SydVest</string>
+    <string name="onboarding_page0_welcome_description">Dette er en værapp som viser hvordan været er, hvilke farevarsler som gjelder i Norge, og gir deg klestips etter hvordan været er. Bla videre for mer informasjon om hvordan du kan bruke denne appen</string>
+
+    <string name="onboarding_page_press_for_data_title">Trykk for å få værinformasjon på et gitt punkt</string>
+    <string name="onboarding_page_press_for_data_description">Trykk hvor som helst på kartet for å se temperatur, vind, nedbør og klestips for det stedet akkurat nå. Du får opp vær for hele verden</string>
+
+    <string name="onboarding_page_search_for_location_title">Søk etter et spesifikt sted</string>
+    <string name="onboarding_page_search_for_location_description">Finn steder eller adresser du ønsker å se værdata og klestips for</string>
+
+    <string name="onboarding_page_clothing_tips_title">Få klestips basert på været</string>"
+    <string name="onboarding_page_clothing_tips_description"> denne værappen slipper du å tolke hva du skal ha på. Vi gir deg en oversikt over hva du bør ha på, basert på punktet du trykker på. </string>
+
+    <string name="onboarding_page_visual_weather_title">Visuelle værlag</string>
+    <string name="onboarding_page_visual_weather_description">Slå på temperatur, nedbør og vind som farger og bevegelse over kartet. Du kan også se visuelle værlag fremover i tid. Skru av og på etter behov.</string>
+
+    <string name="onboarding_page_danger_alerts_title">Farevarsler for Norge</string>
+    <string name="onboarding_page_danger_alerts_description">Få oversikt over gjeldende farevarsler fra Meteorologisk institutt. Se hvor de gjelder, og alvorlighetsgrad</string>
+
     <string name="onboarding_cta_next">Neste</string>
     <string name="onboarding_cta_get_started">Kom i gang</string>
     <string name="go_back">Gå tilbake</string>
