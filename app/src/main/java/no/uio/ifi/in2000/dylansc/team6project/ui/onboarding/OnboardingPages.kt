@@ -8,7 +8,6 @@ val onboardingPages = listOf(
         title = R.string.onboarding_page0_welcome_title,
         description = R.string.onboarding_page0_welcome_description,
         ctaLabel = R.string.onboarding_cta_next,
-
     ),
     OnboardingPage(
         title = R.string.onboarding_page_press_for_data_title,
