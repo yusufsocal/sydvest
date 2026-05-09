@@ -1,4 +1,4 @@
-package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
+package no.uio.ifi.in2000.dylansc.team6project.ui.map.components.warninghint
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn

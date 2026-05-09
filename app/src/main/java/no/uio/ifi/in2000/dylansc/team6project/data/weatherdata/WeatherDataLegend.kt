@@ -6,10 +6,11 @@ data class WeatherDataLegend (val color: Color, val label: String, val descripti
 
 val temperatureLegend = listOf(
     WeatherDataLegend(Color(0xFF6A0DAD), "<−20", "Under −20°C"),
-    WeatherDataLegend(Color(0xFF1565C0), "−20-0", "−20 til 0°C"),
-    WeatherDataLegend(Color(0xFFFFFFFF), "0", "0 til 10°C"),
-    WeatherDataLegend(Color(0xFFEFFD5F), "0-15", "10 til 20°C"),
-    WeatherDataLegend(Color(0xFFFB8C00), "20-30", "20 til 30°C"),
+    WeatherDataLegend(Color(0xFF1565C0), "−20-5", "−20 til -5°C"),
+    WeatherDataLegend(Color(0xFF90CAF9), "−5-0", "−5 til -0°C"),
+    WeatherDataLegend(Color(0xFFFFFFFF), "0-5", "0 til 5°C"),
+    WeatherDataLegend(Color(0xFFEFFD5F), "5-17", "5 til 17°C"),
+    WeatherDataLegend(Color(0xFFFB8C00), "17-30", "17 til 30°C"),
     WeatherDataLegend(Color(0xFFB71C1C), "> 30", "Over 30°C"),
 )
 

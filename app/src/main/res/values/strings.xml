@@ -18,7 +18,7 @@
     <string name = "arctic_datasource_metadataArea">AROME Arctic</string>
     <string name = "arctic_datasource_metadataRange">2.5km - oppdateres hver time</string>
 
-    <string name = "bullet_high_resolution">Oppløsning</string>
+    <string name = "bullet_high_resolution">Høy Oppløsning</string>
     <string name = "bullet_warnings">Detaljerte farevarsler</string>
     <string name = "bullet_60_hour_forecast">60 timer med værdata</string>
     <string name = "bullet_worldwide">Værdata for hele verden</string>

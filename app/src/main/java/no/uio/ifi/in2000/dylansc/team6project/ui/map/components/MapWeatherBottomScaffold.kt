@@ -48,6 +48,10 @@ import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.bottomscaffold.MapChangeAreaButton
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.bottomscaffold.MapSelectWeatherLayer
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.bottomscaffold.MapSelectedLayer
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.bottomscaffold.MapTimeSliderSection
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)

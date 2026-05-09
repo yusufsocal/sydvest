@@ -1,4 +1,4 @@
-package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
+package no.uio.ifi.in2000.dylansc.team6project.ui.map.components.sidecomponents
 
 import android.util.Log
 import androidx.compose.foundation.background

@@ -1,4 +1,4 @@
-package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
+package no.uio.ifi.in2000.dylansc.team6project.ui.map.components.bottomscaffold
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
