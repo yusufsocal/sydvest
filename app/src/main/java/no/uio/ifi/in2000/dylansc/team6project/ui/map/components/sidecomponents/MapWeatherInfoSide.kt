@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.dylansc.team6project.R
@@ -46,7 +47,7 @@ fun MapWeatherInfoSide (
         IconButton(
             onClick = { showLegend = true },
             colors = IconButtonDefaults.filledIconButtonColors(
-                MaterialTheme.colorScheme.onPrimary
+                Color.Transparent
             ),
             modifier = Modifier.size(32.dp)
                 .align(alignment = Alignment.CenterHorizontally)
