@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Checkroom
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -15,7 +16,7 @@ val appInfoCards = listOf(
     AppInfoContent(
         header = R.string.onboarding_page_press_for_data_title,
         description = R.string.onboarding_page_press_for_data_description,
-        icon = Icons.Outlined.Lightbulb,
+        icon = Icons.Outlined.Place,
     ),
 
     AppInfoContent(
