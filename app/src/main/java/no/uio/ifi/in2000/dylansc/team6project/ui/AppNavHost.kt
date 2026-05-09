@@ -28,6 +28,7 @@ import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchDataSourceIm
 import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSourceImpl
+import no.uio.ifi.in2000.dylansc.team6project.ui.appinfo.AppInfoScreen
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapScreen
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
 import no.uio.ifi.in2000.dylansc.team6project.ui.onboarding.OnboardingCarousel
@@ -96,7 +97,14 @@ fun AppNavHost(
         composable("map") {
             MapScreen(
                 uiState,
-                mapViewModel
+                mapViewModel,
+                onInfoClick = { navController.navigate("appInfo") }
+            )
+        }
+
+        composable("appInfo") {
+            AppInfoScreen(
+                onBackClick = {navController.popBackStack()},
             )
         }
     }
