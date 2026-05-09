@@ -13,6 +13,19 @@ import no.uio.ifi.in2000.dylansc.team6project.R
 
 
 val appInfoCards = listOf(
+
+    AppInfoContent(
+        header = R.string.onboarding_page_visual_weather_title,
+        description = R.string.onboarding_page_visual_weather_description,
+        icon = Icons.Outlined.Layers,
+    ),
+
+    AppInfoContent(
+        header = R.string.onboarding_page_clothing_tips_title,
+        description = R.string.onboarding_page_clothing_tips_description,
+        icon = Icons.Outlined.Checkroom,
+    ),
+
     AppInfoContent(
         header = R.string.onboarding_page_press_for_data_title,
         description = R.string.onboarding_page_press_for_data_description,
@@ -23,18 +36,6 @@ val appInfoCards = listOf(
         header = R.string.onboarding_page_search_for_location_title,
         description = R.string.onboarding_page_search_for_location_description,
         icon = Icons.Outlined.Search,
-    ),
-
-    AppInfoContent(
-        header = R.string.onboarding_page_clothing_tips_title,
-        description = R.string.onboarding_page_clothing_tips_description,
-        icon = Icons.Outlined.Checkroom,
-    ),
-
-    AppInfoContent(
-        header = R.string.onboarding_page_visual_weather_title,
-        description = R.string.onboarding_page_visual_weather_description,
-        icon = Icons.Outlined.Layers,
     ),
 
     AppInfoContent(
