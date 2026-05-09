@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import no.uio.ifi.in2000.dylansc.team6project.R
-import no.uio.ifi.in2000.dylansc.team6project.ui.Info.MapWeatherInfoDialog
+import no.uio.ifi.in2000.dylansc.team6project.ui.info.MapWeatherInfoDialog
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.warninghint.MapDangerWarningHint
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.warninghint.MapDangerWarningInfo
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.bottomscaffold.MapDataSourceSwitcher

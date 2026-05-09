@@ -1,4 +1,4 @@
-package no.uio.ifi.in2000.dylansc.team6project.ui.Info
+package no.uio.ifi.in2000.dylansc.team6project.ui.info
 
     import androidx.compose.foundation.layout.Arrangement
     import androidx.compose.foundation.layout.Column

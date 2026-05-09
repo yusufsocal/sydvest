@@ -1,16 +1,25 @@
 package no.uio.ifi.in2000.dylansc.team6project.model.domene
 
-// Gives tips about one piece of clothing based on the weather conditions.
-fun getClothingTips(weather: CurrentWeather): String? {
-    return when {
-        // They have to be in the right order -- they are checked from the top down.
-        // Rain, colder temperatures and wind trumps warmer temperatures.
-        weather.temperature < 0 -> "🧥 Vinterjakke"
-        weather.rainfall > 0.2 -> "🌂 Regnjakke"
-        weather.windSpeed > 5.5 -> "🌬️ Vindjakke"
-        weather.temperature >= 25 -> "👙 Badetøy"
-        weather.temperature >= 18 -> "🩳Shorts"
+enum class ClothingTip(val emoji: String, val label: String, val condition: String) {
+    HEAVY_WINTER("🧣", "Tykk vinterjakke, lue og skjerf ", "Under -10°C"),
+    WINTER_JACKET("🧥", "Vinterjakke ", "-10 til 5°C"),
+    LIGHT_JACKET("🧥", "Lett jakke ", "5–10°C"),
+    SPRING_JACKET("🌷", "Vårjakke ", "10–17°C"),
+    RAIN_JACKET("🌧️", "Regnjakke ", "Regn og vind"),
+    UMBRELLA("🌂", "Paraply ", "Regn uten mye vind"),
+    WIND_JACKET("🌬️", "Vindjakke ", "Vind over 8 m/s"),
+    SWIMWEAR("👙", "Badetøy ", "25°C eller varmere"),
+    SHORTS("🩳", "Shorts og t-skjorte ", "18–24°C")
+}
 
-        else -> "👕 Vanlige klær holder nå"
-    }
+fun getClothingTip(weather: CurrentWeather): ClothingTip = when {
+    weather.temperature < -10 -> ClothingTip.HEAVY_WINTER
+    weather.temperature < 5 -> ClothingTip.WINTER_JACKET
+    weather.rainfall > 0.2 && weather.windSpeed > 8 -> ClothingTip.RAIN_JACKET
+    weather.rainfall > 0.2 -> ClothingTip.UMBRELLA
+    weather.windSpeed > 8 -> ClothingTip.WIND_JACKET
+    weather.temperature >= 25 -> ClothingTip.SWIMWEAR
+    weather.temperature >= 18 -> ClothingTip.SHORTS
+    weather.temperature < 10 -> ClothingTip.LIGHT_JACKET
+    else -> ClothingTip.SPRING_JACKET
 }
