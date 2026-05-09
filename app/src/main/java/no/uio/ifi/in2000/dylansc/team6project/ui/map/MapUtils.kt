@@ -193,7 +193,7 @@ fun updateSelectedMarker(mapView: MapView, point: GeoPoint) {
             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
             val b = BitmapFactory.decodeResource(
                 mapView.context.resources,
-                R.drawable.marker_red
+                R.drawable.marker_green
             )
             icon = Bitmap.createScaledBitmap(b, 80, 80, true).toDrawable(mapView.context.resources)
         })
@@ -232,7 +232,7 @@ fun updateUserMarker(mapView: MapView, point: GeoPoint) {
             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
             val b = BitmapFactory.decodeResource(
                 mapView.context.resources,
-                R.drawable.location_blue
+                R.drawable.location_green
             )
             icon = Bitmap.createScaledBitmap(b, 60, 60, true).toDrawable(mapView.context.resources)
         })

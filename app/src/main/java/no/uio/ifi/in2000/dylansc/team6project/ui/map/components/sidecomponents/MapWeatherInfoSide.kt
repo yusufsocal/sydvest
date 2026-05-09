@@ -1,7 +1,6 @@
-package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
+package no.uio.ifi.in2000.dylansc.team6project.ui.map.components.sidecomponents
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
