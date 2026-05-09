@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -82,5 +83,23 @@ fun MapSideControls(
                 modifier = Modifier.size(24.dp)
             )
         }
+
+        FilledIconButton(
+            modifier = Modifier.size(32.dp),
+            onClick = // TODO: Add functionality
+            {},
+            colors = IconButtonDefaults.filledIconButtonColors(
+                MaterialTheme.colorScheme.onPrimary
+            ))
+
+            {
+                Icon (
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "info om appen",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
     }
 }
