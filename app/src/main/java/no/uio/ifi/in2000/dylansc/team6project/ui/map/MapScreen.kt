@@ -343,7 +343,9 @@ fun MapScreen(
                     MapWeatherInfoDialog(
                         weather = weather,
                         placeNameFromCoordinates = mapScreenUiState.placeNameFromCoordinates,
-                        onDismiss = { mapViewModel.dismissCurrentWeather() }
+                        onDismiss = {
+                            mapViewModel.dismissCurrentWeather()
+                            mapViewRef?.let { removeSelectedMarker(it) }}
                     )
                 }
 

@@ -201,6 +201,14 @@ fun updateSelectedMarker(mapView: MapView, point: GeoPoint) {
     mapView.invalidate()
 }
 
+fun removeSelectedMarker(mapView: MapView) {
+    val existing = mapView.overlays.find { it is Marker && it.title == "selected_location" } as? Marker
+    if (existing != null) {
+        mapView.overlays.remove(existing)
+        mapView.invalidate()
+    }
+}
+
 @SuppressLint("MissingPermission")
 fun startLocationUpdates(mapView: MapView, onLocationChanged: (GeoPoint) -> Unit): () -> Unit {
     val fusedClient = LocationServices.getFusedLocationProviderClient(mapView.context)
