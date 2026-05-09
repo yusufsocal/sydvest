@@ -71,6 +71,17 @@ fun MapDataSourceSwitcher(
         ),
 
         AreaCardContent(
+            area = AreaData.ARCTIC,
+            label = stringResource(R.string.arctic),
+            metadataArea = stringResource(R.string.arctic_datasource_metadataArea),
+            metadataRange = stringResource(R.string.arctic_datasource_metadataRange),
+            bullet = listOf(
+                stringResource(R.string.bullet_polar_regions),
+                stringResource(R.string.bullet_no_warnings)
+            )
+        ),
+
+        AreaCardContent(
             area = AreaData.WORLD,
             label = stringResource(R.string.worldwide),
             metadataArea = stringResource(R.string.worldwide_datasource_metadataArea),
@@ -79,17 +90,6 @@ fun MapDataSourceSwitcher(
                 stringResource(R.string.bullet_worldwide),
                 stringResource(R.string.bullet_lower_resolution),
                 stringResource(R.string.bullet_no_warnings),
-            )
-        ),
-
-        AreaCardContent(
-            area = AreaData.ARCTIC,
-            label = stringResource(R.string.arctic),
-            metadataArea = stringResource(R.string.arctic_datasource_metadataArea),
-            metadataRange = stringResource(R.string.arctic_datasource_metadataRange),
-            bullet = listOf(
-                stringResource(R.string.bullet_polar_regions),
-                stringResource(R.string.bullet_no_warnings)
             )
         )
     )
