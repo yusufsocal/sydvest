@@ -234,7 +234,7 @@ fun updateUserMarker(mapView: MapView, point: GeoPoint) {
                 mapView.context.resources,
                 R.drawable.location_green
             )
-            icon = Bitmap.createScaledBitmap(b, 60, 60, true).toDrawable(mapView.context.resources)
+            icon = Bitmap.createScaledBitmap(b, 80, 80, true).toDrawable(mapView.context.resources)
         })
     }
     mapView.invalidate()
