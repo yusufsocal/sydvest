@@ -72,6 +72,7 @@ import org.osmdroid.views.MapView
 fun MapScreen(
     mapScreenUiState: MapScreenUiState,
     mapViewModel: MapViewModel,
+    onInfoClick: () -> Unit,
 ) {
     val context = LocalContext.current
     var mapViewRef by remember { mutableStateOf<MapView?>(null) }
@@ -275,6 +276,7 @@ fun MapScreen(
                     MapSideControls(
                         onZoomIn = { mapViewRef?.controller?.zoomIn() },
                         onZoomOut = { mapViewRef?.controller?.zoomOut() },
+                        onInfoClick = onInfoClick,
                         onCenterClick = {
                             isCenterActive = true
                             locationServicesEnabled = checkLocationEnabled(context)

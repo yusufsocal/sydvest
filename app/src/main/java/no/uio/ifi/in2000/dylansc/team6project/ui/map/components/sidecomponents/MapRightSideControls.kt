@@ -28,6 +28,7 @@ fun MapSideControls(
     isCenterActive: Boolean,
     onZoomIn: () -> Unit,
     onZoomOut: () -> Unit,
+    onInfoClick: () -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -86,8 +87,7 @@ fun MapSideControls(
 
         FilledIconButton(
             modifier = Modifier.size(32.dp),
-            onClick = // TODO: Add functionality
-            {},
+            onClick = onInfoClick,
             colors = IconButtonDefaults.filledIconButtonColors(
                 MaterialTheme.colorScheme.onPrimary
             ))
