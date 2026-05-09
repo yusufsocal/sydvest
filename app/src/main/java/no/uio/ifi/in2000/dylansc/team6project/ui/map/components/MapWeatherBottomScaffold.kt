@@ -248,7 +248,7 @@ fun MapWeatherBottomScaffold(
                         ) {
                             Column {
                                 Text(
-                                    text = stringResource(R.string.velg_værlag),
+                                    text = stringResource(R.string.værlag),
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.graphicsLayer {
                                         translationY = -8.dp.toPx()

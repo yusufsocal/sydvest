@@ -8,6 +8,7 @@
     <string name = "arctic">Arktis</string>
 
     <!-- MapWeatherBottomScaffold -->
+    <string name = "værlag">VÆRLAG</string>
     <string name = "velg_værlag">VELG VÆRLAG</string>
 
     <!-- MapDataSourceSwitcher -->
