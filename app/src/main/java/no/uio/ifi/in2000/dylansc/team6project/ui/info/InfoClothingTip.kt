@@ -1,4 +1,4 @@
-package no.uio.ifi.in2000.dylansc.team6project.ui.Info
+package no.uio.ifi.in2000.dylansc.team6project.ui.info
 
 
 import androidx.compose.foundation.BorderStroke
@@ -23,13 +23,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+
+
 import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.model.domene.CurrentWeather
-import no.uio.ifi.in2000.dylansc.team6project.model.domene.getClothingTips
+import no.uio.ifi.in2000.dylansc.team6project.model.domene.getClothingTip
 
 @Composable
 fun InfoClothingTips (weather: CurrentWeather) {
-    val tip = getClothingTips(weather) ?: ""
+    val tip = getClothingTip(weather)
 
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -65,8 +67,10 @@ fun InfoClothingTips (weather: CurrentWeather) {
             }
         }
 
-        Text (tip,
-            modifier = Modifier.padding (16.dp))
+        Text (
+            "${tip.emoji} ${tip.label}",
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }
 
