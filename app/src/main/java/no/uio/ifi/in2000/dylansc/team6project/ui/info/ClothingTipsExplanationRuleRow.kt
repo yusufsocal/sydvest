@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.dylansc.team6project.model.domene.ClothingTip
 
@@ -28,14 +29,23 @@ fun RuleRow(tip: ClothingTip) {
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text (tip.emoji, style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.width(12.dp))
-        Column (Modifier.weight(1f)) {}
-        Text(tip.label, style = MaterialTheme.typography.titleSmall)
         Text (
-            tip.condition,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+            tip.emoji,
+            style = MaterialTheme.typography.titleLarge)
+        Column (Modifier
+            .padding(start = 16.dp)
+            .weight(1f)) {
+            Text(
+                tip.label,
+                style = MaterialTheme.typography.titleSmall,
+                textAlign = TextAlign.Start)
+            Text (
+                tip.condition,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+        }
+
     }
 }
