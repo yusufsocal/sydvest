@@ -5,28 +5,36 @@ import no.uio.ifi.in2000.dylansc.team6project.R
 
 val onboardingPages = listOf(
     OnboardingPage(
-        title = R.string.onboarding_page0_title,
-        description = R.string.onboarding_page0_description,
+        title = R.string.onboarding_page0_welcome_title,
+        description = R.string.onboarding_page0_welcome_description,
         ctaLabel = R.string.onboarding_cta_next,
     ),
     OnboardingPage(
-        title = R.string.onboarding_page1_title,
-        description = R.string.onboarding_page1_description,
+        title = R.string.onboarding_page_press_for_data_title,
+        description = R.string.onboarding_page_press_for_data_description,
+        ctaLabel = R.string.onboarding_cta_next,
+    ),
+
+    OnboardingPage(
+        title = R.string.onboarding_page_search_for_location_title,
+        description = R.string.onboarding_page_search_for_location_description,
+        ctaLabel = R.string.onboarding_cta_next
+    ),
+
+    OnboardingPage(
+        title = R.string.onboarding_page_clothing_tips_title,
+        description = R.string.onboarding_page_clothing_tips_description,
+        ctaLabel = R.string.onboarding_cta_next,
+    ),
+
+    OnboardingPage(
+        title = R.string.onboarding_page_visual_weather_title,
+        description = R.string.onboarding_page_visual_weather_description,
         ctaLabel = R.string.onboarding_cta_next,
     ),
     OnboardingPage(
-        title = R.string.onboarding_page2_title,
-        description = R.string.onboarding_page2_description,
-        ctaLabel = R.string.onboarding_cta_next,
-    ),
-    OnboardingPage(
-        title = R.string.onboarding_page3_title,
-        description = R.string.onboarding_page3_description,
-        ctaLabel = R.string.onboarding_cta_next,
-    ),
-    OnboardingPage(
-        title = R.string.onboarding_page4_title,
-        description = R.string.onboarding_page4_description,
+        title = R.string.onboarding_page_danger_alerts_title,
+        description = R.string.onboarding_page_danger_alerts_description,
         ctaLabel = R.string.onboarding_cta_get_started,
     ),
 )
