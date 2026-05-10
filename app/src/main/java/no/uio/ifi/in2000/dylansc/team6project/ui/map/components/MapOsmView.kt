@@ -56,6 +56,7 @@ private data class DrawnLayerState(
  *   with the corresponding [AlertFeature], or null if no alert was hit.
  * @param modifier modifier applied to the underlying [AndroidView].
  */
+
 @Composable
 fun MapOsmView(
     uiState: MapScreenUiState,
@@ -111,6 +112,8 @@ fun MapOsmView(
             val currentTime = uiState.selectedTime
             val currentArea = uiState.area
 
+            // We stash the previously drawn state in view.tag so we can diff against
+            // new inputs and only redraw layers/alerts when something relevant changed.
             val lastState = view.tag as? DrawnLayerState ?: DrawnLayerState(null, null, null)
             val newState = DrawnLayerState(
                 layerName = currentLayer?.name,
@@ -134,7 +137,7 @@ fun MapOsmView(
                     }
                 }
 
-                // Update dangeralert only if weatherWarning or the number of warnings have changed
+                // Update alerts only if dangerAlert or the number of warnings have changed
                 if (newState.dangerAlert != lastState.dangerAlert ||
                     newState.alertCount != lastState.alertCount) {
                     drawAlerts(view, uiState, uiState.dangerAlert, onAlertClick)
