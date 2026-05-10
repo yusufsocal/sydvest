@@ -30,6 +30,32 @@ private data class DrawnLayerState(
     val alertCount: Int = 0
 )
 
+/**
+ * Composable wrapper around osmdroid's [MapView] for the weather map screen.
+ *
+ * The map initializes at the last known center (read from the "osmdroid"
+ * SharedPreferences) and supports a single weather WMS layer plus alert
+ * overlays driven by [uiState]. A long-press on the map places a selected
+ * marker and reports the location via [onLocationSelected]; the current
+ * map center is persisted to SharedPreferences on every update so it can
+ * be restored on the next launch.
+ *
+ * @param uiState current map state — selected layer, time, area, and
+ *   active weather alerts to render.
+ * @param granted whether location permission has been granted; when true,
+ *   the map auto-centers on the user's position on first load.
+ * @param locationServicesEnabled whether OS location services are on;
+ *   when false the user marker is removed instead of updated.
+ * @param geoLocation the user's current position used to draw the user
+ *   marker; ignored when null or when [locationServicesEnabled] is false.
+ * @param onMapReady invoked once after the [MapView] is constructed so
+ *   the caller can keep a reference for further interaction.
+ * @param onLocationSelected called with the long-pressed [GeoPoint] when
+ *   the user picks a location on the map.
+ * @param onAlertClick invoked when the user taps a weather alert overlay
+ *   with the corresponding [AlertFeature], or null if no alert was hit.
+ * @param modifier modifier applied to the underlying [AndroidView].
+ */
 @Composable
 fun MapOsmView(
     uiState: MapScreenUiState,
