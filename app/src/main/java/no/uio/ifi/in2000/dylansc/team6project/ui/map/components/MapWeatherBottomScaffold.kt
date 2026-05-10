@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -221,12 +222,20 @@ fun MapWeatherBottomScaffold(
                 .wrapContentHeight()
                 .fillMaxWidth(),
             sheetDragHandle = {
+                val isPartiallyExpanded =
+                    scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded
+                val handleLabel =
+                    if (isPartiallyExpanded) stringResource(R.string.expand_panel)
+                    else stringResource(R.string.collapse_panel)
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
-                        .clickable {
+                        .size(72.dp)
+                        .clickable(
+                            onClickLabel = handleLabel,
+                            role = Role.Button
+                        ) {
                             scope.launch {
-                                if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
+                                if (isPartiallyExpanded) {
                                     scaffoldState.bottomSheetState.expand()
                                 } else {
                                     scaffoldState.bottomSheetState.partialExpand()
@@ -235,8 +244,8 @@ fun MapWeatherBottomScaffold(
                         }
                 ) {
                     Icon(
-                        imageVector = if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                        contentDescription = if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) stringResource(R.string.expand_panel) else stringResource(R.string.collapse_panel),
+                        imageVector = if (isPartiallyExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                        contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .clip(CircleShape)
@@ -267,7 +276,7 @@ fun MapWeatherBottomScaffold(
                                     text = stringResource(R.string.værlag),
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.graphicsLayer {
-                                        translationY = -8.dp.toPx()
+                                        translationY = -24.dp.toPx()
                                     }
                                 )
                             }

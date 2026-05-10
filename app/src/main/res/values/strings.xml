@@ -96,6 +96,7 @@
     <!-- MapSearchField.kt -->
     <string name="search_for_location">Søk etter sted</string>
     <string name="clear_search">Tøm søk</string>
+    <string name="close_search">Lukk søk</string>
 
     <!-- MapWeatherInfoDialog.kt / MapDangerWarningInfo.kt -->
     <string name="close">Lukk</string>
