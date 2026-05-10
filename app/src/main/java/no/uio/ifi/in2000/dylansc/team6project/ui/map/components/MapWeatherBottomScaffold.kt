@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -99,7 +100,6 @@ fun MapWeatherBottomScaffold(
 
     areaChange: Boolean,
     changed: () -> Unit,
-    //Variabler for slider
 
     sliderPosition: Float,
     isAnimating: Boolean,
@@ -185,9 +185,9 @@ fun MapWeatherBottomScaffold(
                         changed()
                     },
                     shape = CircleShape,
-                    contentPadding = PaddingValues(0.dp),
+                    contentPadding = PaddingValues(4.dp),
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(48.dp)
                         .graphicsLayer {
                             val offset = try {
                                 scaffoldState.bottomSheetState.requireOffset()
@@ -223,7 +223,7 @@ fun MapWeatherBottomScaffold(
             sheetDragHandle = {
                 Box(
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(48.dp)
                         .clickable {
                             scope.launch {
                                 if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
@@ -312,7 +312,7 @@ fun MapWeatherBottomScaffold(
                                 isdangerAlertActive
                             )
 
-                            Spacer(modifier = Modifier.padding(16.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
 
                         }
                     }

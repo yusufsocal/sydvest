@@ -61,7 +61,7 @@ fun OnboardingCarousel(
                 Text(
                     "Hopp over",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                 )
             }
         }

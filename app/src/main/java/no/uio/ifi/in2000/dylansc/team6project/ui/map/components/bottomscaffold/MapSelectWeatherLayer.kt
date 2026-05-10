@@ -35,7 +35,7 @@ fun MapSelectWeatherLayer(
     onDangerAlertToggle: () -> Unit,
     isdangerAlertActive: Boolean
 ) {
-    var textSize by remember { mutableStateOf(12) }
+    var textSize by remember { mutableStateOf(14) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -59,7 +59,7 @@ fun MapSelectWeatherLayer(
                         )
                     else ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
-                        contentColor = Color.Black
+                        contentColor = MaterialTheme.colorScheme.onSurface
 
                     )
                 ) {
@@ -81,7 +81,7 @@ fun MapSelectWeatherLayer(
                     )
                 else ButtonDefaults.outlinedButtonColors(
                     containerColor = Color.Transparent,
-                    contentColor = Color.Black
+                    contentColor = MaterialTheme.colorScheme.onSurface
 
                 )
             ) {
