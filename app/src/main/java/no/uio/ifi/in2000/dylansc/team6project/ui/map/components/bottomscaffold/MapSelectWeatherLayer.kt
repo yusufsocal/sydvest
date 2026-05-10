@@ -54,8 +54,8 @@ fun MapSelectWeatherLayer(
                     contentPadding = PaddingValues(0.dp),
                     colors = if (isSelected)
                         ButtonDefaults.outlinedButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     else ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
@@ -76,8 +76,8 @@ fun MapSelectWeatherLayer(
                 contentPadding = PaddingValues(0.dp),
                 colors = if (isdangerAlertActive)
                     ButtonDefaults.outlinedButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 else ButtonDefaults.outlinedButtonColors(
                     containerColor = Color.Transparent,
