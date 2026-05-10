@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SydVest</string>
+
+    <!-- InfoCardAreaSource -->
+    <string name = "bullet_point">• </string>
+    <string name = "nordic">Norden</string>
+    <string name = "worldwide">Verden</string>
+    <string name = "arctic">Arktis</string>
+
+    <!-- MapWeatherBottomScaffold -->
+    <string name = "værlag">VÆRLAG</string>
+    <string name = "velg_værlag">VELG VÆRLAG</string>
+
+    <!-- MapDataSourceSwitcher -->
+    <string name = "nordic_datasource_metadataArea">MET Norden</string>
+    <string name = "nordic_datasource_metadataRange">1km - oppdateres hver time</string>
+    <string name = "worldwide_datasource_metadataArea">ECMWF</string>
+    <string name = "worldwide_datasource_metadataRange">25km - oppdateres hver tredje time</string>
+    <string name = "arctic_datasource_metadataArea">AROME Arctic</string>
+    <string name = "arctic_datasource_metadataRange">2.5km - oppdateres hver time</string>
+
+    <string name = "bullet_high_resolution">Høy Oppløsning</string>
+    <string name = "bullet_warnings">Detaljerte farevarsler</string>
+    <string name = "bullet_60_hour_forecast">60 timer med værdata</string>
+    <string name = "bullet_worldwide">Værdata for hele verden</string>
+    <string name = "bullet_lower_resolution">Litt dårligere oppløsning</string>
+    <string name = "bullet_no_warnings">Ingen farevarsler utenfor Norge</string>
+    <string name = "bullet_polar_regions">Polare områder</string>
+
+    <string name = "more_data_available">VÆRDATA TILGJENGELIG</string>
+    <string name = "change_area_question">Bytte Område?</string>
+    <string name = "change_data_explanation">Denne appen tilbyr vær for flere steder i verden, men er du utenfor Norden må du bytte. Under finner du alternativer for hvilken data du kan se:</string>
+    <string name = "manual_switch_in_settings">Du kan også manuelt bytte mellom globalt og nåværende værvarsel manuelt i innstillinger</string>
+    <string name = "confirm_choice">Bekreft valg</string>
+    <string name = "cancel_keep_nordic">Avbryt - behold</string>
+
+    <!-- MapChangeAreaButton -->
+    <string name = "choose_data_source_area">Velg mellom områder</string>
+
+    <!-- MapDangerWarningHint -->
+    <string name ="press_dangerbutton_for_information">Trykk på et farevarsel for mer informasjon</string>
+
+    <!-- MapDangerWarningInfo -->
+    <string name="blowing_snow">Snøfokk</string>
+    <string name="wildfire">Skogbrann</string>
+    <string name="gale">Kuling</string>
+    <string name="ice">Is</string>
+    <string name= "icing">Ising</string>
+    <string name ="lightning">Lyn</string>
+    <string name = "polar_low">Polare lavtrykk</string>
+    <string name ="rain">Regn</string>
+    <string name ="rainflood">Styrtflom</string>
+    <string name ="snow">Snø</string>
+    <string name ="storm_surge">Stormflo</string>
+    <string name ="wind">Vind</string>
+
+    <string name="extreme">🔴 Ekstrem</string>
+    <string name= "severe">🟠 Alvorlig</string>
+    <string name="moderate">🟡 Moderat</string>
+    <string name ="minor">🟢 Liten</string>
+
+
+    <!-- MapScreen -->
+    <string name="error_loading">Kunne ikke laste inn værdata</string>
+    <string name ="try_again">Prøv igjen</string>
+
+    <!-- OnboardingPageContent -->
+    <string name="onboarding_page_counter">%1$02d / %2$02d</string>
+
+    <!-- OnboardingPages -->
+    <string name="onboarding_page0_welcome_title">Velkommen til SydVest</string>
+    <string name="onboarding_page0_welcome_description">Dette er en værapp som viser hvordan været er, hvilke farevarsler som gjelder i Norge, og gir deg klestips etter hvordan været er. Bla videre for mer informasjon om hvordan du kan bruke denne appen</string>
+
+    <string name="onboarding_page_press_for_data_title">Trykk for å få værinformasjon på et punkt</string>
+    <string name="onboarding_page_press_for_data_description">Trykk hvor som helst på kartet for å se temperatur, vind, nedbør og klestips for det stedet i sanntid. Dette gjelder hele verden</string>
+
+    <string name="onboarding_page_search_for_location_title">Søk etter et spesifikt sted</string>
+    <string name="onboarding_page_search_for_location_description">Vil du vite noe om været et annet sted? Søk etter steder eller adresser</string>
+
+    <string name="onboarding_page_clothing_tips_title">Få klestips basert på været</string>"
+    <string name="onboarding_page_clothing_tips_description"> I denne værappen slipper du å tolke hva du skal ha på. Vi gir deg en oversikt over hva du bør ha på, basert på punktet du trykker på. </string>
+
+    <string name="onboarding_page_visual_weather_title">Visuelle værlag</string>
+    <string name="onboarding_page_visual_weather_description">Slå på temperatur, nedbør og vind og se de som farger og bevegelse over kartet. Du kan også se visuelle værlag fremover i tid. Skru av og på etter behov.</string>
+
+    <string name="onboarding_page_danger_alerts_title">Farevarsler for Norge</string>
+    <string name="onboarding_page_danger_alerts_description">Få oversikt over gjeldende farevarsler fra Meteorologisk institutt. Se hvor de gjelder, og alvorlighetsgrad på dem</string>
+
+    <string name="onboarding_cta_next">Neste</string>
+    <string name="onboarding_cta_get_started">Kom i gang</string>
+    <string name="go_back">Gå tilbake</string>
+
+    <!-- MapWeatherInfoSide.kt -->
+    <string name ="show_colorscale">Vis fargeskala</string>
+
+    <!-- MapSearchField.kt -->
+    <string name="search_for_location">Søk etter sted</string>
+    <string name="clear_search">Tøm søk</string>
+    <string name="close_search">Lukk søk</string>
+
+    <!-- MapWeatherInfoDialog.kt / MapDangerWarningInfo.kt -->
+    <string name="close">Lukk</string>
+
+    <!-- AppInfoScreen.kt -->
+    <string name="back">Tilbake</string>
+
+    <!-- MapRightSideControls.kt -->
+    <string name="zoom_in">Zoom inn</string>
+    <string name="zoom_out">Zoom ut</string>
+    <string name="app_info">Om appen</string>
+    <string name="center_on_my_location">Sentrer kart på min posisjon</string>
+
+    <!-- MapTimeSliderSection.kt -->
+    <string name="play_animation">Spill av animasjon</string>
+    <string name="pause_animation">Pause animasjon</string>
+
+    <!-- MapWeatherBottomScaffold.kt -->
+    <string name="expand_panel">Utvid panel</string>
+    <string name="collapse_panel">Skjul panel</string>
+
+    <!-- UIWeatherStats.kt -->
+    <string name="precipitation">Nedbør</string>
+    <string name="wind_speed">Vindhastighet</string>
+
+    <!-- InfoClothingTip.kt -->
+    <string name="clothing_tips_explanation">Forklaring av klestips</string>
+
+    <!-- InfoClothingTip.kt -->
+    <string name="clothing_advise">Hva bør du ha på?</string>
+
+    <!-- ClothingTipsExplanationSheet.kt -->
+    <string name ="clothing_advise_explanation">Hva er tipsene basert på?</string>
+
+</resources>
