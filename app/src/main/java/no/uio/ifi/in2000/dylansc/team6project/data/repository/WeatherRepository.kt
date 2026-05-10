@@ -3,9 +3,18 @@ package no.uio.ifi.in2000.dylansc.team6project.data.repository
 import no.uio.ifi.in2000.dylansc.team6project.data.locationforecastdata.LocationforecastDataSource
 import no.uio.ifi.in2000.dylansc.team6project.model.domene.CurrentWeather
 
+/**
+ * Repository for current weather.
+ *
+ * Maps the Locationforecast response into the app's [CurrentWeather] domain model.
+ */
 class WeatherRepository(
     private val weatherDataSource: LocationforecastDataSource
 ) {
+    /**
+     * Returns the current weather at [lat]/[lon], or `null` if the forecast
+     * is unavailable. Rainfall defaults to 0.0 when the API omits it.
+     */
     suspend fun getCurrentWeather(lat: Double, lon: Double): CurrentWeather? {
         val response = weatherDataSource.getForecast(lat, lon) ?: return null
         val now = response.properties.timeseries.firstOrNull() ?: return null
