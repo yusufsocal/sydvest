@@ -23,7 +23,7 @@ private data class DrawnLayerState(
     val layerName: String?,
     val time: String?,
     val area: AreaData?,
-    val fareVarsel: Boolean = false,
+    val dangerAlert: Boolean = false,
     val alertCount: Int = 0
 )
 
@@ -86,7 +86,7 @@ fun MapOsmView(
                 layerName = currentLayer?.name,
                 time = currentTime,
                 area = currentArea,
-                fareVarsel = uiState.fareVarsel,
+                dangerAlert = uiState.dangerAlert,
                 alertCount = uiState.alertList.size
             )
 
@@ -105,9 +105,9 @@ fun MapOsmView(
                 }
 
                 // Update weather warning only if weatherWarning or the number of warnings have changed
-                if (newState.fareVarsel != lastState.fareVarsel ||
+                if (newState.dangerAlert != lastState.dangerAlert ||
                     newState.alertCount != lastState.alertCount) {
-                    drawAlerts(view, uiState, uiState.fareVarsel, onAlertClick)
+                    drawAlerts(view, uiState, uiState.dangerAlert, onAlertClick)
                 }
 
                 view.tag = newState

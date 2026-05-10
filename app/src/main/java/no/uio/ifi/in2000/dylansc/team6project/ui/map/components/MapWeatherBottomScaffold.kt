@@ -75,9 +75,9 @@ fun MapWeatherBottomScaffold(
     displayLayers: List<Pair<WMSLayer, String>>,
     onLayerSelected: (WMSLayer?) -> Unit,
 
-    //Variables for "Farevarsel"
-    onFareVarselToggle: () -> Unit,
-    isFareVarselActive: Boolean,
+    //Variables for "dangerAlert"
+    ondangerAlertToggle: () -> Unit,
+    isdangerAlertActive: Boolean,
 
     //Variables for MapChangeArea
     area: AreaData?,
@@ -292,8 +292,8 @@ fun MapWeatherBottomScaffold(
                                 displayLayers,
                                 onLayerSelected,
 
-                                onFareVarselToggle,
-                                isFareVarselActive
+                                ondangerAlertToggle,
+                                isdangerAlertActive
                             )
 
                             Spacer(modifier = Modifier.padding(16.dp))

@@ -32,8 +32,8 @@ fun MapSelectWeatherLayer(
     displayLayers: List<Pair<WMSLayer, String>>,
     onLayerSelected: (WMSLayer?) -> Unit,
 
-    onFareVarselToggle: () -> Unit,
-    isFareVarselActive: Boolean
+    ondangerAlertToggle: () -> Unit,
+    isdangerAlertActive: Boolean
 ) {
     var textSize by remember { mutableStateOf(12) }
     Column(
@@ -71,10 +71,10 @@ fun MapSelectWeatherLayer(
                 }
             }
             OutlinedButton(
-                onClick = onFareVarselToggle,
+                onClick = ondangerAlertToggle,
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(0.dp),
-                colors = if (isFareVarselActive)
+                colors = if (isdangerAlertActive)
                     ButtonDefaults.outlinedButtonColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         contentColor = MaterialTheme.colorScheme.onPrimary

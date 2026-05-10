@@ -323,15 +323,15 @@ fun MapScreen(
                     displayLayers = mapScreenUiState.displayLayers,
                     onLayerSelected = { mapViewModel.setSelectedLayer(it) },
 
-                    //Farevarsel
-                    onFareVarselToggle = {
-                        mapViewModel.toggleFareVarsel()
-                        if (!mapScreenUiState.fareVarsel) { // if it's currently off, it's about to turn on
+                    //dangerAlert
+                    ondangerAlertToggle = {
+                        mapViewModel.toggledangerAlert()
+                        if (!mapScreenUiState.dangerAlert) { // if it's currently off, it's about to turn on
                             showHint = true
                         }
 
                     },
-                    isFareVarselActive = mapScreenUiState.fareVarsel,
+                    isdangerAlertActive = mapScreenUiState.dangerAlert,
 
                     //MapChangeAreaButton
                     area = mapScreenUiState.area,
