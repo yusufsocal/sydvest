@@ -60,8 +60,8 @@ data class MapScreenUiState(
     val searchQuery: String = "",
     val pendingCenterLocation: GeoPoint? = null,
 
-    //Farevarsel
-    val fareVarsel: Boolean = false,
+    //dangerAlert
+    val dangerAlert: Boolean = false,
     val alertList: List<AlertFeature> = emptyList(),
 
     //Slider
@@ -74,7 +74,7 @@ data class MapScreenUiState(
     val displayLayers: List<Pair<WMSLayer, String>> = emptyList(),
     val selectedLayerDisplayName: String = "Velg værlag...",
 
-    //Farevarsel info
+    //dangerAlert info
     val selectedAlert: AlertFeature? = null
 )
 
@@ -167,8 +167,8 @@ class MapViewModel(
         loadData()
     }
 
-    fun toggleFareVarsel() {
-        _uiState.update { it.copy(fareVarsel = !it.fareVarsel) }
+    fun toggledangerAlert() {
+        _uiState.update { it.copy(dangerAlert = !it.dangerAlert) }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
