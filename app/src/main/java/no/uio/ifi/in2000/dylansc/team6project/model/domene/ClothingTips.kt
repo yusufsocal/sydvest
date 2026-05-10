@@ -1,5 +1,12 @@
 package no.uio.ifi.in2000.dylansc.team6project.model.domene
 
+/**
+ * A clothing suggestion shown to the user based on current weather.
+ *
+ * @property emoji Icon shown next to the label.
+ * @property label Norwegian display text.
+ * @property condition Weather condition that triggers this tip.
+ */
 enum class ClothingTip(val emoji: String, val label: String, val condition: String) {
     HEAVY_WINTER("🧣", "Tykk vinterjakke, lue og skjerf ", "Under -10°C"),
     WINTER_JACKET("🧥", "Vinterjakke ", "-10 til 5°C"),
@@ -12,6 +19,10 @@ enum class ClothingTip(val emoji: String, val label: String, val condition: Stri
     SHORTS("🩳", "Shorts og t-skjorte ", "18–24°C")
 }
 
+/**
+ * Picks a [ClothingTip] for the given [weather].
+ * Rules are evaluated top-to-bottom; the first match wins.
+ */
 fun getClothingTip(weather: CurrentWeather): ClothingTip = when {
     weather.temperature < -10 -> ClothingTip.HEAVY_WINTER
     weather.temperature < 5 -> ClothingTip.WINTER_JACKET
