@@ -6,6 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 
+/**
+ * Small "Now showing: …" label under the map. Renders nothing when no layer is selected.
+ *
+ * @param selectedLayerDisplayName Display name shown after "Nå vises:".
+ * @param selectedLayer Active layer; if `null`, the label is hidden.
+ */
 @Composable
 fun MapSelectedLayer(
     selectedLayerDisplayName: String,

@@ -18,9 +18,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+/**
+ * Small pill showing one weather stat — an icon plus a value string
+ * (e.g. "1.2 mm" or "5.4 m/s").
+ *
+ * @param icon Icon shown to the left of the value.
+ * @param iconDescription Accessibility description for [icon].
+ * @param value Pre-formatted value string with units.
+ */
 @Composable
 fun UIWeatherStats(
     icon: ImageVector,
+    iconDescription: String,
     value: String,
     modifier: Modifier = Modifier,
 ) {
@@ -36,7 +45,7 @@ fun UIWeatherStats(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = iconDescription,
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(18.dp),
             )

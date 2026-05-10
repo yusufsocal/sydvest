@@ -39,6 +39,7 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.info.InfoCardAreaSource
 import org.osmdroid.views.MapView
 
 
+/** Display content for one area option in [MapDataSourceSwitcher]. */
 private data class AreaCardContent(
     val area: AreaData,
     val label: String,
@@ -48,6 +49,17 @@ private data class AreaCardContent(
 )
 
 
+/**
+ * Dialog-style picker that lets the user choose between Nordic, Arctic and
+ * World data sources. Shows an [InfoCardAreaSource] for the active option
+ * and a confirm button.
+ *
+ * @param changeArea Called with the chosen area label.
+ * @param changed Called after the area has been changed so callers can refresh state.
+ * @param onShowAreaChange Called to close the picker.
+ * @param mapView The current map view (unused here but kept for parity with callers).
+ * @param wmsLayer Provides the currently selected WMS layer.
+ */
 @Composable
 fun MapDataSourceSwitcher(
     changeArea: (String) -> Unit,
@@ -71,6 +83,17 @@ fun MapDataSourceSwitcher(
         ),
 
         AreaCardContent(
+            area = AreaData.ARCTIC,
+            label = stringResource(R.string.arctic),
+            metadataArea = stringResource(R.string.arctic_datasource_metadataArea),
+            metadataRange = stringResource(R.string.arctic_datasource_metadataRange),
+            bullet = listOf(
+                stringResource(R.string.bullet_polar_regions),
+                stringResource(R.string.bullet_no_warnings)
+            )
+        ),
+
+        AreaCardContent(
             area = AreaData.WORLD,
             label = stringResource(R.string.worldwide),
             metadataArea = stringResource(R.string.worldwide_datasource_metadataArea),
@@ -79,17 +102,6 @@ fun MapDataSourceSwitcher(
                 stringResource(R.string.bullet_worldwide),
                 stringResource(R.string.bullet_lower_resolution),
                 stringResource(R.string.bullet_no_warnings),
-            )
-        ),
-
-        AreaCardContent(
-            area = AreaData.ARCTIC,
-            label = stringResource(R.string.arctic),
-            metadataArea = stringResource(R.string.arctic_datasource_metadataArea),
-            metadataRange = stringResource(R.string.arctic_datasource_metadataRange),
-            bullet = listOf(
-                stringResource(R.string.bullet_polar_regions),
-                stringResource(R.string.bullet_no_warnings)
             )
         )
     )

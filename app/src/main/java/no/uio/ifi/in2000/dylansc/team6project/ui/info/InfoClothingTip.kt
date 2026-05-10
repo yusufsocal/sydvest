@@ -32,6 +32,10 @@ import no.uio.ifi.in2000.dylansc.team6project.model.domene.CurrentWeather
 import no.uio.ifi.in2000.dylansc.team6project.model.domene.getClothingTip
 
 
+/**
+ * Card showing a clothing suggestion based on [weather], with an info button
+ * that opens [ClothingTipsExplanationSheet].
+ */
 @Suppress("AssignedValueIsNeverRead")
 @Composable
 fun InfoClothingTips (weather: CurrentWeather) {
@@ -72,7 +76,7 @@ fun InfoClothingTips (weather: CurrentWeather) {
                 modifier = Modifier
                     .size(24.dp),
                 imageVector = Icons.Default.Info,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.clothing_tips_explanation),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             }

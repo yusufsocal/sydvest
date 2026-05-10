@@ -122,10 +122,10 @@ private fun addWmsTilesOverlay(
     mapView.overlays.add(overlay)
 }
 
-fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, fareVarsel: Boolean, onAlertClick: (AlertFeature?) -> Unit) {
+fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, dangerAlert: Boolean, onAlertClick: (AlertFeature?) -> Unit) {
     mapView.overlays.removeAll { it is FolderOverlay && it.name == "Farevarsler" }
 
-    if (!fareVarsel) {
+    if (!dangerAlert) {
         mapView.invalidate()
         return
     }

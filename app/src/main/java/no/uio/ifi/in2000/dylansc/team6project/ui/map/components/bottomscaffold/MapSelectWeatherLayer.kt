@@ -24,6 +24,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 
+/**
+ * Row of toggleable buttons for picking which weather layer is shown on the map,
+ * plus a button that toggles the danger alerts overlay.
+ *
+ * Tapping the active layer again deselects it (passes `null` to [onLayerSelected]).
+ *
+ * @param selectedLayerDisplayName Display name of the active layer (currently unused).
+ * @param selectedLayer The currently active layer, or `null` if none.
+ * @param displayLayers Available layers paired with their display names.
+ * @param onLayerSelected Called with the new layer (or `null` to deselect).
+ * @param onDangerAlertToggle Called when the user toggles the danger-alerts button.
+ * @param isdangerAlertActive Whether danger alerts are currently shown.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapSelectWeatherLayer(
@@ -32,10 +45,10 @@ fun MapSelectWeatherLayer(
     displayLayers: List<Pair<WMSLayer, String>>,
     onLayerSelected: (WMSLayer?) -> Unit,
 
-    onFareVarselToggle: () -> Unit,
-    isFareVarselActive: Boolean
+    onDangerAlertToggle: () -> Unit,
+    isdangerAlertActive: Boolean
 ) {
-    var textSize by remember { mutableStateOf(12) }
+    var textSize by remember { mutableStateOf(14) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -54,12 +67,12 @@ fun MapSelectWeatherLayer(
                     contentPadding = PaddingValues(0.dp),
                     colors = if (isSelected)
                         ButtonDefaults.outlinedButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     else ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
-                        contentColor = Color.Black
+                        contentColor = MaterialTheme.colorScheme.onSurface
 
                     )
                 ) {
@@ -71,17 +84,17 @@ fun MapSelectWeatherLayer(
                 }
             }
             OutlinedButton(
-                onClick = onFareVarselToggle,
+                onClick = onDangerAlertToggle,
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(0.dp),
-                colors = if (isFareVarselActive)
+                colors = if (isdangerAlertActive)
                     ButtonDefaults.outlinedButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 else ButtonDefaults.outlinedButtonColors(
                     containerColor = Color.Transparent,
-                    contentColor = Color.Black
+                    contentColor = MaterialTheme.colorScheme.onSurface
 
                 )
             ) {

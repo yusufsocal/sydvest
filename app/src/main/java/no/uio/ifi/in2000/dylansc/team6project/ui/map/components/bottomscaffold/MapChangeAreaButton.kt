@@ -21,6 +21,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import no.uio.ifi.in2000.dylansc.team6project.R
 
+/**
+ * Floating card with one button per area (Nordic / Arctic / World) plus an
+ * info button that opens the area-change dialog.
+ *
+ * @param changeArea Called with the chosen area label.
+ * @param changed Called after the area has been changed so callers can refresh state.
+ * @param onShowAreaChange Called when the user taps the info icon.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapChangeAreaButton(

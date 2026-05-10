@@ -22,9 +22,17 @@ import kotlinx.coroutines.delay
 import no.uio.ifi.in2000.dylansc.team6project.R
 import kotlin.time.Duration.Companion.seconds
 
+/** How long the hint stays on screen before auto-dismissing. */
 private val HINT_VISIBLE_DURATION = 3.seconds
 private const val BACKGROUND_ALPHA = 0.7f
 
+/**
+ * Brief on-screen hint telling the user to tap a danger marker for details.
+ * Auto-dismisses after [HINT_VISIBLE_DURATION].
+ *
+ * @param show Whether the hint is currently visible.
+ * @param onDismiss Called when the timer expires so callers can hide the hint.
+ */
 @Composable
 fun MapDangerWarningHint(
     show: Boolean,

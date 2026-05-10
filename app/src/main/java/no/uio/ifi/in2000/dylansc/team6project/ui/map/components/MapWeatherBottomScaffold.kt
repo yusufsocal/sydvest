@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,6 +30,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,6 +55,44 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.bottomscaffold.M
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.bottomscaffold.MapSelectedLayer
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.bottomscaffold.MapTimeSliderSection
 
+/**
+ * Bottom-sheet controls for the weather map.
+ *
+ * Hosts the time slider, weather-layer picker, danger-alert toggle, and
+ * the area selector. When a weather layer is selected the sheet expands
+ * to show the slider plus a "selected layer" header; with no layer selected
+ * it shrinks to a compact picker. Slider drags update a local state
+ * immediately and are debounced (300 ms) before being forwarded through
+ * [onSliderChange] so the ViewModel isn't spammed on every frame.
+ *
+ * Two floating controls are drawn above the sheet and follow the sheet's
+ * vertical offset: a "Select layer" button (when a layer is active) and
+ * the area-picker button (when [areaChange] is true).
+ *
+ * @param areaChange whether the area picker should be shown above the sheet.
+ * @param changed invoked when the area picker should be dismissed or when
+ *   the floating "Select layer" button is tapped.
+ * @param sliderPosition current slider position from the ViewModel,
+ *   mapped to the available time range.
+ * @param isAnimating whether the timeline is auto-playing.
+ * @param onSliderChange called with the debounced final slider value
+ *   after the user stops dragging.
+ * @param onAnimateToggle toggles the auto-play animation on/off.
+ * @param stepHours hour increment between slider steps, used by
+ *   [MapTimeSliderSection] for tick marks.
+ * @param sliderState formatted label shown next to the slider, typically
+ *   the time the current step represents.
+ * @param selectedLayerDisplayName user-visible name of the active layer.
+ * @param selectedLayer currently active [WMSLayer], or null if none.
+ * @param displayLayers all selectable layers paired with their display names.
+ * @param onLayerSelected called when the user picks or deselects a layer.
+ * @param onDangerAlertToggle toggles the danger-alert overlay on/off.
+ * @param isdangerAlertActive whether the danger-alert overlay is currently on.
+ * @param area current map area (Nordic / Arctic / World), drives the
+ *   area-button label.
+ * @param changeArea called with the new area key when the user selects one.
+ * @param onShowAreaChange opens the area picker.
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +100,6 @@ fun MapWeatherBottomScaffold(
 
     areaChange: Boolean,
     changed: () -> Unit,
-    //Variabler for slider
 
     sliderPosition: Float,
     isAnimating: Boolean,
@@ -75,9 +114,9 @@ fun MapWeatherBottomScaffold(
     displayLayers: List<Pair<WMSLayer, String>>,
     onLayerSelected: (WMSLayer?) -> Unit,
 
-    //Variables for "Farevarsel"
-    onFareVarselToggle: () -> Unit,
-    isFareVarselActive: Boolean,
+    //Variables for "dangerAlert"
+    onDangerAlertToggle: () -> Unit,
+    isdangerAlertActive: Boolean,
 
     //Variables for MapChangeArea
     area: AreaData?,
@@ -85,28 +124,17 @@ fun MapWeatherBottomScaffold(
     onShowAreaChange: () -> Unit
 
 ) {
-    var peekVal = 0
-    var maxHeightVal = 0
+    val peekVal = if (selectedLayer != null) 80 else 85
+    val maxHeightVal = if (selectedLayer != null) 400 else 150
 
-    if (selectedLayer != null) {
-        peekVal = 80
-        maxHeightVal = 400
-    } else {
-        peekVal = 85
-        maxHeightVal = 150
-    }
-
-    var localSliderPosition by remember(sliderPosition) { mutableStateOf(sliderPosition) }
+    var localSliderPosition by remember(sliderPosition) { mutableFloatStateOf(sliderPosition) }
     LaunchedEffect(localSliderPosition) {
 
-        // Hvis posisjonen er den samme som allerede er lagret i ViewModel, gjør vi ingenting
         if (localSliderPosition == sliderPosition && !isAnimating) return@LaunchedEffect
 
-        // Vent i 150 millisekunder før vi sender verdien videre
         delay(300)
 
 
-        // Sends the final position to ViewModel after the user has stopped moving the slider
         onSliderChange(localSliderPosition)
     }
 
@@ -114,24 +142,12 @@ fun MapWeatherBottomScaffold(
     val scope = rememberCoroutineScope()
 
     var isObjectVisible by remember { mutableStateOf(true) }
-    var areaButtonText by remember { mutableStateOf("Norden") }
 
     LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
-        if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
-            isObjectVisible = true
-        } else {
-            isObjectVisible = false
-        }
+        isObjectVisible = scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded
     }
 
-    when (area) {
-        AreaData.NORDIC -> areaButtonText = "Norden"
-        AreaData.ARCTIC -> areaButtonText = "Arktis"
-        AreaData.WORLD -> areaButtonText = "Verden"
-        else -> areaButtonText
-    }
-
-    Box() {
+    Box {
         if (areaChange) {
             Box(
                 modifier = Modifier
@@ -141,7 +157,7 @@ fun MapWeatherBottomScaffold(
                     .graphicsLayer {
                         val offset = try {
                             scaffoldState.bottomSheetState.requireOffset()
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             0f // Fallback if it is not ready
                         }
 
@@ -169,13 +185,13 @@ fun MapWeatherBottomScaffold(
                         changed()
                     },
                     shape = CircleShape,
-                    contentPadding = PaddingValues(0.dp),
+                    contentPadding = PaddingValues(4.dp),
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(48.dp)
                         .graphicsLayer {
                             val offset = try {
                                 scaffoldState.bottomSheetState.requireOffset()
-                            } catch (e: Exception) {
+                            } catch (_: Exception) {
                                 0f // Fallback if it is not ready
                             }
 
@@ -188,7 +204,7 @@ fun MapWeatherBottomScaffold(
                         imageVector = Icons.Default.Public,
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(32.dp),
-                        contentDescription = null
+                        contentDescription = stringResource(R.string.choose_data_source_area)
                     )
                 }
 
@@ -207,7 +223,7 @@ fun MapWeatherBottomScaffold(
             sheetDragHandle = {
                 Box(
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(48.dp)
                         .clickable {
                             scope.launch {
                                 if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
@@ -220,7 +236,7 @@ fun MapWeatherBottomScaffold(
                 ) {
                     Icon(
                         imageVector = if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                        contentDescription = null,
+                        contentDescription = if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) stringResource(R.string.expand_panel) else stringResource(R.string.collapse_panel),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .clip(CircleShape)
@@ -269,11 +285,11 @@ fun MapWeatherBottomScaffold(
                             if (selectedLayer != null) {
                                 //Slider
                                 MapTimeSliderSection(
-                                    sliderPosition = localSliderPosition, // Use the local value here
+                                    sliderPosition = localSliderPosition,
                                     isAnimating,
                                     onSliderChange = { newValue ->
                                         localSliderPosition =
-                                            newValue // Update only locally while sliding
+                                            newValue
                                     },
                                     onAnimateToggle,
                                     stepHours,
@@ -292,11 +308,11 @@ fun MapWeatherBottomScaffold(
                                 displayLayers,
                                 onLayerSelected,
 
-                                onFareVarselToggle,
-                                isFareVarselActive
+                                onDangerAlertToggle,
+                                isdangerAlertActive
                             )
 
-                            Spacer(modifier = Modifier.padding(16.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
 
                         }
                     }

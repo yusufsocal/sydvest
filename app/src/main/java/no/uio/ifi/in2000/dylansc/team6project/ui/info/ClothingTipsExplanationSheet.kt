@@ -19,6 +19,11 @@ import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.model.domene.ClothingTip
 
+/**
+ * Bottom sheet listing every [ClothingTip] and the condition that triggers it.
+ *
+ * @param onDismiss Called when the user closes the sheet.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClothingTipsExplanationSheet(

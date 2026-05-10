@@ -1,12 +1,15 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.onboarding
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 
-
+/**
+ * One page in the onboarding carousel.
+ *
+ * @property title String resource for the page title.
+ * @property description String resource for the body text.
+ * @property onboardingButtonLabel String resource for the bottom button label.
+ */
 data class OnboardingPage(
-    @StringRes val title: Int,
-    @StringRes val description: Int,
-    @StringRes val ctaLabel: Int,
-    @DrawableRes val image: Int? = null,
+    val title: Int,
+    val description: Int,
+    val onboardingButtonLabel: Int,
 )

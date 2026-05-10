@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
@@ -19,8 +20,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import no.uio.ifi.in2000.dylansc.team6project.R
 
+/**
+ * Vertical column of controls floating on the right side of the map:
+ * center-on-location, zoom in, zoom out, and an info button.
+ *
+ * @param onCenterClick Called when the user taps the center button.
+ * @param isCenterActive Whether the map is currently centered on the user.
+ * @param onZoomIn Called when the user taps zoom in.
+ * @param onZoomOut Called when the user taps zoom out.
+ * @param onInfoClick Called when the user taps the info button.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapSideControls(
@@ -47,15 +60,15 @@ fun MapSideControls(
         ) {
             Icon(
                 imageVector = Icons.Default.LocationOn,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.center_on_my_location),
                 tint = if (isCenterActive) {MaterialTheme.colorScheme.onPrimary} else {MaterialTheme.colorScheme.primary},
-                modifier = Modifier.size(30.dp).clip(CircleShape)
+                modifier = Modifier.size(32.dp).clip(CircleShape)
             )
         }
 
         // zoom in
         FilledIconButton(
-            modifier = Modifier.size(32.dp),
+            modifier = Modifier.size(48.dp),
             onClick = onZoomIn,
             colors = IconButtonDefaults.filledIconButtonColors(
                 MaterialTheme.colorScheme.onPrimary
@@ -63,15 +76,17 @@ fun MapSideControls(
         ) {
             Icon(
                 imageVector = Icons.Default.AddCircle,
-                contentDescription = "Zoom inn",
+                contentDescription = stringResource(R.string.zoom_in),
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
             )
         }
 
         // zoom out
         FilledIconButton(
-            modifier = Modifier.size(32.dp),
+            modifier = Modifier.size(48.dp),
             onClick = onZoomOut,
             colors = IconButtonDefaults.filledIconButtonColors(
                 MaterialTheme.colorScheme.onPrimary
@@ -79,14 +94,16 @@ fun MapSideControls(
         ) {
             Icon(
                 imageVector = Icons.Default.RemoveCircle,
-                contentDescription = "Zoom ut",
+                contentDescription = stringResource(R.string.zoom_out),
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
             )
         }
 
         FilledIconButton(
-            modifier = Modifier.size(32.dp),
+            modifier = Modifier.size(48.dp),
             onClick = onInfoClick,
             colors = IconButtonDefaults.filledIconButtonColors(
                 MaterialTheme.colorScheme.onPrimary
@@ -95,9 +112,11 @@ fun MapSideControls(
             {
                 Icon (
                     imageVector = Icons.Default.Info,
-                    contentDescription = "info om appen",
+                    contentDescription = stringResource(R.string.app_info),
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
                 )
             }
 

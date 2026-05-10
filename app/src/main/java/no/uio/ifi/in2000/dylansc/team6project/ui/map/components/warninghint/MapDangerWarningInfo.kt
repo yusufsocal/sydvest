@@ -38,6 +38,14 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Polygon
 
+/**
+ * Dialog showing details for a single weather alert: type, severity, area,
+ * description, and a small map highlighting the affected polygon in the
+ * MET risk-matrix color (yellow / orange / red).
+ *
+ * @param feature The alert to display, or `null` to render nothing meaningful.
+ * @param onDismiss Called when the user closes the dialog.
+ */
 @Composable
 fun MapDangerWarningInfo(
     feature: AlertFeature?, onDismiss: () -> Unit
@@ -90,7 +98,7 @@ fun MapDangerWarningInfo(
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "Lukk")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                     }
                 }
 

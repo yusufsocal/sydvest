@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import no.uio.ifi.in2000.dylansc.team6project.R
 
+/**
+ * One info card on the "About" screen, showing an icon, header and description.
+ */
 @Composable
 fun AppInfoCardComponent(
     info: AppInfoContent

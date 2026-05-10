@@ -27,12 +27,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import no.uio.ifi.in2000.dylansc.team6project.R
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 
+/**
+ * Time slider controlling which forecast hour is shown on the map.
+ *
+ * Displays the corresponding date/time above the slider and a play/pause button
+ * that drives the auto-animation through the forecast.
+ *
+ * @param sliderPosition Current slider value in hours from now (0–240).
+ * @param isAnimating Whether the auto-animation is running.
+ * @param onSliderChange Called when the user drags the slider.
+ * @param onAnimateToggle Called when the play/pause button is tapped.
+ * @param stepHours Step size in hours between adjacent forecast frames.
+ * @param sliderState `"timer"` shows "+NT" (hours); anything else shows "+ND" (days).
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,7 +120,7 @@ fun MapTimeSliderSection(
             ) {
                 Icon(
                     imageVector = if (isAnimating) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = null,
+                    contentDescription = if (isAnimating) stringResource(R.string.pause_animation) else stringResource(R.string.play_animation),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(28.dp)

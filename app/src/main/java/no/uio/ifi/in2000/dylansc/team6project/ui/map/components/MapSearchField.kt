@@ -37,11 +37,30 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
 import androidx.compose.ui.graphics.Color as ComposeColor
 
+/**
+ * Search bar for finding and selecting a location on the map.
+ *
+ * Renders a Material 3 [SearchBar] with a list of location suggestions
+ * underneath. While the search is active a full-screen backdrop is drawn
+ * behind the bar so tapping outside collapses the search and hides the
+ * keyboard. An empty-state row is shown if the query produced no matches.
+ *
+ * @param suggestions list of location matches for the current query,
+ *   provided by the caller (typically from the ViewModel).
+ * @param onQueryChange called on every keystroke with the new query
+ *   text — the caller is expected to debounce and fetch suggestions.
+ * @param onSuggestionSelected called when the user taps a suggestion;
+ *   the caller is responsible for moving the map to that location.
+ * @param onSearchActiveChange notifies the caller whenever the search
+ *   gains or loses focus, so other UI elements can react (e.g. dim or hide).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapSearchField(
@@ -91,11 +110,11 @@ fun MapSearchField(
                             expanded = isActive
                             onSearchActiveChange(isActive)
                                         },
-                        placeholder = { Text("Søk", color = MaterialTheme.colorScheme.onSurface) },
+                        placeholder = { Text("Søk", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Search,
-                                contentDescription = "Search Icon"
+                                contentDescription = stringResource(R.string.search_for_location)
                             )
                         },
                         trailingIcon = {
@@ -108,7 +127,7 @@ fun MapSearchField(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Clear,
-                                        contentDescription = "Clear search"
+                                        contentDescription = stringResource(R.string.clear_search)
                                     )
                                 }
                             }
