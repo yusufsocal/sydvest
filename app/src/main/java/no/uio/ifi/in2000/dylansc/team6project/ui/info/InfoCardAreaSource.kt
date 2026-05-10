@@ -21,6 +21,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+/**
+ * Selectable card describing one weather model area (NORDIC / ARCTIC / WORLD)
+ * with its coverage info and a few bullet points.
+ *
+ * @param label Display name shown in the card and used to detect selection.
+ * @param metadataArea Short description of the geographic coverage.
+ * @param metadataRange Forecast range info (e.g. "60 hours ahead").
+ * @param bulletList Extra info lines shown under the header.
+ * @param onCardClick Called when the user taps the card.
+ * @param selectedArea Label of the currently selected card.
+ */
 @Composable
 fun InfoCardAreaSource(
     label: String,

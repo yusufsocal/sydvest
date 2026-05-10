@@ -33,6 +33,16 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.info
     import no.uio.ifi.in2000.dylansc.team6project.R
     import no.uio.ifi.in2000.dylansc.team6project.model.domene.CurrentWeather
 
+/**
+ * Dialog shown when the user taps a point on the map.
+ *
+ * Displays the place name (or coordinates), current temperature, precipitation,
+ * wind speed, and a clothing tip.
+ *
+ * @param weather Current weather at the tapped point.
+ * @param placeNameFromCoordinates Reverse-geocoded place name; falls back to lat/lon if `null`.
+ * @param onDismiss Called when the user closes the dialog.
+ */
 @Composable
     fun MapWeatherInfoDialog(
         weather: CurrentWeather,
@@ -142,5 +152,6 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.info
 
 
 
+    /** Drops the decimal for whole-number temperatures, otherwise rounds to one digit. */
     private fun formatTemperature(value: Double): String =
         if (value % 1.0 == 0.0) "${value.toInt()}" else "%.1f".format(value)

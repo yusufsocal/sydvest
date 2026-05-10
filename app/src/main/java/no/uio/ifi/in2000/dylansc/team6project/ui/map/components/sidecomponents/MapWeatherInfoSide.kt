@@ -23,6 +23,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.dylansc.team6project.R
 
+/**
+ * Side panel that wraps the compact [MapWeatherInfoCard] and an info button.
+ * Tapping the info button opens the full [MapWeatherInfoBox] legend dialog.
+ */
 @Suppress("AssignedValueIsNeverRead") // Added to remove false positive warning known in Andorid studio
 @Composable
 fun MapWeatherInfoSide (

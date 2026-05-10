@@ -24,6 +24,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.dylansc.team6project.R
 
+/**
+ * Vertical column of controls floating on the right side of the map:
+ * center-on-location, zoom in, zoom out, and an info button.
+ *
+ * @param onCenterClick Called when the user taps the center button.
+ * @param isCenterActive Whether the map is currently centered on the user.
+ * @param onZoomIn Called when the user taps zoom in.
+ * @param onZoomOut Called when the user taps zoom out.
+ * @param onInfoClick Called when the user taps the info button.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapSideControls(
