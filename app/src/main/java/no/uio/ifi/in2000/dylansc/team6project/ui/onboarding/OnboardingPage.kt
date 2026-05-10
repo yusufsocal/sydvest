@@ -7,9 +7,11 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.onboarding
  * @property title String resource for the page title.
  * @property description String resource for the body text.
  * @property onboardingButtonLabel String resource for the bottom button label.
+ * @property image Optional drawable resource shown as an illustration
  */
 data class OnboardingPage(
     val title: Int,
     val description: Int,
     val onboardingButtonLabel: Int,
+    val image: Int? = null,
 )
