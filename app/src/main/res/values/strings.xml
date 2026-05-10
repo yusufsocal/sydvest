@@ -38,7 +38,7 @@
     <string name = "choose_data_source_area">Velg mellom områder"</string>
 
     <!-- MapDangerWarningHint -->
-    <string name ="press_dangerbutton_for_information">Trykk på et dangerAlert for mer informasjon</string>
+    <string name ="press_dangerbutton_for_information">Trykk på et farevarsel for mer informasjon</string>
 
     <!-- MapDangerWarningInfo -->
     <string name="blowing_snow">Snøfokk</string>

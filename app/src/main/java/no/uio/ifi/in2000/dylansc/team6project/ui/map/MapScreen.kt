@@ -324,7 +324,7 @@ fun MapScreen(
                     onLayerSelected = { mapViewModel.setSelectedLayer(it) },
 
                     //dangerAlert
-                    ondangerAlertToggle = {
+                    onDangerAlertToggle = {
                         mapViewModel.toggledangerAlert()
                         if (!mapScreenUiState.dangerAlert) { // if it's currently off, it's about to turn on
                             showHint = true
