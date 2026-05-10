@@ -18,6 +18,7 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.TilesOverlay
@@ -74,6 +75,7 @@ fun MapOsmView(
                 setTileSource(TileSourceFactory.MAPNIK)
                 setTilesScaledToDpi(true)
                 setMultiTouchControls(true)
+                zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                 controller.setZoom(10.0)
 
                 val prefs = ctx.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)

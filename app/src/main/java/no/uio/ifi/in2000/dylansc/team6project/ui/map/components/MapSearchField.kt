@@ -2,7 +2,6 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,11 +32,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.dylansc.team6project.R
@@ -72,13 +71,11 @@ fun MapSearchField(
     var query by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
 
     Box(
         modifier = Modifier
-            .focusRequester(focusRequester)
-            .focusable()
             .then(if (expanded) Modifier.fillMaxSize() else Modifier.fillMaxWidth())
     ) {
         if (expanded) {
@@ -88,7 +85,10 @@ fun MapSearchField(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surface)
-                    .clickable {
+                    .clickable(
+                        onClickLabel = stringResource(R.string.close_search),
+                        role = Role.Button
+                    ) {
                         android.util.Log.d("SØK", "Bakgrunn klikket! expanded=$expanded")
                         expanded = false
                         keyboardController?.hide()
@@ -205,7 +205,7 @@ fun MapSearchField(
                                         expanded = false
                                         onSearchActiveChange(false)
                                         onSuggestionSelected(suggestion) // Sends the search result back
-                                        focusRequester.requestFocus()
+                                        focusManager.clearFocus()
                                         keyboardController?.hide()
                                     }
 
