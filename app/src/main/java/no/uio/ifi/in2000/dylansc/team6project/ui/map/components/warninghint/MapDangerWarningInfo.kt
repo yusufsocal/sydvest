@@ -90,7 +90,7 @@ fun MapDangerWarningInfo(
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "Lukk")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                     }
                 }
 

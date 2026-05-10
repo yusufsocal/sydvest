@@ -25,10 +25,12 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.info
     import androidx.compose.runtime.Composable
     import androidx.compose.ui.Alignment
     import androidx.compose.ui.Modifier
+    import androidx.compose.ui.res.stringResource
     import androidx.compose.ui.text.font.FontWeight
     import androidx.compose.ui.unit.dp
     import androidx.compose.ui.unit.sp
     import androidx.compose.ui.window.Dialog
+    import no.uio.ifi.in2000.dylansc.team6project.R
     import no.uio.ifi.in2000.dylansc.team6project.model.domene.CurrentWeather
 
 @Composable
@@ -55,7 +57,7 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.info
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     imageVector = Icons.Outlined.LocationOn,
-                                    contentDescription = "finn min posisjon",
+                                    contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                     modifier = Modifier.size(18.dp),
                                 )
@@ -76,7 +78,7 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.info
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Lukk",
+                                        contentDescription = stringResource(R.string.close),
                                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                     )
                                 }
@@ -116,11 +118,13 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.info
                     ) {
                         UIWeatherStats(
                             icon = Icons.Outlined.WaterDrop,
+                            iconDescription = stringResource(R.string.precipitation),
                             value = "${"%.1f".format(weather.rainfall)} mm",
                             modifier = Modifier.weight(1f),
                         )
                         UIWeatherStats(
                             icon = Icons.Outlined.Air,
+                            iconDescription = stringResource(R.string.wind_speed),
                             value = "${"%.1f".format(weather.windSpeed)} m/s",
                             modifier = Modifier.weight(1f),
                         )

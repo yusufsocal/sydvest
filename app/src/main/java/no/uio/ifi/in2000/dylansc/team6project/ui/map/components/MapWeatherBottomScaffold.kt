@@ -204,7 +204,7 @@ fun MapWeatherBottomScaffold(
                         imageVector = Icons.Default.Public,
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(32.dp),
-                        contentDescription = null
+                        contentDescription = stringResource(R.string.choose_data_source_area)
                     )
                 }
 
@@ -236,7 +236,7 @@ fun MapWeatherBottomScaffold(
                 ) {
                     Icon(
                         imageVector = if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                        contentDescription = null,
+                        contentDescription = if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) stringResource(R.string.expand_panel) else stringResource(R.string.collapse_panel),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .clip(CircleShape)

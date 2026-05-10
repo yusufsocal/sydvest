@@ -72,7 +72,7 @@ fun InfoClothingTips (weather: CurrentWeather) {
                 modifier = Modifier
                     .size(24.dp),
                 imageVector = Icons.Default.Info,
-                contentDescription = "Hva betyr klestipsene",
+                contentDescription = stringResource(R.string.clothing_tips_explanation),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             }

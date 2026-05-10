@@ -37,8 +37,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
 import androidx.compose.ui.graphics.Color as ComposeColor
 
@@ -112,7 +114,7 @@ fun MapSearchField(
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Search,
-                                contentDescription = "Search for a location"
+                                contentDescription = stringResource(R.string.search_for_location)
                             )
                         },
                         trailingIcon = {
@@ -125,7 +127,7 @@ fun MapSearchField(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Clear,
-                                        contentDescription = "Clear search"
+                                        contentDescription = stringResource(R.string.clear_search)
                                     )
                                 }
                             }
@@ -195,7 +197,7 @@ fun MapSearchField(
                                     leadingContent = {
                                         Icon(
                                             Icons.Default.Search,
-                                            contentDescription = "søk på lokasjon"
+                                            contentDescription = null
                                         )
                                     },
                                     modifier = Modifier.clickable {

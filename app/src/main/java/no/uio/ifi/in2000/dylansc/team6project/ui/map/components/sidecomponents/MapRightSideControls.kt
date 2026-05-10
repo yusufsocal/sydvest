@@ -20,7 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import no.uio.ifi.in2000.dylansc.team6project.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,7 +50,7 @@ fun MapSideControls(
         ) {
             Icon(
                 imageVector = Icons.Default.LocationOn,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.center_on_my_location),
                 tint = if (isCenterActive) {MaterialTheme.colorScheme.onPrimary} else {MaterialTheme.colorScheme.primary},
                 modifier = Modifier.size(32.dp).clip(CircleShape)
             )
@@ -64,7 +66,7 @@ fun MapSideControls(
         ) {
             Icon(
                 imageVector = Icons.Default.AddCircle,
-                contentDescription = "Zoom inn",
+                contentDescription = stringResource(R.string.zoom_in),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(32.dp)
@@ -82,7 +84,7 @@ fun MapSideControls(
         ) {
             Icon(
                 imageVector = Icons.Default.RemoveCircle,
-                contentDescription = "Zoom ut",
+                contentDescription = stringResource(R.string.zoom_out),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(32.dp)
@@ -100,7 +102,7 @@ fun MapSideControls(
             {
                 Icon (
                     imageVector = Icons.Default.Info,
-                    contentDescription = "info om appen",
+                    contentDescription = stringResource(R.string.app_info),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(32.dp)

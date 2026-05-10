@@ -27,8 +27,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import no.uio.ifi.in2000.dylansc.team6project.R
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -105,7 +107,7 @@ fun MapTimeSliderSection(
             ) {
                 Icon(
                     imageVector = if (isAnimating) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = null,
+                    contentDescription = if (isAnimating) stringResource(R.string.pause_animation) else stringResource(R.string.play_animation),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(28.dp)
