@@ -35,6 +35,19 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 
+/**
+ * Time slider controlling which forecast hour is shown on the map.
+ *
+ * Displays the corresponding date/time above the slider and a play/pause button
+ * that drives the auto-animation through the forecast.
+ *
+ * @param sliderPosition Current slider value in hours from now (0–240).
+ * @param isAnimating Whether the auto-animation is running.
+ * @param onSliderChange Called when the user drags the slider.
+ * @param onAnimateToggle Called when the play/pause button is tapped.
+ * @param stepHours Step size in hours between adjacent forecast frames.
+ * @param sliderState `"timer"` shows "+NT" (hours); anything else shows "+ND" (days).
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
