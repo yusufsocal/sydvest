@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun UIWeatherStats(
     icon: ImageVector,
+    iconDescription: String,
     value: String,
     modifier: Modifier = Modifier,
 ) {
@@ -36,7 +37,7 @@ fun UIWeatherStats(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = iconDescription,
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(18.dp),
             )

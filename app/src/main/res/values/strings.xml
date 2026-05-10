@@ -35,7 +35,7 @@
     <string name = "cancel_keep_nordic">Avbryt - behold</string>
 
     <!-- MapChangeAreaButton -->
-    <string name = "choose_data_source_area">Velg mellom områder"</string>
+    <string name = "choose_data_source_area">Velg mellom områder</string>
 
     <!-- MapDangerWarningHint -->
     <string name ="press_dangerbutton_for_information">Trykk på et farevarsel for mer informasjon</string>
@@ -91,7 +91,38 @@
     <string name="go_back">Gå tilbake</string>
 
     <!-- MapWeatherInfoSide.kt -->
-    <string name ="show_colorscale">Show colorscale"</string>
+    <string name ="show_colorscale">Vis fargeskala</string>
+
+    <!-- MapSearchField.kt -->
+    <string name="search_for_location">Søk etter sted</string>
+    <string name="clear_search">Tøm søk</string>
+
+    <!-- MapWeatherInfoDialog.kt / MapDangerWarningInfo.kt -->
+    <string name="close">Lukk</string>
+
+    <!-- AppInfoScreen.kt -->
+    <string name="back">Tilbake</string>
+
+    <!-- MapRightSideControls.kt -->
+    <string name="zoom_in">Zoom inn</string>
+    <string name="zoom_out">Zoom ut</string>
+    <string name="app_info">Om appen</string>
+    <string name="center_on_my_location">Sentrer kart på min posisjon</string>
+
+    <!-- MapTimeSliderSection.kt -->
+    <string name="play_animation">Spill av animasjon</string>
+    <string name="pause_animation">Pause animasjon</string>
+
+    <!-- MapWeatherBottomScaffold.kt -->
+    <string name="expand_panel">Utvid panel</string>
+    <string name="collapse_panel">Skjul panel</string>
+
+    <!-- UIWeatherStats.kt -->
+    <string name="precipitation">Nedbør</string>
+    <string name="wind_speed">Vindhastighet</string>
+
+    <!-- InfoClothingTip.kt -->
+    <string name="clothing_tips_explanation">Forklaring av klestips</string>
 
     <!-- InfoClothingTip.kt -->
     <string name="clothing_advise">Hva bør du ha på?</string>
