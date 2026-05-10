@@ -38,6 +38,13 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.dylansc.team6project.R
 
+/**
+ * Swipeable onboarding carousel with a skip link, a horizontal pager of
+ * [OnboardingPageContent]s, page indicator dots, and back/next buttons.
+ *
+ * @param pages Pages to display in order.
+ * @param onFinish Called when the user taps "Skip" or finishes the last page.
+ */
 @Composable
 fun OnboardingCarousel(
     pages: List<OnboardingPage>,
@@ -119,7 +126,7 @@ fun OnboardingCarousel(
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 14.dp),
             ) {
                 Text(
-                    if (isLastPage) stringResource(pages.last().ctaLabel)
+                    if (isLastPage) stringResource(pages.last().onboardingButtonLabel)
                     else stringResource(R.string.onboarding_cta_next),
                     fontWeight = FontWeight.Medium,
                 )
@@ -134,6 +141,7 @@ fun OnboardingCarousel(
     }
 }
 
+/** Row of dots showing total pages, with the active dot stretched into a pill. */
 @Composable
 private fun PageIndicator(count: Int, currentIndex: Int) {
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
