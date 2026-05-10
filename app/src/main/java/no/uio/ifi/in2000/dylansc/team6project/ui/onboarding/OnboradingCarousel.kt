@@ -103,7 +103,7 @@ fun OnboardingCarousel(
             ) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = null,
+                    contentDescription = "Gå tilbake",
                     modifier = Modifier.size(16.dp),
                 )
                 Spacer(Modifier.width(8.dp))

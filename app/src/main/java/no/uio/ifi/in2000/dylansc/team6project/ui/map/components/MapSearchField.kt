@@ -195,7 +195,7 @@ fun MapSearchField(
                                     leadingContent = {
                                         Icon(
                                             Icons.Default.Search,
-                                            contentDescription = null
+                                            contentDescription = "søk på lokasjon"
                                         )
                                     },
                                     modifier = Modifier.clickable {

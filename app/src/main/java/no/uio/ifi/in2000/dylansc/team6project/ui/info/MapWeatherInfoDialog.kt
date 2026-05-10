@@ -55,7 +55,7 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.info
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     imageVector = Icons.Outlined.LocationOn,
-                                    contentDescription = null,
+                                    contentDescription = "finn min posisjon",
                                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                     modifier = Modifier.size(18.dp),
                                 )

@@ -50,7 +50,7 @@ fun AppInfoCardComponent(
             ) {
                 Icon(
                     imageVector = info.icon,
-                    contentDescription = null,
+                    contentDescription = "Trykk på et punkt for å få værinfo",
                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
 
                 )
