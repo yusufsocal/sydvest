@@ -267,10 +267,9 @@ fun Team6ProjectTheme(
             if (darkTheme) dynamicLightColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> lightScheme
+        darkTheme -> darkScheme
         else -> lightScheme
 
-        //TODO: Sjekke om vi vil ha høykontrast (UU) aktivert for alle eller gjøre det valgfritt
         /*
         * Hvis vi vil ha høy kontrast for alle:
         * darkTheme -> highContrastDarkColorScheme
