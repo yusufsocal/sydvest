@@ -223,7 +223,7 @@ fun MapWeatherBottomScaffold(
             sheetDragHandle = {
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(72.dp)
                         .clickable {
                             scope.launch {
                                 if (scaffoldState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
@@ -267,7 +267,7 @@ fun MapWeatherBottomScaffold(
                                     text = stringResource(R.string.værlag),
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.graphicsLayer {
-                                        translationY = -8.dp.toPx()
+                                        translationY = -24.dp.toPx()
                                     }
                                 )
                             }
