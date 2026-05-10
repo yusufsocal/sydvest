@@ -6,14 +6,27 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import no.uio.ifi.in2000.dylansc.team6project.data.ApiConstants
 
+/**
+ * Data source for the MET Alerts API.
+ *
+ * Fetches the current list of weather alerts.
+ */
 interface AlertDataSource {
+    /** Returns all current alerts, or `null` if the request fails. */
     suspend fun alertDataSource(): List<AlertFeature>?
 }
 
+/**
+ * Default [AlertDataSource] backed by a Ktor [HttpClient].
+ */
 class AlertDataSourceImpl(
     private val client: HttpClient
 ) : AlertDataSource {
 
+    /**
+     * Calls [ApiConstants.ALERTS_BASE_URL] and returns the parsed feature list.
+     * Logs and returns `null` on any error.
+     */
     override suspend fun alertDataSource(): List<AlertFeature>? {
         return try {
             val url = ApiConstants.ALERTS_BASE_URL
