@@ -4,11 +4,18 @@ import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSource
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
 
+/**
+ * Repository for WMS map layers.
+ *
+ * Fetches the available layers for a given area, keeps only the ones the
+ * app shows on the map, and caches the result per area.
+ */
 class LocationRepository(
     private val wmsDataSource: WMSDataSource
 ) {
     private val cache = java.util.concurrent.ConcurrentHashMap<AreaData, List<WMSLayer>>()
 
+    /** Layer titles (normalized) that the app actually displays. */
     private val allowedTitles = setOf(
         "Air temperature 2m",
         "Precipitation amount 1h",
@@ -17,11 +24,17 @@ class LocationRepository(
         "Wind 10m vector"
     )
 
+    /** Area-specific suffixes appended by the WMS service that we strip before matching. */
     private val areaSuffixes = listOf(" in MEPS VDIV", " in Arctic VDIV", " in ECMWF SFC")
 
+    /** Removes the area suffix so titles can be matched against [allowedTitles]. */
     private fun normalizeTitle(title: String): String =
         areaSuffixes.fold(title) { t, suffix -> t.removeSuffix(suffix) }.trim()
 
+    /**
+     * Returns the filtered WMS layers for [area], or `null` if the request fails.
+     * Results are cached so repeated lookups don't hit the network.
+     */
     suspend fun getArea(area: AreaData?): List<WMSLayer>? {
         cache[area]?.let { return it }
 

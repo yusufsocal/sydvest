@@ -2,8 +2,16 @@ package no.uio.ifi.in2000.dylansc.team6project.data.weatherdata
 
 import androidx.compose.ui.graphics.Color
 
+/**
+ * One row in a map legend.
+ *
+ * @property color Swatch color shown next to the row.
+ * @property label Short value range (e.g. "0-5").
+ * @property description Human-readable explanation shown to the user.
+ */
 data class WeatherDataLegend (val color: Color, val label: String, val description: String)
 
+/** Legend rows for the temperature layer. */
 val temperatureLegend = listOf(
     WeatherDataLegend(Color(0xFF6A0DAD), "<−20", "Under −20°C"),
     WeatherDataLegend(Color(0xFF1565C0), "−20-5", "−20 til -5°C"),
@@ -14,6 +22,7 @@ val temperatureLegend = listOf(
     WeatherDataLegend(Color(0xFFB71C1C), "> 30", "Over 30°C"),
 )
 
+/** Legend rows for the precipitation layer. */
 val precipitationLegend= listOf(
     WeatherDataLegend(Color(0xFFFFFFFF), "<0,1", "Ingen nedbør"),
     WeatherDataLegend(Color(0xFFB1E9F7), "0,1-0,5", "Lett nedbør (0,1-0,5 mm)"),
@@ -24,6 +33,7 @@ val precipitationLegend= listOf(
     WeatherDataLegend(Color(0xFFD42B53), ">25", "Ekstreme mengder (25+ mm)")
 )
 
+/** Legend rows for the wind layer. */
 val windLegend = listOf(
     WeatherDataLegend(Color(0xFFB2EBF2), "0–2", "Svak vind (0–5 m/s)"),
     WeatherDataLegend(Color(0xFF9AD49F), "2-5", "Lett bris (5–10 m/s)"),
