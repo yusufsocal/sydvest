@@ -1,8 +1,9 @@
-// Collects all API base-URL-er in one place for easy maintainability and change of environment in the app.
 
 package no.uio.ifi.in2000.dylansc.team6project.data
 
-
+/**
+ * // Collects all API base-URL-er in one place for easy maintainability and change of environment in the app.
+ * */
 object ApiConstants {
     const val WMS_BASE_URL = "https://public-victoria.met.no/wms?"
     const val ALERTS_BASE_URL = "https://api.met.no/weatherapi/metalerts/2.0/current.json"
