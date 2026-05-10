@@ -11,17 +11,34 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import no.uio.ifi.in2000.dylansc.team6project.data.ApiConstants
 
+/**
+ * Data source for the Photon search API.
+ *
+ * Provides place search and reverse geocoding.
+ */
 interface SearchDataSource {
+    /** Returns up to 10 search suggestions for [query]. Empty list on failure. */
     suspend fun fetchSearchSuggestions(query: String): List<SearchResult>
 
+    /** Returns the place name at the given coordinate, or `null` if none is found. */
     suspend fun findplaceNameFromCoordinates(lat: Double, lon: Double): String?
 }
 
+/**
+ * Default [SearchDataSource] backed by a Ktor [HttpClient].
+ *
+ * Parses the Photon GeoJSON response manually and maps it into [SearchResult]s.
+ */
 class SearchDataSourceImpl(
     private val client: HttpClient
 ) : SearchDataSource {
     private val json = Json { ignoreUnknownKeys = true }
 
+    /**
+     * Calls the Photon search endpoint and extracts name + coordinates from
+     * each feature. Duplicates by display name are removed. Returns an empty
+     * list on any error.
+     */
     override suspend fun fetchSearchSuggestions(query: String): List<SearchResult> {
         return try {
             val url = "${ApiConstants.SEARCH_BASE_URL}?q=${query}&limit=10&lang=en"
@@ -50,6 +67,11 @@ class SearchDataSourceImpl(
         }
     }
 
+    /**
+     * Calls the Photon reverse-geocoding endpoint and joins the resulting
+     * name/city/country into a single string. Returns `null` on error or
+     * if no usable name is found.
+     */
     override suspend fun findplaceNameFromCoordinates(lat: Double, lon: Double): String? {
         return try {
             val url = "${ApiConstants.PHOTON_REVERSECOORDINATES_URL}?lon=${lon}&lat=${lat}&lang=en"
