@@ -35,7 +35,7 @@ fun MapSelectWeatherLayer(
     onDangerAlertToggle: () -> Unit,
     isdangerAlertActive: Boolean
 ) {
-    var textSize by remember { mutableStateOf(12) }
+    var textSize by remember { mutableStateOf(14) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -54,12 +54,12 @@ fun MapSelectWeatherLayer(
                     contentPadding = PaddingValues(0.dp),
                     colors = if (isSelected)
                         ButtonDefaults.outlinedButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     else ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.Transparent,
-                        contentColor = Color.Black
+                        contentColor = MaterialTheme.colorScheme.onSurface
 
                     )
                 ) {
@@ -76,12 +76,12 @@ fun MapSelectWeatherLayer(
                 contentPadding = PaddingValues(0.dp),
                 colors = if (isdangerAlertActive)
                     ButtonDefaults.outlinedButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 else ButtonDefaults.outlinedButtonColors(
                     containerColor = Color.Transparent,
-                    contentColor = Color.Black
+                    contentColor = MaterialTheme.colorScheme.onSurface
 
                 )
             ) {

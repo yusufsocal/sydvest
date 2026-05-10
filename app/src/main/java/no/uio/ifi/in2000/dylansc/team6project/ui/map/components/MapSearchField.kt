@@ -108,11 +108,11 @@ fun MapSearchField(
                             expanded = isActive
                             onSearchActiveChange(isActive)
                                         },
-                        placeholder = { Text("Søk", color = MaterialTheme.colorScheme.onSurface) },
+                        placeholder = { Text("Søk", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Search,
-                                contentDescription = "Search Icon"
+                                contentDescription = "Search for a location"
                             )
                         },
                         trailingIcon = {
