@@ -29,6 +29,12 @@ import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.precipitationLege
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.temperatureLegend
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.windLegend
 
+/**
+ * Compact legend card shown next to the map, with just the color swatches and
+ * short value labels (e.g. "°C", "mm", "m/s") for the active layer.
+ *
+ * Renders nothing if [layerDisplayName] doesn't match a known layer.
+ */
 @Composable
 fun MapWeatherInfoCard(
     layerDisplayName: String,

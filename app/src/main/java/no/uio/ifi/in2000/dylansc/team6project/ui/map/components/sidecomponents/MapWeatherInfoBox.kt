@@ -33,6 +33,15 @@ import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.precipitationLege
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.temperatureLegend
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.windLegend
 
+/**
+ * Full legend dialog explaining the colors of the active map layer.
+ *
+ * Picks the matching legend (temperature / precipitation / wind) based on
+ * [layerDisplayName]. Renders nothing if the name doesn't match a known layer.
+ *
+ * @param layerDisplayName Display name of the active layer.
+ * @param onDismiss Called when the user closes the dialog.
+ */
 @Composable
 fun MapWeatherInfoBox(
     layerDisplayName: String,
