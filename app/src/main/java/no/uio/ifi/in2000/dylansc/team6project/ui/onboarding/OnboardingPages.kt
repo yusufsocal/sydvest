@@ -3,7 +3,7 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.onboarding
 import no.uio.ifi.in2000.dylansc.team6project.R
 
 
-/** The pages shown in the onboarding carousel, in order. */
+// The pages shown in the onboarding carousel, in order.
 val onboardingPages = listOf(
     OnboardingPage(
         title = R.string.onboarding_page0_welcome_title,
