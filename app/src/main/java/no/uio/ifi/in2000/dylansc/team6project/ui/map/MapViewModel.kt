@@ -23,16 +23,16 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
+import no.uio.ifi.in2000.dylansc.team6project.data.repository.WeatherAlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.SearchRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.WeatherRepository
-import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
-import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
-import no.uio.ifi.in2000.dylansc.team6project.model.domene.CurrentWeather
-import no.uio.ifi.in2000.dylansc.team6project.model.domene.WMSDomain
+import no.uio.ifi.in2000.dylansc.team6project.data.search.SearchResult
+import no.uio.ifi.in2000.dylansc.team6project.data.warning.AlertFeature
+import no.uio.ifi.in2000.dylansc.team6project.data.weather.AreaData
+import no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSLayer
+import no.uio.ifi.in2000.dylansc.team6project.model.domain.CurrentWeather
+import no.uio.ifi.in2000.dylansc.team6project.model.domain.WMSDomain
 import org.osmdroid.util.GeoPoint
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -80,7 +80,7 @@ data class MapScreenUiState(
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class MapViewModel(
     private val locationRepo: LocationRepository,
-    private val alertRepo: AlertRepository,
+    private val alertRepo: WeatherAlertRepository,
     private val searchRepo: SearchRepository,
     private val newArea: AreaData,
     val weatherRepo: WeatherRepository
@@ -444,7 +444,7 @@ class MapViewModel(
     companion object {
         fun provideFactory(
             locationRepo: LocationRepository,
-            alertRepo: AlertRepository,
+            alertRepo: WeatherAlertRepository,
             searchRepo: SearchRepository,
             area: AreaData,
             weatherRepo: WeatherRepository,

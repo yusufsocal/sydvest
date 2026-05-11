@@ -23,7 +23,7 @@ import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.ui.theme.Team6ProjectTheme
 
 /**
- * "About" screen showing a list of [AppInfoCardComponent]s built from [appInfoCards].
+ * "About" screen showing a list of [AppInfoCard]s built from [appInfoCards].
  *
  * @param onBackClick Called when the user taps the back arrow in the top bar.
  */
@@ -58,7 +58,7 @@ fun AppInfoScreen(
             contentPadding = PaddingValues(vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(appInfoCards) { card -> AppInfoCardComponent(card)}
+            items(appInfoCards) { card -> AppInfoCard(card)}
 
         }
     }

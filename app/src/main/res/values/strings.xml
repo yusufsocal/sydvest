@@ -90,7 +90,7 @@
     <string name="onboarding_cta_get_started">Kom i gang</string>
     <string name="go_back">Gå tilbake</string>
 
-    <!-- MapWeatherInfoSide.kt -->
+    <!-- WeatherInfoSide.kt -->
     <string name ="show_colorscale">Vis fargeskala</string>
 
     <!-- MapSearchField.kt -->
@@ -98,7 +98,7 @@
     <string name="clear_search">Tøm søk</string>
     <string name="close_search">Lukk søk</string>
 
-    <!-- MapWeatherInfoDialog.kt / MapDangerWarningInfo.kt -->
+    <!-- WeatherInfoDialog.kt / WeatherAlertInfo.kt -->
     <string name="close">Lukk</string>
     <string name ="celsius">°C</string>
     <string name="right_now">akkurat nå</string>
@@ -114,14 +114,14 @@
     <string name="app_info">Om appen</string>
     <string name="center_on_my_location">Sentrer kart på min posisjon</string>
 
-    <!-- MapTimeSliderSection.kt -->
+    <!-- TimeSliderSection.kt -->
     <string name="play_animation">Spill av animasjon</string>
     <string name="pause_animation">Pause animasjon</string>
     <string name="today_with_time">I DAG · %1$s</string>
     <string name="hours_ahead">+%1$dT</string>
     <string name="days_ahead">+%1$dD</string>
 
-    <!-- MapWeatherBottomScaffold.kt -->
+    <!-- WeatherBottomScaffold.kt -->
     <string name="expand_panel">Utvid panel</string>
     <string name="collapse_panel">Skjul panel</string>
 
@@ -129,10 +129,10 @@
     <string name="precipitation">Nedbør</string>
     <string name="wind_speed">Vindhastighet</string>
 
-    <!-- InfoClothingTip.kt -->
+    <!-- ClothingTip.kt -->
     <string name="clothing_tips_explanation">Forklaring av klestips</string>
 
-    <!-- InfoClothingTip.kt -->
+    <!-- ClothingTip.kt -->
     <string name="clothing_advise">Hva bør du ha på?</string>
 
     <!-- ClothingTipsExplanationSheet.kt -->

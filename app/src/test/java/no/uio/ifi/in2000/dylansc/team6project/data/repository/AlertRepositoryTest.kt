@@ -2,15 +2,15 @@ package no.uio.ifi.in2000.dylansc.team6project.data.repository
 
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
-import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
-import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertProperties
+import no.uio.ifi.in2000.dylansc.team6project.data.warning.AlertFeature
+import no.uio.ifi.in2000.dylansc.team6project.data.warning.AlertProperties
 import org.junit.Test
 
 class AlertRepositoryTest {
     @Test
     fun `null datasource returns empty list`() = runBlocking {
         val fakeDataSource = FakeAlertDataSource(null)
-        val repo = AlertRepository(fakeDataSource)
+        val repo = WeatherAlertRepository(fakeDataSource)
 
         val result = repo.getAlertList()
 
@@ -24,7 +24,7 @@ class AlertRepositoryTest {
             alert("Bergen"),
             alert("Alta")
         ))
-        val repo = AlertRepository(fake)
+        val repo = WeatherAlertRepository(fake)
 
         val result = repo.getAlertList().size
 
@@ -38,7 +38,7 @@ class AlertRepositoryTest {
             alert("Bergen"),
             alert("Alta")
         ))
-        val repo = AlertRepository(fake)
+        val repo = WeatherAlertRepository(fake)
 
         val result = repo.getAlertList()
 
@@ -56,7 +56,7 @@ class AlertRepositoryTest {
             alert("Bergen"),
             alert("Alta")
         ))
-        val repo = AlertRepository(fake)
+        val repo = WeatherAlertRepository(fake)
 
         val result = repo.getAlertList()
 
@@ -71,7 +71,7 @@ class AlertRepositoryTest {
     fun `empty datasource list returns empty list`() = runBlocking {
         val fake = FakeAlertDataSource(listOf())
 
-        val repo = AlertRepository(fake)
+        val repo = WeatherAlertRepository(fake)
 
         val result = repo.getAlertList()
 

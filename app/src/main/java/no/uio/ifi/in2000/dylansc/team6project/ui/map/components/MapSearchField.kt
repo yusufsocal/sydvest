@@ -40,7 +40,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.dylansc.team6project.R
-import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
+import no.uio.ifi.in2000.dylansc.team6project.data.search.SearchResult
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 /**

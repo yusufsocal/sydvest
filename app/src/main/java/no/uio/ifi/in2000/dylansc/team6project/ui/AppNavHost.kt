@@ -19,15 +19,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import no.uio.ifi.in2000.dylansc.team6project.App
-import no.uio.ifi.in2000.dylansc.team6project.data.locationforecastdata.LocationforecastDataSourceImpl
-import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
+import no.uio.ifi.in2000.dylansc.team6project.data.locationforecast.LocationforecastDataSourceImpl
+import no.uio.ifi.in2000.dylansc.team6project.data.repository.WeatherAlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.SearchRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.WeatherRepository
-import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchDataSourceImpl
-import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSourceImpl
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSourceImpl
+import no.uio.ifi.in2000.dylansc.team6project.data.search.SearchDataSourceImpl
+import no.uio.ifi.in2000.dylansc.team6project.data.warning.AlertDataSourceImpl
+import no.uio.ifi.in2000.dylansc.team6project.data.weather.AreaData
+import no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSDataSourceImpl
 import no.uio.ifi.in2000.dylansc.team6project.ui.appinfo.AppInfoScreen
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapScreen
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
@@ -52,7 +52,7 @@ fun AppNavHost(
 
     //DataSource and Repository for Alerts are initialised here!
     val alertDataSource = remember { AlertDataSourceImpl(app.jsonHttpClient) }
-    val alertRepo = remember { AlertRepository(alertDataSource) }
+    val alertRepo = remember { WeatherAlertRepository(alertDataSource) }
 
     val searchDataSource = remember { SearchDataSourceImpl(app.httpClient) }
     val searchRepo = remember { SearchRepository(searchDataSource) }

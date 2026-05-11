@@ -1,7 +1,7 @@
 package no.uio.ifi.in2000.dylansc.team6project.data.repository
 
-import no.uio.ifi.in2000.dylansc.team6project.data.locationforecastdata.LocationforecastDataSource
-import no.uio.ifi.in2000.dylansc.team6project.model.domene.CurrentWeather
+import no.uio.ifi.in2000.dylansc.team6project.data.locationforecast.LocationforecastDataSource
+import no.uio.ifi.in2000.dylansc.team6project.model.domain.CurrentWeather
 
 /**
  * Repository for current weather.
