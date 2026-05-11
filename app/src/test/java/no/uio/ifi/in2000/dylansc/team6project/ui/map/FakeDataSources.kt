@@ -1,13 +1,13 @@
 package no.uio.ifi.in2000.dylansc.team6project.ui.map
 
-import no.uio.ifi.in2000.dylansc.team6project.data.locationforecastdata.LocationforecastDataSource
-import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchDataSource
-import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
-import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertDataSource
-import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSCapabilities
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDataSource
+import no.uio.ifi.in2000.dylansc.team6project.data.locationforecast.LocationforecastDataSource
+import no.uio.ifi.in2000.dylansc.team6project.data.search.SearchDataSource
+import no.uio.ifi.in2000.dylansc.team6project.data.search.SearchResult
+import no.uio.ifi.in2000.dylansc.team6project.data.warning.AlertDataSource
+import no.uio.ifi.in2000.dylansc.team6project.data.warning.AlertFeature
+import no.uio.ifi.in2000.dylansc.team6project.data.weather.AreaData
+import no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSCapabilities
+import no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSDataSource
 
 class FakeAlertDataSource(
     private val result: List<AlertFeature>?

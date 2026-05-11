@@ -50,15 +50,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import no.uio.ifi.in2000.dylansc.team6project.R
-import no.uio.ifi.in2000.dylansc.team6project.ui.info.MapWeatherInfoDialog
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.info.WeatherInfoDialog
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapOsmView
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapSearchField
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.MapWeatherBottomScaffold
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.bottomscaffold.MapWeatherBottomScaffold
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.bottomscaffold.MapDataSourceSwitcher
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.sidecomponents.MapSideControls
-import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.sidecomponents.MapWeatherInfoSide
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.sidecomponents.LegendSidePanel
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.warninghint.MapDangerWarningHint
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.components.warninghint.MapDangerWarningInfo
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.util.centerMapOnUserLocation
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.util.checkLocationEnabled
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.util.removeSelectedMarker
+import no.uio.ifi.in2000.dylansc.team6project.ui.map.util.startLocationUpdates
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
@@ -268,7 +272,7 @@ fun MapScreen(
                 ) {
 
                     if (mapScreenUiState.selectedLayerDisplayName != "Velg værlag...") {
-                        MapWeatherInfoSide(
+                        LegendSidePanel(
                             layerDisplayName = mapScreenUiState.selectedLayerDisplayName,
                         )
                     }
@@ -340,7 +344,7 @@ fun MapScreen(
 
                 )
                 mapScreenUiState.currentWeather?.let { weather ->
-                    MapWeatherInfoDialog(
+                    WeatherInfoDialog(
                         weather = weather,
                         placeNameFromCoordinates = mapScreenUiState.placeNameFromCoordinates,
                         onDismiss = {

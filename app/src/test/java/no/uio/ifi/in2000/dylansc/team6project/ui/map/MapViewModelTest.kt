@@ -4,17 +4,17 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import no.uio.ifi.in2000.dylansc.team6project.data.repository.AlertRepository
+import no.uio.ifi.in2000.dylansc.team6project.data.repository.WeatherAlertRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.LocationRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.SearchRepository
 import no.uio.ifi.in2000.dylansc.team6project.data.repository.WeatherRepository
-import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertFeature
-import no.uio.ifi.in2000.dylansc.team6project.data.warningdata.AlertProperties
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.AreaData
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.Capability
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.ParentLayer
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSCapabilities
-import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
+import no.uio.ifi.in2000.dylansc.team6project.data.warning.AlertFeature
+import no.uio.ifi.in2000.dylansc.team6project.data.warning.AlertProperties
+import no.uio.ifi.in2000.dylansc.team6project.data.weather.AreaData
+import no.uio.ifi.in2000.dylansc.team6project.data.weather.Capability
+import no.uio.ifi.in2000.dylansc.team6project.data.weather.ParentLayer
+import no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSCapabilities
+import no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSLayer
 import org.junit.Rule
 import org.junit.Test
 import java.time.OffsetDateTime
@@ -34,7 +34,7 @@ class MapViewModelTest {
         val fakeAlerts = listOf(alert("Oslo"))
 
         val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(fakeLayers)))
-        val alertRepo = AlertRepository(FakeAlertDataSource(fakeAlerts))
+        val alertRepo = WeatherAlertRepository(FakeAlertDataSource(fakeAlerts))
         val searchRepo = SearchRepository(FakeSearchDataSource())
         val weatherRepo = WeatherRepository(FakeLocationforecastDataSource())
 
@@ -61,7 +61,7 @@ class MapViewModelTest {
         val fakeAlerts = listOf(alert("Oslo"))
 
         val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(fakeLayers)))
-        val alertRepo = AlertRepository(FakeAlertDataSource(fakeAlerts))
+        val alertRepo = WeatherAlertRepository(FakeAlertDataSource(fakeAlerts))
         val searchRepo = SearchRepository(FakeSearchDataSource())
         val weatherRepo = WeatherRepository(FakeLocationforecastDataSource())
 
@@ -89,7 +89,7 @@ class MapViewModelTest {
         val fakeAlerts = listOf(alert("Oslo"))
 
         val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(fakeLayers)))
-        val alertRepo = AlertRepository(FakeAlertDataSource(fakeAlerts))
+        val alertRepo = WeatherAlertRepository(FakeAlertDataSource(fakeAlerts))
         val searchRepo = SearchRepository(FakeSearchDataSource())
         val weatherRepo = WeatherRepository(FakeLocationforecastDataSource())
 
@@ -115,7 +115,7 @@ class MapViewModelTest {
         )
 
         val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(listOf(layer(title = "Temperature")))))
-        val alertRepo = AlertRepository(FakeAlertDataSource(listOf(alert("Bergen"))))
+        val alertRepo = WeatherAlertRepository(FakeAlertDataSource(listOf(alert("Bergen"))))
         val searchRepo = SearchRepository(FakeSearchDataSource())
         val weatherRepo = WeatherRepository(FakeLocationforecastDataSource())
 
@@ -146,7 +146,7 @@ class MapViewModelTest {
         val fakeLayer = layer(title = "Temperature", dimension = dimension)
 
         val locationRepo = LocationRepository(FakeWMSDataSource(capabilities(listOf(layer(title = "Temperature")))))
-        val alertRepo = AlertRepository(FakeAlertDataSource(listOf(alert("Bergen"))))
+        val alertRepo = WeatherAlertRepository(FakeAlertDataSource(listOf(alert("Bergen"))))
         val searchRepo = SearchRepository(FakeSearchDataSource())
         val weatherRepo = WeatherRepository(FakeLocationforecastDataSource())
 
@@ -188,7 +188,7 @@ private fun layer(
     name = name,
     title = title,
     dimensions = if (dimension != null)
-        listOf(no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSDimension(name = "time", value = dimension))
+        listOf(no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSDimension(name = "time", value = dimension))
     else emptyList()
 )
 

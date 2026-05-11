@@ -1,7 +1,7 @@
 package no.uio.ifi.in2000.dylansc.team6project.data.repository
 
-import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchDataSource
-import no.uio.ifi.in2000.dylansc.team6project.data.searchdata.SearchResult
+import no.uio.ifi.in2000.dylansc.team6project.data.search.SearchDataSource
+import no.uio.ifi.in2000.dylansc.team6project.data.search.SearchResult
 
 /**
  * Repository for place search and reverse geocoding.
