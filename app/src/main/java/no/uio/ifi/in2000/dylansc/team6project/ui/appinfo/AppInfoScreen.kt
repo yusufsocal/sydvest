@@ -35,7 +35,7 @@ fun AppInfoScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Om Sydvest") },
+                title = { Text(stringResource(R.string.about_the_app)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon (
