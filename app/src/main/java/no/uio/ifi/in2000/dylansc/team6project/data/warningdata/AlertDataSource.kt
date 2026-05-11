@@ -31,10 +31,10 @@ class AlertDataSourceImpl(
         return try {
             val url = ApiConstants.ALERTS_BASE_URL
             val response: MetAlertsResponse = client.get(url).body()
-            Log.d("AlertDataSource", "Suksess! Hentet ${response.features.size} varsler.")
+            Log.d("AlertDataSource", "Success! Fetched  ${response.features.size} alerts.")
             response.features
         } catch (e: Exception) {
-            Log.e("AlertDataSource", "Feil ved henting eller parsing: ${e.message}")
+            Log.e("AlertDataSource", "Weeoe with fetching or parsing: ${e.message}")
             null
         }
     }
