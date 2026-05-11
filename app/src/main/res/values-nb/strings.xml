@@ -102,9 +102,14 @@
 
     <!-- MapWeatherInfoDialog.kt / MapDangerWarningInfo.kt -->
     <string name="close">Lukk</string>
+    <string name ="celsius">°C</string>
+    <string name="right_now">akkurat nå</string>
+
 
     <!-- AppInfoScreen.kt -->
     <string name="back">Tilbake</string>
+    <string name ="about_the_app">Om sydvest</string>
+
 
     <!-- MapRightSideControls.kt -->
     <string name="zoom_in">Zoom inn</string>
@@ -115,6 +120,9 @@
     <!-- MapTimeSliderSection.kt -->
     <string name="play_animation">Spill av animasjon</string>
     <string name="pause_animation">Pause animasjon</string>
+    <string name="today_with_time">I DAG · %1$s</string>
+    <string name="hours_ahead">+%1$dT</string>
+    <string name="days_ahead">+%1$dD</string>
 
     <!-- MapWeatherBottomScaffold.kt -->
     <string name="expand_panel">Utvid panel</string>
@@ -132,5 +140,16 @@
 
     <!-- ClothingTipsExplanationSheet.kt -->
     <string name ="clothing_advise_explanation">Hva er tipsene basert på?</string>
+
+    <!-- MapSelectedLayer -->
+    <string name ="now_showing">Nå vises: </string>
+
+    <!-- MapSelectedWeatherLayer -->
+    <string name ="weather_warnings">Farevarsler</string>
+
+    <!-- MapWeatherInfoBox -->
+    <string name="arrows_description">Pilene viser vinretning</string>
+
+
 
 </resources>

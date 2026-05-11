@@ -3,8 +3,11 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map.components.bottomscaffold
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
+import no.uio.ifi.in2000.dylansc.team6project.R
+
 
 /**
  * Small "Now showing: …" label under the map. Renders nothing when no layer is selected.
@@ -19,7 +22,7 @@ fun MapSelectedLayer(
 ) {
     if (selectedLayer != null) {
         Row() {
-            Text("Nå vises: ")
+            Text(stringResource (R.string.now_showing))
             Text(
                 text = "$selectedLayerDisplayName",
                 fontWeight = FontWeight.Bold,

@@ -87,7 +87,7 @@ fun MapTimeSliderSection(
         ) {
             if (current.format(formatterCompare) == hoursAhead.format(formatterCompare)) {
                 Text(
-                    text = "I DAG · $timeOfDay",
+                    text = stringResource(R.string.today_with_time, timeOfDay),
                     fontSize = font_size.sp
                 )
             } else {
@@ -99,12 +99,12 @@ fun MapTimeSliderSection(
 
             if (sliderState == "timer") {
                 Text(
-                    text = "+${sliderPosition.toInt()}T",
+                    text = stringResource(R.string.hours_ahead, sliderPosition.toInt()),
                     fontSize = font_size.sp
                 )
             } else {
                 Text(
-                    text = "+${sliderPosition.toInt()/24}D",
+                    text = stringResource(R.string.days_ahead, sliderPosition.toInt() / 24),
                     fontSize = font_size.sp
                 )
             }

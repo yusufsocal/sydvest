@@ -70,7 +70,6 @@ data class MapScreenUiState(
     val stepHours: Int = 1,
     val sliderState: String = "timer",
 
-    // TODO lag forklaring på hva dette er
     val displayLayers: List<Pair<WMSLayer, String>> = emptyList(),
     val selectedLayerDisplayName: String = "Velg værlag...",
 
@@ -307,11 +306,11 @@ class MapViewModel(
                     val coercedTime = if (selectedDimension != null)
                         coerceTimeToDimension(time, selectedDimension)
                     else time
-                    Log.d("ViewModel", "Slider tid: $time -> Blir til: $coercedTime")
+                    Log.d("ViewModel", "Slider time: $time -> Becomes : $coercedTime")
                     _uiState.update { it.copy(selectedTime = coercedTime) }
                 }
             } catch (e: Exception) {
-                Log.e("ViewModel", "Feil ved oppdatering av tid/område: ${e.message}")
+                Log.e("ViewModel", " Error with updating time/area: ${e.message}")
             }
         }
     }

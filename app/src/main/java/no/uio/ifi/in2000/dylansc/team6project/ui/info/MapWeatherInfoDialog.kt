@@ -104,7 +104,7 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.info
                                     fontWeight = FontWeight.Light,
                                 )
                                 Text(
-                                    text = "°C",
+                                    text = stringResource(R.string.celsius),
                                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Medium,
@@ -113,7 +113,7 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.info
                             }
 
                             Text(
-                                text = "akkurat nå",
+                                text = stringResource(R.string.right_now),
                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                                 style = MaterialTheme.typography.bodyLarge,
                             )

@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +33,8 @@ import androidx.compose.ui.window.Dialog
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.precipitationLegend
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.temperatureLegend
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.windLegend
+import no.uio.ifi.in2000.dylansc.team6project.R
+
 
 /**
  * Full legend dialog explaining the colors of the active map layer.
@@ -108,7 +111,7 @@ fun MapWeatherInfoBox(
                             }
                         }
                         Spacer(modifier = Modifier.padding(8.dp))
-                        Column() {
+                        Column {
                             entries.forEach { entry ->
                                 Text(
                                     text = entry.description,
@@ -120,7 +123,7 @@ fun MapWeatherInfoBox(
                     if (layerDisplayName.contains("Vind", ignoreCase = true)) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Pilene viser vindretning.",
+                            text = stringResource(R.string.arrows_description),
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -131,7 +134,7 @@ fun MapWeatherInfoBox(
                         onClick = onDismiss,
                         modifier = Modifier.align(Alignment.End)
                     ) {
-                        Text("Lukk")
+                        Text(stringResource(R.string.close))
                     }
                 }
             }

@@ -19,10 +19,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import no.uio.ifi.in2000.dylansc.team6project.data.weatherdata.WMSLayer
+import no.uio.ifi.in2000.dylansc.team6project.R
 
 /**
  * Row of toggleable buttons for picking which weather layer is shown on the map,
@@ -99,7 +101,7 @@ fun MapSelectWeatherLayer(
                 )
             ) {
                 Text(
-                    text = "Farevarsler",
+                    text = stringResource(R.string.weather_warnings),
                     fontSize = textSize.sp,
                     textAlign = TextAlign.Center,
                 )

@@ -89,7 +89,7 @@ fun MapSearchField(
                         onClickLabel = stringResource(R.string.close_search),
                         role = Role.Button
                     ) {
-                        android.util.Log.d("SØK", "Bakgrunn klikket! expanded=$expanded")
+                        android.util.Log.d("Search", "Background not working! expanded=$expanded")
                         expanded = false
                         keyboardController?.hide()
                     }
@@ -110,7 +110,8 @@ fun MapSearchField(
                             expanded = isActive
                             onSearchActiveChange(isActive)
                                         },
-                        placeholder = { Text("Søk", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                        placeholder = {
+                            Text(stringResource(R.string.search_for_location), color = MaterialTheme.colorScheme.onSurfaceVariant) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Search,
