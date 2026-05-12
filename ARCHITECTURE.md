@@ -37,7 +37,7 @@ app/src/main/java/no/uio/ifi/in2000/dylansc/team6project/
     ├── map/                Main screen + MapViewModel
     │   ├── components/     Smaller UI pieces, grouped by region
     │   └── util/           Location helpers
-    ├── onboarding/         First-run carousel
+    ├── onboarding/         Carousel first time the app is used
     └── theme/              Compose theme
 ```
 
@@ -51,11 +51,11 @@ app/src/main/java/no/uio/ifi/in2000/dylansc/team6project/
 We use **MVVM**. State flows from the ViewModel down to the Composables via `StateFlow`; events flow back up as ViewModel function calls.
 
 Why MVVM:
-- Fits Compose's state-driven model.
+- In line with Compose's state-driven model.
 - ViewModels survive configuration changes — `MapScreen` is recreated on rotation, but `MapViewModel` keeps the weather data and selected layer alive.
 - Keeps Composables small and the ViewModel unit-testable (see `MapViewModelTest`).
 
-Not every screen has a ViewModel. `AppInfoScreen` and `OnboardingCarousel` are stateless, so they don't need one. One is added when a screen has real state or side effects to manage.
+Not every screen has a ViewModel, and this choice is deliberate. `AppInfoScreen` and `OnboardingCarousel` are stateless, so they don't need one. If a screen has real state or side effects, a ViewModel is needed.
 
 ## Future considerations for maintenance and further development
 
