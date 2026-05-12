@@ -64,3 +64,79 @@ sequenceDiagram
     VM-->>UI: uiState.selectedAlert updated
     UI-->>User: Displays MapDangerWarningInfo with event, severity etc.
 ```
+
+## Class diagram
+
+Covers the classes that take part in the two sequence diagrams above (weather overlay + weather alerts flow).
+
+```mermaid
+classDiagram
+    class MapScreen {
+        +observeUiState()
+        +drawAlerts()
+    }
+
+    class MapViewModel {
+        -locationRepo : LocationRepository
+        -alertRepo : WeatherAlertRepository
+        +uiState : StateFlow~MapScreenUiState~
+        +setSelectedLayer(layer)
+        +toggledangerAlert()
+        +onAlertClick(feature)
+    }
+
+    class MapScreenUiState {
+        +displayLayers : List
+        +selectedLayer : WMSLayer
+        +alertList : List~AlertFeature~
+        +dangerAlert : Boolean
+        +selectedAlert : AlertFeature
+    }
+
+    class LocationRepository {
+        -wmsDataSource : WMSDataSource
+        +getArea(area) List~WMSLayer~
+    }
+
+    class WeatherAlertRepository {
+        -warningDataSource : AlertDataSource
+        +getAlertList() List~AlertFeature~
+    }
+
+    class WMSDataSource {
+        <<interface>>
+        +fetchWmsCapabilities(model) WMSCapabilities
+    }
+
+    class AlertDataSource {
+        <<interface>>
+        +alertDataSource() List~AlertFeature~
+    }
+
+    class WMSCapabilities {
+        +capability : Capability
+    }
+
+    class WMSLayer {
+        +name : String
+        +title : String
+        +dimension : String
+    }
+
+    class AlertFeature {
+        +geometry : AlertGeometry
+        +properties : AlertProperties
+    }
+
+    MapScreen --> MapViewModel : observes uiState
+    MapViewModel --> MapScreenUiState : exposes
+    MapViewModel --> LocationRepository : uses
+    MapViewModel --> WeatherAlertRepository : uses
+    LocationRepository --> WMSDataSource : uses
+    WeatherAlertRepository --> AlertDataSource : uses
+    WMSDataSource ..> WMSCapabilities : returns
+    WMSCapabilities "1" *-- "*" WMSLayer : contains
+    AlertDataSource ..> AlertFeature : returns
+    MapScreenUiState "1" o-- "*" WMSLayer : displayLayers / selectedLayer
+    MapScreenUiState "1" o-- "*" AlertFeature : alertList / selectedAlert
+```
