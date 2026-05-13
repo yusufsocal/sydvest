@@ -57,6 +57,12 @@ Why MVVM:
 
 Not every screen has a ViewModel, and this choice is deliberate. `AppInfoScreen` and `OnboardingCarousel` are stateless, so they don't need one. If a screen has real state or side effects, a ViewModel is needed.
 
+## Cohesion and Coupling
+As the MVVM-model describes a structure and hierarchy that implies the certain levels of cohesion and coupling, we have attempted to still follow the object-oriented principles of high cohesion and low coupling throughout development,        
+- **ViewModel:** The ViewModel exhibits a high cohesion as its area of responsibility is mostly focused on making the UI-elements work as planned, and keeping track of their states by connecting them to the various repositories. Its coupling with the UI-elements is low, as the existence of each UI-element should not affect the ViewModel in a significant way. The ViewModel does exhibit a medium-to-high cohesion to the different repositories, as they provide the ViewModel with the necessary data.
+- **UI-elements:** The UI-elements have a stronger coupling, as their function relies heavily on the ViewModel in order to work. Their cohesion is also high, as their task focused and limited to a very specific area.
+- **Repositories and Data-layers:** Both the repositories and data-layers exhibit a high cohesion, as their area of responsibility is simple and focused. The repositories have a medium-to-high coupling to the various data-layers, while the data-layers themselves have a very low coupling, as they exist in the bottom of the "hierarchy".  
+
 ## Future considerations for maintenance and further development
 
 - **API URLs:** all in `ApiConstants.kt`.
