@@ -2,7 +2,6 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map.util
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
@@ -34,7 +33,12 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
 import java.net.URLEncoder
+import kotlin.math.atan
+import kotlin.math.pow
+import kotlin.math.sinh
 import android.graphics.Color as AndroidColor
+import androidx.core.graphics.toColorInt
+import androidx.core.graphics.scale
 
 fun updateWmsLayer(mapView: MapView, uiState: MapScreenUiState) {
     val layer = uiState.selectedLayer ?: return
@@ -83,7 +87,7 @@ private fun addWmsTilesOverlay(
             url.append("&STYLES=$style")
 
             if (useEPSG3857) {
-                val n = Math.pow(2.0, zoom.toDouble())
+                val n = 2.0.pow(zoom.toDouble())
                 val tileSize = 20037508.34 * 2 / n
                 val xMin = -20037508.34 + x * tileSize
                 val xMax = xMin + tileSize
@@ -92,12 +96,12 @@ private fun addWmsTilesOverlay(
                 url.append("&CRS=EPSG:3857")
                 url.append("&BBOX=$xMin,$yMin,$xMax,$yMax")
             } else {
-                val n = Math.pow(2.0, zoom.toDouble())
+                val n = 2.0.pow(zoom.toDouble())
                 val lonMin = x / n * 360.0 - 180.0
                 val lonMax = (x + 1) / n * 360.0 - 180.0
                 val latMin =
-                    Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 1) / n))))
-                val latMax = Math.toDegrees(Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))))
+                    Math.toDegrees(atan(sinh(Math.PI * (1 - 2 * (y + 1) / n))))
+                val latMax = Math.toDegrees(atan(sinh(Math.PI * (1 - 2 * y / n))))
                 url.append("&CRS=CRS:84")
                 url.append("&BBOX=$lonMin,$latMin,$lonMax,$latMax")
             }
@@ -114,7 +118,7 @@ private fun addWmsTilesOverlay(
     val provider = MapTileProviderBasic(mapView.context, source)
     // Without this the MapView will not be notified when a tile is fully downloaded,
     // and the overlay renders first again by the next user gesture (drag/zoom).
-    provider.setTileRequestCompleteHandler(SimpleInvalidationHandler(mapView))
+    provider.tileRequestCompleteHandlers.add(SimpleInvalidationHandler(mapView))
     val overlay = TilesOverlay(provider, mapView.context).apply {
         loadingBackgroundColor = AndroidColor.TRANSPARENT
         setColorFilter(ColorMatrixColorFilter(ColorMatrix().apply {
@@ -159,7 +163,7 @@ fun drawAlerts(mapView: MapView, uiState: MapScreenUiState, dangerAlert: Boolean
                         "Red" -> "FF0000"
                         else -> "FFFFFF"
                     }
-                    fillPaint.color = AndroidColor.parseColor("#80$hex")
+                    fillPaint.color = "#80$hex".toColorInt()
                 }
 
                 folderOverlay.add(polygon)
@@ -197,7 +201,7 @@ fun updateSelectedMarker(mapView: MapView, point: GeoPoint) {
                 mapView.context.resources,
                 R.drawable.marker_green
             )
-            icon = Bitmap.createScaledBitmap(b, 80, 80, true).toDrawable(mapView.context.resources)
+            icon = b.scale(80, 80).toDrawable(mapView.context.resources)
         })
     }
     mapView.invalidate()
@@ -244,7 +248,7 @@ fun updateUserMarker(mapView: MapView, point: GeoPoint) {
                 mapView.context.resources,
                 R.drawable.location_green
             )
-            icon = Bitmap.createScaledBitmap(b, 80, 80, true).toDrawable(mapView.context.resources)
+            icon = b.scale(80, 80).toDrawable(mapView.context.resources)
         })
     }
     mapView.invalidate()

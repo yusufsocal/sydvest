@@ -100,7 +100,7 @@ fun LegendCard(
 
                     }
                     Spacer(modifier = Modifier.padding(4.dp))
-                    Column() {
+                    Column {
                         entries.forEach { entry ->
                             Text(
                                 text = entry.label,

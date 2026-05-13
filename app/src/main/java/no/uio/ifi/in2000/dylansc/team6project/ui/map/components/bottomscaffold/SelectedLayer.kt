@@ -21,10 +21,10 @@ fun MapSelectedLayer(
     selectedLayer: WMSLayer?,
 ) {
     if (selectedLayer != null) {
-        Row() {
+        Row {
             Text(stringResource (R.string.now_showing))
             Text(
-                text = "$selectedLayerDisplayName",
+                text = selectedLayerDisplayName,
                 fontWeight = FontWeight.Bold,
             )
         }

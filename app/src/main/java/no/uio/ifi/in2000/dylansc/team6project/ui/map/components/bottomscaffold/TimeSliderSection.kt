@@ -59,7 +59,7 @@ fun MapTimeSliderSection(
     stepHours: Int,
     sliderState: String,
 ) {
-    val hourStep = stepHours.coerceAtLeast(1)
+    stepHours.coerceAtLeast(1)
     val current = LocalDateTime.now()
     val hoursAhead = current.plusHours(sliderPosition.toInt().toLong())
     val formatterTime = DateTimeFormatter.ofPattern("HH:mm")
@@ -75,7 +75,7 @@ fun MapTimeSliderSection(
     val month =
         monthOfYear.getDisplayName(TextStyle.FULL_STANDALONE, LocalLocale.current.platformLocale)
 
-    val font_size = 12
+    val fontSize = 12
 
 
     Column {
@@ -88,24 +88,24 @@ fun MapTimeSliderSection(
             if (current.format(formatterCompare) == hoursAhead.format(formatterCompare)) {
                 Text(
                     text = stringResource(R.string.today_with_time, timeOfDay),
-                    fontSize = font_size.sp
+                    fontSize = fontSize.sp
                 )
             } else {
                 Text(
                     text = "${weekday.uppercase()} ${hoursAhead.format(formatterDate)}$month · $timeOfDay",
-                    fontSize = font_size.sp
+                    fontSize = fontSize.sp
                 )
             }
 
             if (sliderState == "timer") {
                 Text(
                     text = stringResource(R.string.hours_ahead, sliderPosition.toInt()),
-                    fontSize = font_size.sp
+                    fontSize = fontSize.sp
                 )
             } else {
                 Text(
                     text = stringResource(R.string.days_ahead, sliderPosition.toInt() / 24),
-                    fontSize = font_size.sp
+                    fontSize = fontSize.sp
                 )
             }
 
@@ -130,7 +130,7 @@ fun MapTimeSliderSection(
             Spacer(modifier = Modifier.padding(horizontal = 8.dp))
 
             val range: ClosedRange<Float> = 0f..240f
-            val highlightStep: Int = 24
+            val highlightStep = 24
 
             Slider(
                 value = sliderPosition,

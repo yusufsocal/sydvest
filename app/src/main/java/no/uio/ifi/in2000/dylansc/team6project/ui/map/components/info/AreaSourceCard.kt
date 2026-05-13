@@ -42,7 +42,8 @@ fun AreaSourceCard(
     selectedArea: String,
 
     ) {
-    val selected = (selectedArea == label)
+
+    (selectedArea == label)
 
     Card(
         onClick = {

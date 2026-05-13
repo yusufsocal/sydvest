@@ -33,6 +33,7 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapScreen
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.MapViewModel
 import no.uio.ifi.in2000.dylansc.team6project.ui.onboarding.OnboardingCarousel
 import no.uio.ifi.in2000.dylansc.team6project.ui.onboarding.onboardingPages
+import androidx.core.content.edit
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -59,7 +60,7 @@ fun AppNavHost(
 
     //PROJECT CUSTOM AREA -> Currently a placeholder for when the user has chosen
     //which data source to use ->
-    var area: AreaData = AreaData.NORDIC
+    val area: AreaData = AreaData.NORDIC
     //
 
     //Hoisting ViewModel up to NavHost
@@ -84,7 +85,7 @@ fun AppNavHost(
                 OnboardingCarousel(
                     pages = onboardingPages,
                     onFinish = {
-                        prefs.edit().putBoolean("onboarding_completed", true).apply()
+                        prefs.edit { putBoolean("onboarding_completed", true) }
                         navController.navigate("map") {
                             popUpTo("onboarding") { inclusive = true }
                         }

@@ -92,7 +92,6 @@ class MapViewModel(
     private val searchQuery = MutableStateFlow("")
     private val originalArea: AreaData = newArea
 
-    private val selectedArea = newArea
     private val wmsDomain = WMSDomain()
     private var animationJob: Job? = null
     private var updateTimeJob: Job? = null
@@ -319,12 +318,7 @@ class MapViewModel(
         layerList: List<WMSLayer>,
         area: AreaData?
     ): List<Pair<WMSLayer, String>> {
-        val suffix = when (area) {
-            AreaData.NORDIC -> " in MEPS VDIV"
-            AreaData.ARCTIC -> " in Arctic VDIV"
-            AreaData.WORLD -> " in ECMWF SFC"
-            else -> ""
-        }
+
         val allowedLayers = when (area) {
             AreaData.WORLD -> setOf(
                 "Air temperature 2m",
@@ -389,7 +383,7 @@ class MapViewModel(
             val parts = dimension.split("/")
             if (parts.size < 3) 1
             else Duration.parse(parts[2]).toHours().toInt().coerceAtLeast(1)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             1
         }
     }
@@ -403,16 +397,14 @@ class MapViewModel(
 
             val fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmZ")
             val start = OffsetDateTime.parse(parts[0], fmt)
-            val end = OffsetDateTime.parse(parts[1], fmt)
             val step = Duration.parse(parts[2])
             val requested = OffsetDateTime.parse(requestedTime)
-
             val clamped = if (requested.isBefore(start)) start else requested
             val minutesFromStart = Duration.between(start, clamped).toMinutes()
             val stepMinutes = step.toMinutes()
             val steps = if (stepMinutes > 0) minutesFromStart / stepMinutes else 0
             start.plusMinutes(steps * stepMinutes).format(DateTimeFormatter.ISO_INSTANT)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             requestedTime
         }
     }

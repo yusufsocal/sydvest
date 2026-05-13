@@ -22,6 +22,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -141,10 +142,10 @@ fun MapDataSourceSwitcher(
                     )
 
                     Spacer(Modifier.height(16.dp))
-                    var selectedIndex by remember { mutableStateOf(0) }
+                    var selectedIndex by remember { mutableIntStateOf(0) }
                     val options = listOf(stringResource(R.string.nordic), stringResource(R.string.arctic), stringResource(R.string.worldwide))
 
-                    SingleChoiceSegmentedButtonRow() {
+                    SingleChoiceSegmentedButtonRow {
                         options.forEachIndexed { index, label ->
                             SegmentedButton(
                                 shape = SegmentedButtonDefaults.itemShape(
@@ -160,7 +161,7 @@ fun MapDataSourceSwitcher(
                         }
                     }
 
-                    var areaCard = areaCardList[selectedIndex]
+                    val areaCard = areaCardList[selectedIndex]
 
                     AreaSourceCard(
                         label = areaCard.label,

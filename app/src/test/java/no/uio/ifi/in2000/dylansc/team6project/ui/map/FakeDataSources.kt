@@ -25,6 +25,12 @@ class FakeSearchDataSource(
     private val result: List<SearchResult> = emptyList()
 ) : SearchDataSource {
     override suspend fun fetchSearchSuggestions(query: String): List<SearchResult> = result
+    override suspend fun findplaceNameFromCoordinates(
+        lat: Double,
+        lon: Double
+    ): String {
+        TODO("Not yet implemented")
+    }
 }
 
 class FakeLocationforecastDataSource : LocationforecastDataSource {
