@@ -119,7 +119,7 @@ class MapViewModel(
                     )
                 }
             } catch (e: Exception) {
-                Log.e("ViewModel", "Feil ved henting av data: ${e.message}")
+                Log.e("ViewModel", "Error fetching data: ${e.message}")
                 _uiState.update { it.copy(isLoading = false, hasError = true) }
             }
         }
@@ -133,7 +133,7 @@ class MapViewModel(
                     else flow { emit(searchRepo.getSuggestions(query)) }
                 }
                 .catch { e ->
-                    Log.e("ViewModel", "Feil ved søk: ${e.message}")
+                    Log.e("ViewModel", "Error fetching search results: ${e.message}")
                     emit(emptyList())
                 }
                 .collect { suggestions ->
@@ -203,9 +203,9 @@ class MapViewModel(
 
     fun updateSliderState(){
         if (_uiState.value.sliderPosition >= 23) {
-            if (_uiState.value.sliderState != "døgn") _uiState.update { it.copy(sliderState = "døgn") }
+            if (_uiState.value.sliderState != "days") _uiState.update { it.copy(sliderState = "days") }
         } else {
-            if (_uiState.value.sliderState != "timer") _uiState.update { it.copy(sliderState = "timer") }
+            if (_uiState.value.sliderState != "hours") _uiState.update { it.copy(sliderState = "hours") }
         }
 
     }
@@ -259,7 +259,7 @@ class MapViewModel(
                     )
                 }
             } catch (e: Exception) {
-                Log.e("ViewModel", "Feil ved oppdatering av område: ${e.message}")
+                Log.e("ViewModel", "Error updating area: ${e.message}")
             }
         }
     }
@@ -275,7 +275,7 @@ class MapViewModel(
                 val hoursAhead = getHoursAhead(time)
                 val resolvedArea = wmsDomain.resolveArea(_uiState.value.selectedArea, hoursAhead)
                 val currentArea = _uiState.value.area
-                Log.d("OMRÅDER", "resolvedArea = $resolvedArea - currentArea = $currentArea")
+                Log.d("AREAS", "resolvedArea = $resolvedArea - currentArea = $currentArea")
 
                 if (resolvedArea != currentArea) {
                     val newLayerList = locationRepo.getArea(resolvedArea) ?: emptyList()

@@ -101,7 +101,7 @@ fun Team6ProjectTheme(
         else -> lightScheme
 
         /*
-        * Hvis vi vil ha høy kontrast for alle:
+        * If we want high contrast for all:
         * darkTheme -> highContrastDarkColorScheme
         * else -> highContrastLightSceme
         * */

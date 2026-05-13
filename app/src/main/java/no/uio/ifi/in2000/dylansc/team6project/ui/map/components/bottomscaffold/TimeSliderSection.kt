@@ -97,7 +97,7 @@ fun MapTimeSliderSection(
                 )
             }
 
-            if (sliderState == "timer") {
+            if (sliderState == "hours") {
                 Text(
                     text = stringResource(R.string.hours_ahead, sliderPosition.toInt()),
                     fontSize = fontSize.sp

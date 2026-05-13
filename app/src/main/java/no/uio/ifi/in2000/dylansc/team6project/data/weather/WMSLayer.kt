@@ -33,14 +33,14 @@ data class Capability(
 /**
  * Top-level layer that contains all the actual map layers as children.
  *
- * @property wmsListe Child layers available for display.
+ * @property wmsList Child layers available for display.
  */
 @Serializable
 @XmlSerialName("Layer", namespace = "http://www.opengis.net/wms", prefix = "")
 data class ParentLayer(
     @XmlElement(true) @SerialName("Title") val title: String = "",
     @XmlSerialName("Layer", namespace = "http://www.opengis.net/wms", prefix = "")
-    val wmsListe: List<WMSLayer> = emptyList()
+    val wmsList: List<WMSLayer> = emptyList()
 )
 
 /**

@@ -246,7 +246,7 @@ fun MapScreen(
             Column(
                 verticalArrangement = Arrangement.Top,
                 modifier = Modifier
-                    .align(Alignment.TopCenter) // Dette tvinger Column til bunnen av Box-en
+                    .align(Alignment.TopCenter) // This forces the Column to the top of the Box
                     .zIndex(1f)
 
             ) {
@@ -323,7 +323,7 @@ fun MapScreen(
 
                     //MapLayerDropdown
                     selectedLayerDisplayName = mapScreenUiState.selectedLayerDisplayName,
-                    selectedLayer = mapScreenUiState.selectedLayer,         // NY: Send med selve objektet fra uiState,
+                    selectedLayer = mapScreenUiState.selectedLayer,         // Pass the actual object from uiState
                     displayLayers = mapScreenUiState.displayLayers,
                     onLayerSelected = { mapViewModel.setSelectedLayer(it) },
 

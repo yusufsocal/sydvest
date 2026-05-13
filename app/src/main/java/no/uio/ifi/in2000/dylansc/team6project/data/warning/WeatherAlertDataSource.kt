@@ -34,7 +34,7 @@ class AlertDataSourceImpl(
             Log.d("AlertDataSource", "Success! Fetched  ${response.features.size} alerts.")
             response.features
         } catch (e: Exception) {
-            Log.e("AlertDataSource", "Weeoe with fetching or parsing: ${e.message}")
+            Log.e("AlertDataSource", "Error with fetching or parsing: ${e.message}")
             null
         }
     }

@@ -39,7 +39,7 @@ class LocationRepository(
         cache[area]?.let { return it }
 
         val layers = wmsDataSource.fetchWmsCapabilities(area)
-            ?.capability?.rootLayer?.wmsListe
+            ?.capability?.rootLayer?.wmsList
             ?.filter { normalizeTitle(it.title) in allowedTitles }
             ?: return null
 

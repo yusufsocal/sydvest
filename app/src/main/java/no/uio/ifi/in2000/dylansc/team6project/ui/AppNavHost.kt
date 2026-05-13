@@ -1,4 +1,4 @@
-//NavHost for å skifte mellom forskjellige skjermer.
+//NavHost for navigating between different screens.
 
 package no.uio.ifi.in2000.dylansc.team6project.ui
 
