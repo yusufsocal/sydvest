@@ -1,5 +1,5 @@
 # SydVest
-![Logo](/Users/studier/team-6/app/src/main/sydvest_logo-playstore.png)
+![Logo](app/src/main/sydvest_logo-playstore.png)
 
 SydVest is an Android application that shows weather data. The app is developed in the course "Software Engineering with Project Work" (IN2000) at UiO.
 
@@ -45,4 +45,5 @@ If you want to continue working on SydVest, this project contains documents that
 
 ## Attribution
 Weather data and warnings are provided by [MET Norway](https://www.met.no/) under the [Norwegian Licence for Open Government Data (NLOD) 2.0](https://data.norge.no/nlod/en/2.0).
+
 
