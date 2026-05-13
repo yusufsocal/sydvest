@@ -6,7 +6,7 @@ SydVest is an Android application that shows weather data. The app is developed 
 ## Team 6:
 The app is made by:
 
-- Dylan Coury
+- Dylan Sebastian Coury
 - Peder Hornseth Nygaard
 - Mari Landsverk
 - Yusuf Selim Ocal
@@ -45,5 +45,6 @@ If you want to continue working on SydVest, this project contains documents that
 
 ## Attribution
 Weather data and warnings are provided by [MET Norway](https://www.met.no/) under the [Norwegian Licence for Open Government Data (NLOD) 2.0](https://data.norge.no/nlod/en/2.0).
+
 
 
