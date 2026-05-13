@@ -335,7 +335,7 @@ fun MapScreen(
                         }
 
                     },
-                    isdangerAlertActive = mapScreenUiState.dangerAlert,
+                    isDangerAlertActive = mapScreenUiState.dangerAlert,
 
                     //MapChangeAreaButton
                     area = mapScreenUiState.area,

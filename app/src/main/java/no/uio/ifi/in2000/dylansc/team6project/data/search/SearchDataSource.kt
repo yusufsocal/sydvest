@@ -62,7 +62,7 @@ class SearchDataSourceImpl(
                 )
             }.distinctBy { it.name }
         } catch (e: Exception) {
-            Log.e("SearchDataSource", "Feil ved søk: ${e.message}")
+            Log.e("SearchDataSource", "Error fetching search suggestions: ${e.message}")
             emptyList()
         }
     }
@@ -89,7 +89,7 @@ class SearchDataSourceImpl(
 
             name.ifBlank { null }
         } catch (e: Exception) {
-            Log.e("SearchDataSource", "Feil ved reverse geocoding: ${e.message}")
+            Log.e("SearchDataSource", "Error during reverse geocoding: ${e.message}")
             null
         }
     }

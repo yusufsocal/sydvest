@@ -113,7 +113,7 @@ fun MapWeatherBottomScaffold(
 
     //Variables for "dangerAlert"
     onDangerAlertToggle: () -> Unit,
-    isdangerAlertActive: Boolean,
+    isDangerAlertActive: Boolean,
 
     //Variables for MapChangeArea
     area: AreaData?,
@@ -269,7 +269,7 @@ fun MapWeatherBottomScaffold(
                         ) {
                             Column {
                                 Text(
-                                    text = stringResource(R.string.værlag),
+                                    text = stringResource(R.string.weather_layer),
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.graphicsLayer {
                                         translationY = -24.dp.toPx()
@@ -302,7 +302,7 @@ fun MapWeatherBottomScaffold(
                                 )
                             }
                             Text(
-                                text = stringResource(R.string.velg_værlag),
+                                text = stringResource(R.string.select_weather_layer),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                             )
@@ -314,7 +314,7 @@ fun MapWeatherBottomScaffold(
                                 onLayerSelected,
 
                                 onDangerAlertToggle,
-                                isdangerAlertActive
+                                isDangerAlertActive
                             )
 
                             Spacer(modifier = Modifier.height(16.dp))

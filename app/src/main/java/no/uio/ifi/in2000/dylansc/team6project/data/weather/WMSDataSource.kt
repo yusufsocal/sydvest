@@ -48,7 +48,7 @@ class WMSDataSourceImpl(
             // Parse the text manually to the object
             xmlParser.decodeFromString(WMSCapabilities.serializer(), xmlString)
         } catch (e: Exception) {
-            Log.e("WMSDataSource", "Feil ved henting av WMS capabilities: ${e.message}")
+            Log.e("WMSDataSource", "Error fetching WMS capabilities: ${e.message}")
             null
         }
     }
