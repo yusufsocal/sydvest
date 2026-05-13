@@ -46,7 +46,9 @@ app/src/main/java/no/uio/ifi/in2000/dylansc/team6project/
 - **New screen:** create `ui/<feature>/` with `<Feature>Screen.kt`. Add a ViewModel only if the screen has async work or state that must survive rotation.
 - **New API:** create `data/<apiname>/` with `XxxDataSource` (interface) + `XxxDataSourceImpl`. Add `XxxRepository` under `data/repository/`. Wire it in `AppNavHost.kt` and add the URL to `ApiConstants.kt`.
 
-## Design pattern: MVVM
+## Design patterns
+
+### MVVM
 
 We use **MVVM**. State flows from the ViewModel down to the Composables via `StateFlow`; events flow back up as ViewModel function calls.
 
@@ -57,11 +59,28 @@ Why MVVM:
 
 Not every screen has a ViewModel, and this choice is deliberate. `AppInfoScreen` and `OnboardingCarousel` are stateless, so they don't need one. If a screen has real state or side effects, a ViewModel is needed.
 
-## Cohesion and Coupling
+### Cohesion and Coupling
 As the MVVM-model describes a structure and hierarchy that implies the certain levels of cohesion and coupling, we have attempted to still follow the object-oriented principles of high cohesion and low coupling throughout development,        
 - **ViewModel:** The ViewModel exhibits a high cohesion as its area of responsibility is mostly focused on making the UI-elements work as planned, and keeping track of their states by connecting them to the various repositories. Its coupling with the UI-elements is low, as the existence of each UI-element should not affect the ViewModel in a significant way. The ViewModel does exhibit a medium-to-high cohesion to the different repositories, as they provide the ViewModel with the necessary data.
-- **UI-elements:** The UI-elements have a stronger coupling, as their function relies heavily on the ViewModel in order to work. Their cohesion is also high, as their task focused and limited to a very specific area.
-- **Repositories and Data-layers:** Both the repositories and data-layers exhibit a high cohesion, as their area of responsibility is simple and focused. The repositories have a medium-to-high coupling to the various data-layers, while the data-layers themselves have a very low coupling, as they exist in the bottom of the "hierarchy".  
+- **UI-elements:** The UI-elements have a stronger coupling, as their function relies heavily on the ViewModel in order to work. Their cohesion is also high, as their task focused and limited to a very specific area. Most UI-components are stateless, meaning their coupling with the View-file MapScreen.kt is low, with the exception of some components.
+- **Repositories and Data-layers:** Both the repositories and data-layers exhibit a high cohesion, as their area of responsibility is simple and focused. The repositories have a medium-to-high coupling to the various data-layers, while the data-layers themselves have a very low coupling, as they exist in the bottom of the "hierarchy".
+
+### State Hoisting
+We have attempted to keep most Composable-elements stateless by hoisting variables from their respective files to MapScreen.kt, however some Composable-objects still contains various "remember" variables, and could be moved in the future. 
+
+The files in question are as follows:
+- DataSourceSwitcher.kt
+- MapSearchField.kt
+- LegendSidePanel.kt
+- ClothingTip.kt
+- ClothingTipsExplanationSheet.kt
+- SelectWeatherLayer.kt
+- WeatherBottomScaffold.kt
+
+### Dependency Injection
+The app contains a manual Dependency Injection as instances of the various repositories are created in AppNavHost.kt and passed down to the ViewModel from there.
+
+The reason for this solution is the limited scope of the app, and implementing Hilt or Coin would take time we rather wanted to spend on functionality and testing. It would be natural for further development to introduce Hilt by giving MapViewModel the @HiltViewModel annotation. 
 
 ## Future considerations for maintenance and further development
 
