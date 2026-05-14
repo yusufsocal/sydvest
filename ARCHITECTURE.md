@@ -62,20 +62,22 @@ Not every screen has a ViewModel, and this choice is deliberate. `AppInfoScreen`
 ### Cohesion and Coupling
 As the MVVM-model describes a structure and hierarchy that implies the certain levels of cohesion and coupling, we have attempted to still follow the object-oriented principles of high cohesion and low coupling throughout development,        
 - **ViewModel:** The ViewModel exhibits a high cohesion as its area of responsibility is mostly focused on making the UI-elements work as planned, and keeping track of their states by connecting them to the various repositories. Its coupling with the UI-elements is low, as the existence of each UI-element should not affect the ViewModel in a significant way. The ViewModel does exhibit a medium-to-high cohesion to the different repositories, as they provide the ViewModel with the necessary data.
+
 - **UI-elements:** The UI-elements have a stronger coupling, as their function relies heavily on the ViewModel in order to work. Their cohesion is also high, as their task focused and limited to a very specific area. Most UI-components are stateless, meaning their coupling with the View-file MapScreen.kt is low, with the exception of some components.
+
 - **Repositories and Data-layers:** Both the repositories and data-layers exhibit a high cohesion, as their area of responsibility is simple and focused. The repositories have a medium-to-high coupling to the various data-layers, while the data-layers themselves have a very low coupling, as they exist in the bottom of the "hierarchy".
 
 ### State Hoisting
 We have attempted to keep most Composable-elements stateless by hoisting variables from their respective files to MapScreen.kt, however some Composable-objects still contains various "remember" variables, and could be moved in the future. 
 
 The files in question are as follows:
-- DataSourceSwitcher.kt
-- MapSearchField.kt
-- LegendSidePanel.kt
-- ClothingTip.kt
-- ClothingTipsExplanationSheet.kt
-- SelectWeatherLayer.kt
-- WeatherBottomScaffold.kt
+- `DataSourceSwitcher.kt`
+- `MapSearchField.kt`
+- `LegendSidePanel.kt`
+- `ClothingTip.kt`
+- `ClothingTipsExplanationSheet.kt`
+- `SelectWeatherLayer.kt`
+- `WeatherBottomScaffold.kt`
 
 ### Dependency Injection
 The app contains a manual Dependency Injection as instances of the various repositories are created in AppNavHost.kt and passed down to the ViewModel from there.
@@ -88,3 +90,5 @@ The reason for this solution is the limited scope of the app, and implementing H
 - **HTTP client config:** in `HttpClientProvider.kt`. Two clients because WMS returns XML and the rest return JSON.
 - **Caching:** `LocationRepository` caches WMS layers per `AreaData` in memory. There is no disk cache.
 - **Animation lag:** the weather-layer animation can still lag, especially in the emulator.
+- **MeteoAlerts API implementation:** the current solution uses MetAlerts which offer weather warnings only for Norway. MeteoAlerts offer warnings for the entirity of Europe.
+
