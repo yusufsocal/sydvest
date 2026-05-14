@@ -194,13 +194,8 @@ fun MapDataSourceSwitcher(
 
                     Spacer(Modifier.height(4.dp))
                 }
-            },
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            ),
+            }
         )
-
     }
-
 }
 
