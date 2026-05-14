@@ -121,7 +121,7 @@ fun MapWeatherBottomScaffold(
     onShowAreaChange: () -> Unit
 
 ) {
-    val peekVal = if (selectedLayer != null) 80 else 85
+    val peekVal = if (selectedLayer != null) 100 else 85
     val maxHeightVal = if (selectedLayer != null) 400 else 150
 
     var localSliderPosition by remember(sliderPosition) { mutableFloatStateOf(sliderPosition) }
@@ -272,7 +272,7 @@ fun MapWeatherBottomScaffold(
                                     text = stringResource(R.string.weather_layer),
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.graphicsLayer {
-                                        translationY = -24.dp.toPx()
+                                        translationY = -28.dp.toPx()
                                     }
                                 )
                             }

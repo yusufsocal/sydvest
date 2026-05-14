@@ -3,8 +3,11 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map.components.bottomscaffold
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSLayer
 import no.uio.ifi.in2000.dylansc.team6project.R
 
@@ -22,10 +25,20 @@ fun MapSelectedLayer(
 ) {
     if (selectedLayer != null) {
         Row {
-            Text(stringResource (R.string.now_showing))
+            Text(
+                text = stringResource(R.string.now_showing),
+                modifier = Modifier
+                    .graphicsLayer {
+                        translationY = -18.dp.toPx()
+                    }
+            )
             Text(
                 text = selectedLayerDisplayName,
                 fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .graphicsLayer {
+                        translationY = -18.dp.toPx()
+                    }
             )
         }
 
