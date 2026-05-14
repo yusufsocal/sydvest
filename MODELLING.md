@@ -138,6 +138,25 @@ sequenceDiagram
     UI-->>User: Displays MapDangerWarningInfo with event, severity etc.
 ```
 
+### Activity diagram
+```mermaid
+flowchart TD
+    Start([Start]) --> A[User opens bottom menu and taps 'Farevarsler']
+    A --> B[System enables alert overlay]
+    B --> C{Any active alerts?}
+    C -->|No| D[No polygons drawn]
+    D --> End([End])
+    C -->|Yes| E[System draws color-coded polygons on the map]
+    E --> F{First time enabling alerts?}
+    F -->|Yes| G[Show hint banner]
+    F -->|No| H[Wait for user interaction]
+    G --> H
+    H --> I{User taps a polygon?}
+    I -->|No| End
+    I -->|Yes| J[System displays MapDangerWarningInfo with event, severity etc.]
+    J --> End
+```
+
 ## Use case 3: User gets clothing suggestions
 **Actor**: User
 
