@@ -36,6 +36,7 @@ The top-five functional requirements are listed in the table below:
 4a. Tiles fail to load → system displays an error card with "Try again"
 
 ### Use case diagram
+![Usecase1](app/src/main/res/værdata.drawio.png)
 
 
 ### Sequence diagram
@@ -152,6 +153,7 @@ sequenceDiagram
 5. System shows an explanation of which weather conditions triggered the tip
 
 ### Use case diagram
+![Use case 3](app/src/main/res/Weatherinfo.png)
 
 ### Sequence diagram
 
