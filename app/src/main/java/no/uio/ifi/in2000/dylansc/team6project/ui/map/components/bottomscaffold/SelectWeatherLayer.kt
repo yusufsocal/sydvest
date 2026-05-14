@@ -13,7 +13,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -23,8 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSLayer
 import no.uio.ifi.in2000.dylansc.team6project.R
+import no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSLayer
 
 /**
  * Row of toggleable buttons for picking which weather layer is shown on the map,
@@ -50,7 +50,7 @@ fun MapSelectWeatherLayer(
     onDangerAlertToggle: () -> Unit,
     isdangerAlertActive: Boolean
 ) {
-    var textSize by remember { mutableStateOf(14) }
+    var textSize by remember { mutableIntStateOf(14) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

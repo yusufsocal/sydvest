@@ -197,7 +197,7 @@ fun capabilities(layers: List<WMSLayer>) = WMSCapabilities(
     capability = Capability(
         rootLayer = ParentLayer(
             title = "root",
-            wmsListe = layers
+            wmsList = layers
         )
     )
 )
