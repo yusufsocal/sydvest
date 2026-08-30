@@ -113,6 +113,7 @@
     <string name="zoom_out">Zoom ut</string>
     <string name="app_info">Om appen</string>
     <string name="center_on_my_location">Sentrer kart på min posisjon</string>
+    <string name="more_options">Flere valg</string>
 
     <!-- TimeSliderSection.kt -->
     <string name="play_animation">Spill av animasjon</string>

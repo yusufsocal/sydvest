@@ -7,22 +7,18 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,30 +43,27 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.dylansc.team6project.R
-import no.uio.ifi.in2000.dylansc.team6project.data.weather.AreaData
 import no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSLayer
 
 /**
  * Bottom-sheet controls for the weather map.
  *
- * Hosts the time slider, weather-layer picker, danger-alert toggle, and
- * the area selector. When a weather layer is selected the sheet expands
- * to show the slider plus a "selected layer" header; with no layer selected
- * it shrinks to a compact picker. Slider drags update a local state
- * immediately and are debounced (300 ms) before being forwarded through
- * [onSliderChange] so the ViewModel isn't spammed on every frame.
+ * Hosts the time slider and weather-layer picker. When a weather layer is
+ * selected the sheet expands to show the slider plus a "selected layer"
+ * header; with no layer selected it shrinks to a compact picker. Slider
+ * drags update a local state immediately and are debounced (300 ms) before
+ * being forwarded through [onSliderChange] so the ViewModel isn't spammed
+ * on every frame.
  *
- * Two floating controls are drawn above the sheet and follow the sheet's
- * vertical offset: a "Select layer" button (when a layer is active) and
- * the area-picker button (when [areaChange] is true).
+ * The danger-alert toggle and area picker used to live here as floating
+ * controls above the sheet; they've moved into the "more options" menu in
+ * [no.uio.ifi.in2000.dylansc.team6project.ui.map.components.sidecomponents.MapSideControls]
+ * so this sheet only covers what it's actually for — the active layer and
+ * its timeline.
  *
- * @param areaChange whether the area picker should be shown above the sheet.
- * @param changed invoked when the area picker should be dismissed or when
- *   the floating "Select layer" button is tapped.
  * @param sliderPosition current slider position from the ViewModel,
  *   mapped to the available time range.
  * @param isAnimating whether the timeline is auto-playing.
@@ -85,20 +78,11 @@ import no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSLayer
  * @param selectedLayer currently active [WMSLayer], or null if none.
  * @param displayLayers all selectable layers paired with their display names.
  * @param onLayerSelected called when the user picks or deselects a layer.
- * @param onDangerAlertToggle toggles the danger-alert overlay on/off.
- * @param isdangerAlertActive whether the danger-alert overlay is currently on.
- * @param area current map area (Nordic / Arctic / World), drives the
- *   area-button label.
- * @param changeArea called with the new area key when the user selects one.
- * @param onShowAreaChange opens the area picker.
  */
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapWeatherBottomScaffold(
-
-    areaChange: Boolean,
-    changed: () -> Unit,
 
     sliderPosition: Float,
     isAnimating: Boolean,
@@ -112,15 +96,6 @@ fun MapWeatherBottomScaffold(
     selectedLayer: WMSLayer?,
     displayLayers: List<Pair<WMSLayer, String>>,
     onLayerSelected: (WMSLayer?) -> Unit,
-
-    //Variables for "dangerAlert"
-    onDangerAlertToggle: () -> Unit,
-    isDangerAlertActive: Boolean,
-
-    //Variables for MapChangeArea
-    area: AreaData?,
-    changeArea: (String) -> Unit,
-    onShowAreaChange: () -> Unit
 
 ) {
     val peekVal = if (selectedLayer != null) 100 else 85
@@ -147,71 +122,6 @@ fun MapWeatherBottomScaffold(
     }
 
     Box {
-        if (areaChange) {
-            Box(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .align(Alignment.TopStart)
-                    .zIndex(1f)
-                    .graphicsLayer {
-                        val offset = try {
-                            scaffoldState.bottomSheetState.requireOffset()
-                        } catch (_: Exception) {
-                            0f // Fallback if it is not ready
-                        }
-
-                        if (offset > 0f) {
-                            translationY = offset - 295.dp.toPx()
-                        }
-                    }) {
-                MapChangeAreaButton(
-                    changeArea,
-                    changed,
-                    onShowAreaChange
-                )
-            }
-        }
-
-        if (selectedLayer != null) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(16.dp)
-            ) {
-
-                Button(
-                    onClick = {
-                        changed()
-                    },
-                    shape = CircleShape,
-                    contentPadding = PaddingValues(4.dp),
-                    modifier = Modifier
-                        .size(48.dp)
-                        .graphicsLayer {
-                            val offset = try {
-                                scaffoldState.bottomSheetState.requireOffset()
-                            } catch (_: Exception) {
-                                0f // Fallback if it is not ready
-                            }
-
-                            if (offset > 0f) {
-                                translationY = offset - 65.dp.toPx()
-                            }
-                        }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Public,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(32.dp),
-                        contentDescription = stringResource(R.string.choose_data_source_area)
-                    )
-                }
-
-
-            }
-
-        }
-
         BottomSheetScaffold(
             sheetPeekHeight = peekVal.dp,
             scaffoldState = scaffoldState,
@@ -308,15 +218,12 @@ fun MapWeatherBottomScaffold(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                             )
-                            //WMSLayer and weather Warning
+                            //WMSLayer picker
                             MapSelectWeatherLayer(
                                 selectedLayerDisplayName,
                                 selectedLayer,
                                 displayLayers,
                                 onLayerSelected,
-
-                                onDangerAlertToggle,
-                                isDangerAlertActive
                             )
 
                             Spacer(modifier = Modifier.height(16.dp))

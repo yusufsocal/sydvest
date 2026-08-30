@@ -3,6 +3,7 @@ package no.uio.ifi.in2000.dylansc.team6project.ui.map.components
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.edit
 import no.uio.ifi.in2000.dylansc.team6project.data.warning.AlertFeature
@@ -14,6 +15,7 @@ import no.uio.ifi.in2000.dylansc.team6project.ui.map.util.removeUserMarker
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.util.updateSelectedMarker
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.util.updateUserMarker
 import no.uio.ifi.in2000.dylansc.team6project.ui.map.util.updateWmsLayer
+import no.uio.ifi.in2000.dylansc.team6project.ui.theme.tertiaryContainerDark
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -85,12 +87,52 @@ fun MapOsmView(
                         prefs.getFloat("start_lon", 10.7461f).toDouble()
                     )
                 )
-                minZoomLevel = 3.0
+                minZoomLevel = 2.0
+                // Below zoom ~3 the map (roughly square at every zoom level) can't
+                // fill a tall phone screen vertically - there's no valid Mercator
+                // data past about +-85 degrees latitude, so the top/bottom would
+                // otherwise show the raw view background. Tint that background
+                // instead of leaving it default gray, so it reads as "edge of the
+                // map" rather than a rendering glitch.
+                setBackgroundColor(tertiaryContainerDark.toArgb())
                 maxZoomLevel = 18.0
                 setScrollableAreaLimitLatitude(85.0, -85.0, height + 1000)
                 isFlingEnabled = true
                 setVerticalMapRepetitionEnabled(false)
-                Configuration.getInstance().cacheMapTileCount = 5000
+                Configuration.getInstance().apply {
+                    cacheMapTileCount = 5000
+
+                    // MET's WMS tiles are rendered on demand rather than served from a
+                    // static cache, so osmdroid's default of only 2 concurrent
+                    // downloads makes a full screen of tiles load almost one at a
+                    // time. Raise this and the visible grid fills in together
+                    // instead of trickling in tile-by-tile.
+                    // Higher = more tiles fetched in parallel, which matters most on
+                    // WORLD (many more tiles visible at once than NORDIC/ARCTIC).
+                    // Too high risks saturating the connection or getting
+                    // rate-limited by the server, so raise gradually and watch for
+                    // tiles failing to load rather than just loading slowly.
+                    tileDownloadThreads = 12
+
+                    // How many tiles can be written to/read from the on-device disk
+                    // cache at once. Kept equal to tileDownloadThreads so disk I/O
+                    // doesn't become the new bottleneck once downloads are fast.
+                    tileFileSystemThreads = 12
+
+                    // How many pending tile requests can be queued before the oldest
+                    // ones are dropped. Needs to comfortably cover every tile
+                    // visible on screen at once - switching to WORLD requests many
+                    // more tiles in one go than NORDIC/ARCTIC does, so too small a
+                    // queue here means some of those tiles get silently dropped
+                    // instead of just waiting their turn.
+                    tileDownloadMaxQueueSize = 60
+                    tileFileSystemMaxQueueSize = 60
+
+                    // Identifies the app to the tile servers (both OSM's base map
+                    // and MET's WMS). Required by their usage policies, and
+                    // unidentified traffic can be throttled.
+                    userAgentValue = "team6-IN2000 github.com/IN2000-V26/team-6"
+                }
 
                 if (granted) centerMapOnUserLocation(ctx, this)
 

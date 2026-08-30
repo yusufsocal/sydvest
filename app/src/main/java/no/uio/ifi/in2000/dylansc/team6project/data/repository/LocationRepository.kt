@@ -24,12 +24,14 @@ class LocationRepository(
         "Wind 10m vector"
     )
 
-    /** Area-specific suffixes appended by the WMS service that we strip before matching. */
-    private val areaSuffixes = listOf(" in MEPS VDIV", " in Arctic VDIV", " in ECMWF SFC")
-
-    /** Removes the area suffix so titles can be matched against [allowedTitles]. */
+    /**
+     * Removes the trailing " in <model name>" (e.g. "in MEPS", "in AROME Arctic",
+     * "in ECMWF SFC") so titles can be matched against [allowedTitles] regardless
+     * of how MET names the model — the exact wording has changed before
+     * (e.g. "in MEPS VDIV" became "in MEPS").
+     */
     private fun normalizeTitle(title: String): String =
-        areaSuffixes.fold(title) { t, suffix -> t.removeSuffix(suffix) }.trim()
+        title.substringBefore(" in ").trim()
 
     /**
      * Returns the filtered WMS layers for [area], or `null` if the request fails.

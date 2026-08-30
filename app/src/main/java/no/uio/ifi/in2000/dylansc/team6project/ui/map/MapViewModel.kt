@@ -351,10 +351,7 @@ class MapViewModel(
     }
 
     private fun normalizeLayerTitle(title: String): String =
-        title.removeSuffix(" in MEPS VDIV")
-            .removeSuffix(" in Arctic VDIV")
-            .removeSuffix(" in ECMWF SFC")
-            .trim()
+        title.substringBefore(" in ").trim()
 
     // Returns the current time as ISO 8601-formatted string
     @RequiresApi(Build.VERSION_CODES.O)

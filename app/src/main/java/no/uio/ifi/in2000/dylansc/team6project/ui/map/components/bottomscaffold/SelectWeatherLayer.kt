@@ -19,16 +19,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import no.uio.ifi.in2000.dylansc.team6project.R
 import no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSLayer
 
 /**
- * Row of toggleable buttons for picking which weather layer is shown on the map,
- * plus a button that toggles the danger alerts overlay.
+ * Row of toggleable buttons for picking which weather layer is shown on the map.
  *
  * Tapping the active layer again deselects it (passes `null` to [onLayerSelected]).
  *
@@ -36,8 +33,6 @@ import no.uio.ifi.in2000.dylansc.team6project.data.weather.WMSLayer
  * @param selectedLayer The currently active layer, or `null` if none.
  * @param displayLayers Available layers paired with their display names.
  * @param onLayerSelected Called with the new layer (or `null` to deselect).
- * @param onDangerAlertToggle Called when the user toggles the danger-alerts button.
- * @param isdangerAlertActive Whether danger alerts are currently shown.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,9 +41,6 @@ fun MapSelectWeatherLayer(
     selectedLayer: WMSLayer?,
     displayLayers: List<Pair<WMSLayer, String>>,
     onLayerSelected: (WMSLayer?) -> Unit,
-
-    onDangerAlertToggle: () -> Unit,
-    isdangerAlertActive: Boolean
 ) {
     var textSize by remember { mutableIntStateOf(14) }
     Column(
@@ -85,28 +77,6 @@ fun MapSelectWeatherLayer(
                     )
                 }
             }
-            OutlinedButton(
-                onClick = onDangerAlertToggle,
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(0.dp),
-                colors = if (isdangerAlertActive)
-                    ButtonDefaults.outlinedButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                else ButtonDefaults.outlinedButtonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onSurface
-
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.weather_warnings),
-                    fontSize = textSize.sp,
-                    textAlign = TextAlign.Center,
-                )
-            }
-
         }
     }
 }

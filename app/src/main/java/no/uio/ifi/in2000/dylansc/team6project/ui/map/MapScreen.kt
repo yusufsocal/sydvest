@@ -90,7 +90,6 @@ fun MapScreen(
     var searchActive by remember { mutableStateOf(false) }
 
     var showAreaChange by remember { mutableStateOf(false) }
-    var areaChange by remember { mutableStateOf(false) }
 
 
 
@@ -293,6 +292,14 @@ fun MapScreen(
                             }
                         },
                         isCenterActive = isCenterActive,
+                        onShowAreaChange = { showAreaChange = true },
+                        onDangerAlertToggle = {
+                            mapViewModel.toggledangerAlert()
+                            if (!mapScreenUiState.dangerAlert) { // if it's currently off, it's about to turn on
+                                showHint = true
+                            }
+                        },
+                        isDangerAlertActive = mapScreenUiState.dangerAlert,
                     )
                 }
 
@@ -308,8 +315,6 @@ fun MapScreen(
             ) {
 
                 MapWeatherBottomScaffold(
-                    areaChange,
-                    changed = { areaChange = !areaChange },
                     //MapTimeSliderSection
                     sliderPosition = mapScreenUiState.sliderPosition,
                     isAnimating = mapScreenUiState.isAnimating,
@@ -326,22 +331,6 @@ fun MapScreen(
                     selectedLayer = mapScreenUiState.selectedLayer,         // Pass the actual object from uiState
                     displayLayers = mapScreenUiState.displayLayers,
                     onLayerSelected = { mapViewModel.setSelectedLayer(it) },
-
-                    //dangerAlert
-                    onDangerAlertToggle = {
-                        mapViewModel.toggledangerAlert()
-                        if (!mapScreenUiState.dangerAlert) { // if it's currently off, it's about to turn on
-                            showHint = true
-                        }
-
-                    },
-                    isDangerAlertActive = mapScreenUiState.dangerAlert,
-
-                    //MapChangeAreaButton
-                    area = mapScreenUiState.area,
-                    changeArea = { mapViewModel.updateArea(it) },
-                    onShowAreaChange = { showAreaChange = true }
-
                 )
                 mapScreenUiState.currentWeather?.let { weather ->
                     WeatherInfoDialog(
@@ -373,7 +362,7 @@ fun MapScreen(
                     )
                     MapDataSourceSwitcher(
                         changeArea = { mapViewModel.updateArea(it) },
-                        changed = { areaChange = false },
+                        changed = {},
                         onShowAreaChange = { showAreaChange = false },
                         mapView = mapViewRef,
                         wmsLayer = {mapScreenUiState.selectedLayer}
